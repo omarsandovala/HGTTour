@@ -936,13 +936,14 @@
             }
         }
 
-        // Función para ajustar fecha a zona horaria de Chile (UTC-4/-3) y agregar un día
+        // Función para ajustar fecha a zona horaria de Chile sin agregar un día
         function ajustarFechaChile(dateStr) {
             if (!dateStr) return null;
             
             const date = new Date(dateStr);
-            // Ajustar a UTC-4 (horario estándar de Chile) y agregar un día
-            date.setDate(date.getDate() + 1);
+            // Ajustar a UTC-4 (horario estándar de Chile)
+            const offset = date.getTimezoneOffset();
+            date.setMinutes(date.getMinutes() + offset);
             
             return date;
         }
@@ -954,7 +955,7 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
-            // Ajustar la fecha para zona horaria de Chile y agregar un día
+            // Ajustar la fecha para zona horaria de Chile
             const date = ajustarFechaChile(dateStr);
             date.setHours(0, 0, 0, 0);
             
@@ -977,7 +978,7 @@
         function formatDateWithStatus(dateStr, daysInfo) {
             if (!dateStr) return '';
             
-            // Ajustar la fecha para zona horaria de Chile y agregar un día
+            // Ajustar la fecha para zona horaria de Chile
             const date = ajustarFechaChile(dateStr);
             
             // Formatear fecha en formato local de Chile

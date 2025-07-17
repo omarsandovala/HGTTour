@@ -78,7 +78,7 @@
         .signatures {
             display: flex;
             justify-content: space-between;
-            margin-top: 80px;
+            margin-top: 40px;
         }
         .signature-box {
             width: 45%;
@@ -102,6 +102,14 @@
         }
         .empty-space {
             height: 20px;
+            border-bottom: 1px solid #eee;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .empty-space-no-line {
+            height: 20px;
+            margin-left: 10px;
+            margin-right: 10px;
         }
         .button-container {
             display: flex;
@@ -153,6 +161,12 @@
             }
             .logo {
                 max-height: 70px;
+            }
+            .empty-space {
+                border-bottom: 1px solid #eee;
+            }
+            .empty-space-no-line {
+                border-bottom: none;
             }
         }
     </style>
@@ -209,7 +223,10 @@
             </div>
             
             <div class="section-title">DESCRIPCION DEL TRABAJO A REALIZAR</div>
-            <div id="work-description" style="min-height: 200px;"></div>
+            <div id="work-description-container">
+                <div id="work-description"></div>
+                <div id="work-description-spacing"></div>
+            </div>
             
             <div class="section-title">INSUMOS / MATERIALES</div>
             <div id="materials-container">
@@ -224,7 +241,7 @@
                         <!-- Los datos se llenarán dinámicamente -->
                     </tbody>
                 </table>
-                <div id="empty-spaces"></div>
+                <div id="materials-empty"></div>
             </div>
         </div>
 
@@ -251,12 +268,30 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Función para formatear fecha
+        // Función mejorada para formatear fecha
         function formatDateTime(dateString) {
             if (!dateString) return '';
+            
+            // Si ya es una cadena de fecha válida, devolverla tal cual
+            if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}/)) {
+                return dateString;
+            }
+            
             try {
-                const date = new Date(dateString);
-                if (isNaN(date.getTime())) return '';
+                // Intentar parsear como fecha ISO o timestamp
+                let date;
+                if (dateString.includes('T')) {
+                    // Formato ISO (ej: "2023-10-25T14:30:00.000Z")
+                    date = new Date(dateString);
+                } else {
+                    // Asumir que es un timestamp de PostgreSQL
+                    date = new Date(dateString + 'Z'); // Añadir 'Z' para indicar UTC
+                }
+                
+                if (isNaN(date.getTime())) {
+                    console.warn('Fecha inválida:', dateString);
+                    return '';
+                }
                 
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -264,11 +299,19 @@
                 const hours = String(date.getHours()).padStart(2, '0');
                 const minutes = String(date.getMinutes()).padStart(2, '0');
                 const seconds = String(date.getSeconds()).padStart(2, '0');
+                
+                // Formato: YYYY-MM-DD HH:MM:SS
                 return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
             } catch (e) {
                 console.error('Error formateando fecha:', e);
                 return '';
             }
+        }
+
+        // Función para formatear solo la fecha (sin hora)
+        function formatDateOnly(dateString) {
+            const fullDate = formatDateTime(dateString);
+            return fullDate.split(' ')[0]; // Devuelve solo la parte de la fecha
         }
 
         // Función para obtener el ID de la URL
@@ -299,13 +342,13 @@
             }
         }
 
-        // Función para crear espacios en blanco
-        function createEmptySpaces(count) {
-            const container = document.getElementById('empty-spaces');
+        // Función para crear espacios en blanco con líneas
+        function createEmptyLines(containerId, count, withLines = true) {
+            const container = document.getElementById(containerId);
             container.innerHTML = '';
             for (let i = 0; i < count; i++) {
                 const emptyDiv = document.createElement('div');
-                emptyDiv.className = 'empty-space';
+                emptyDiv.className = withLines ? 'empty-space' : 'empty-space-no-line';
                 container.appendChild(emptyDiv);
             }
         }
@@ -330,6 +373,8 @@
                     console.error('Error al obtener mantenimiento:', maintenanceError);
                     throw maintenanceError;
                 }
+
+                console.log('Datos del mantenimiento:', maintenance);
 
                 // Obtener datos de la máquina
                 let machineData = {
@@ -363,16 +408,29 @@
                 document.getElementById('maintenance-number').textContent = maintenance.id || '';
                 document.getElementById('responsible').textContent = maintenance.responsable || '';
                 document.getElementById('maintenance-type').textContent = maintenance.tipo_mantenimiento || '';
-                document.getElementById('close-date').textContent = maintenance.fecha_cierre ? formatDateTime(maintenance.fecha_cierre).split(' ')[0] : '';
-                document.getElementById('start-date').textContent = maintenance.fecha ? formatDateTime(maintenance.fecha) : '';
+                
+                // Formatear fechas correctamente
+                document.getElementById('close-date').textContent = formatDateOnly(maintenance.fecha_cierre);
+                document.getElementById('start-date').textContent = formatDateTime(maintenance.fecha);
+                
                 document.getElementById('km').textContent = maintenance.kilometraje || '';
                 document.getElementById('status').textContent = maintenance.realizado ? 'REALIZADO' : 'NO REALIZADO';
-                document.getElementById('created-by').textContent = maintenance.hecho_por || '';
+                document.getElementById('created-by').textContent = maintenance.responsable || '';
                 document.getElementById('approved-by').textContent = maintenance.autorizado_por || '';
                 
                 // Descripción del trabajo
                 const workDescription = document.getElementById('work-description');
-                workDescription.textContent = maintenance.descripcion || '';
+                const workDescriptionSpacing = document.getElementById('work-description-spacing');
+                
+                if (maintenance.descripcion && maintenance.descripcion.trim() !== '') {
+                    workDescription.textContent = maintenance.descripcion;
+                    // 3 espacios vacíos sin líneas cuando hay texto
+                    createEmptyLines('work-description-spacing', 3, false);
+                } else {
+                    workDescription.textContent = '';
+                    // 9 líneas con bordes cuando no hay texto
+                    createEmptyLines('work-description-spacing', 9, true);
+                }
 
                 // Manejo de materiales
                 const materialsTable = document.getElementById('materials-table');
@@ -388,10 +446,10 @@
                         descCell.textContent = material.descripcion || '';
                         qtyCell.textContent = material.cantidad || '';
                     });
-                    createEmptySpaces(0);
+                    createEmptyLines('materials-empty', 0); // No agregar líneas si hay materiales
                 } else {
                     materialsTable.style.display = 'none';
-                    createEmptySpaces(3);
+                    createEmptyLines('materials-empty', 5); // 5 líneas en blanco si no hay materiales
                 }
 
             } catch (error) {

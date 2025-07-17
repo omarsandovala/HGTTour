@@ -254,13 +254,13 @@
 
     .modal-content {
       background-color: #fefefe;
-      margin: 5% auto;
+      margin: 2% auto;
       padding: 30px;
       border-radius: var(--border-radius);
       box-shadow: var(--box-shadow);
-      width: 80%;
-      max-width: 900px;
-      max-height: 80vh;
+      width: 90%;
+      max-width: 1000px;
+      max-height: 90vh;
       overflow-y: auto;
       animation: modalopen 0.4s;
     }
@@ -603,6 +603,76 @@
       box-shadow: var(--box-shadow);
       z-index: 2001;
     }
+
+    /* Mejoras específicas para el modal de edición */
+    .modal-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: var(--border-radius);
+    }
+
+    .modal-section h3 {
+      margin-top: 0;
+      color: var(--color-primary);
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .insumos-container {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+    }
+
+    .insumos-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .insumos-table th {
+      background-color: #e9ecef;
+      position: sticky;
+      top: 0;
+    }
+
+    .insumos-table th, 
+    .insumos-table td {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+    }
+
+    .insumos-table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    .radio-group input[type="radio"] {
+      width: auto;
+      margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -720,90 +790,112 @@
         <form id="edit-form">
           <input type="hidden" id="edit-id">
           
-          <div class="row">
-            <div class="col">
-              <label for="edit-patente" class="required-field">Patente:</label>
-              <select id="edit-patente" required></select>
+          <div class="modal-section">
+            <h3>Información General</h3>
+            <div class="row">
+              <div class="col">
+                <label for="edit-patente" class="required-field">Patente:</label>
+                <select id="edit-patente" required></select>
+              </div>
+              <div class="col">
+                <label for="edit-fecha">Fecha:</label>
+                <input type="date" id="edit-fecha">
+              </div>
+              <div class="col">
+                <label for="edit-fecha-cierre">Fecha cierre entrega:</label>
+                <input type="date" id="edit-fecha-cierre">
+              </div>
             </div>
-            <div class="col">
-              <label for="edit-fecha">Fecha:</label>
-              <input type="date" id="edit-fecha">
-            </div>
-            <div class="col">
-              <label for="edit-fecha-cierre">Fecha cierre entrega:</label>
-              <input type="date" id="edit-fecha-cierre">
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="col">
-              <label for="edit-kilometraje">Kilometraje:</label>
-              <input type="number" id="edit-kilometraje" min="0">
-            </div>
-            <div class="col">
-              <label for="edit-tipo">Tipo de Mantenimiento:</label>
-              <select id="edit-tipo">
-                <option value="">Seleccione...</option>
-                <option value="Kilometraje Bus">Kilometraje Bus</option>
-              </select>
-            </div>
-            <div class="col">
-              <label for="edit-responsable">Responsable:</label>
-              <select id="edit-responsable"></select>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="col">
-              <label>Realizado</label>
-              <div style="display: flex; gap: 15px; margin-top: 5px;">
-                <label><input type="radio" name="edit-realizado" value="true"> Sí</label>
-                <label><input type="radio" name="edit-realizado" value="false"> No</label>
+            
+            <div class="row">
+              <div class="col">
+                <label for="edit-kilometraje">Kilometraje:</label>
+                <input type="number" id="edit-kilometraje" min="0">
+              </div>
+              <div class="col">
+                <label for="edit-tipo">Tipo de Mantenimiento:</label>
+                <select id="edit-tipo">
+                   <option value="">Seleccione...</option>
+            <option value="Servicio SM1">Servicio SM1</option>
+            <option value="Servicio SM2">Servicio SM2</option>
+            <option value="Servicio SM3">Servicio SM3</option>
+            <option value="Servicio SM4">Servicio SM4</option>
+            <option value="Servicio SM5">Servicio SM5</option>
+
+                </select>
+              </div>
+              <div class="col">
+                <label for="edit-responsable">Responsable:</label>
+                <select id="edit-responsable"></select>
               </div>
             </div>
           </div>
           
-          <div class="form-group">
-            <label for="edit-descripcion">Descripción:</label>
-            <textarea id="edit-descripcion" rows="4"></textarea>
+          <div class="modal-section">
+            <h3>Estado del Mantenimiento</h3>
+            <div class="row">
+              <div class="col">
+                <label>Realizado:</label>
+                <div class="radio-group">
+                  <label><input type="radio" name="edit-realizado" value="true"> Sí</label>
+                  <label><input type="radio" name="edit-realizado" value="false"> No</label>
+                </div>
+              </div>
+              <div class="col">
+                <label for="edit-hecho-por">Hecho por:</label>
+                <input type="text" id="edit-hecho-por">
+              </div>
+              <div class="col">
+                <label for="edit-autorizado-por">Autorizado por:</label>
+                <select id="edit-autorizado-por"></select>
+              </div>
+            </div>
           </div>
           
-          <div class="form-group">
-            <label for="edit-hecho-por">Hecho por:</label>
-            <input type="text" id="edit-hecho-por">
+          <div class="modal-section">
+            <h3>Descripción del Trabajo</h3>
+            <div class="form-group">
+              <label for="edit-descripcion">Descripción:</label>
+              <textarea id="edit-descripcion" rows="6"></textarea>
+            </div>
           </div>
           
-          <div class="form-group">
-            <label for="edit-autorizado-por">Autorizado por:</label>
-            <select id="edit-autorizado-por"></select>
+          <div class="modal-section">
+            <h3>Insumos/Materiales Utilizados</h3>
+            <div class="insumos-container">
+              <table class="insumos-table">
+                <thead>
+                  <tr>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th class="no-print">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="edit-insumos-body"></tbody>
+              </table>
+            </div>
+            
+            <div class="row no-print">
+              <div class="col">
+                <input type="text" id="nuevo-insumo-edit" placeholder="Descripción del insumo">
+              </div>
+              <div class="col" style="flex: 0 0 150px;">
+                <input type="number" id="cantidad-insumo-edit" placeholder="Cantidad" min="1" value="1">
+              </div>
+              <div class="col" style="flex: 0 0 auto;">
+                <button type="button" class="btn btn-success" onclick="agregarInsumoEdit()">
+                  <i class="fas fa-plus"></i> Agregar
+                </button>
+              </div>
+            </div>
           </div>
           
-          <h3>Insumos/Materiales</h3>
-          <table class="orden-table" id="edit-insumos-table">
-            <thead>
-              <tr>
-                <th>Descripción</th>
-                <th>Cantidad</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="edit-insumos-body"></tbody>
-          </table>
-          
-          <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <input type="text" id="nuevo-insumo-edit" placeholder="Descripción del insumo" style="flex: 1;">
-            <input type="number" id="cantidad-insumo-edit" placeholder="Cantidad" min="1" value="1" style="width: 100px;">
-            <button type="button" class="btn btn-success btn-sm" onclick="agregarInsumoEdit()">
-              <i class="fas fa-plus"></i> Agregar
-            </button>
-          </div>
-          
-          <div class="btn-group" style="margin-top: 20px;">
-            <button type="button" class="btn btn-primary" onclick="guardarEdicion()">
-              <i class="fas fa-save"></i> Guardar Cambios
-            </button>
+          <div class="form-actions no-print">
             <button type="button" class="btn btn-secondary" onclick="cerrarModal()">
               <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-primary" onclick="guardarEdicion()">
+              <i class="fas fa-save"></i> Guardar Cambios
             </button>
           </div>
         </form>
@@ -1112,6 +1204,7 @@
         return;
       }
 
+      // Llenar datos de la máquina (patente)
       const selectPatente = document.getElementById('edit-patente');
       selectPatente.innerHTML = '<option value="">Seleccione una patente</option>';
       
@@ -1130,6 +1223,7 @@
         }
       });
 
+      // Llenar datos de responsables (mecánicos)
       const selectResponsable = document.getElementById('edit-responsable');
       selectResponsable.innerHTML = '<option value="">Seleccione</option>';
       mecanicosData.forEach(mecanico => {
@@ -1140,6 +1234,7 @@
         selectResponsable.appendChild(opt);
       });
 
+      // Llenar datos de supervisores (autorizado por)
       const selectAutorizado = document.getElementById('edit-autorizado-por');
       selectAutorizado.innerHTML = '<option value="">Seleccione</option>';
       supervisoresData.forEach(supervisor => {
@@ -1150,14 +1245,22 @@
         selectAutorizado.appendChild(opt);
       });
 
+      // Llenar el resto de los campos
       document.getElementById('edit-id').value = mantenimiento.id;
-      document.getElementById('edit-fecha').value = mantenimiento.fecha ? formatDate(mantenimiento.fecha, 'YYYY-MM-DD') : '';
-      document.getElementById('edit-fecha-cierre').value = mantenimiento.fecha_cierre ? formatDate(mantenimiento.fecha_cierre, 'YYYY-MM-DD') : '';
-      document.getElementById('edit-kilometraje').value = mantenimiento.kilometraje || 0;
-      document.getElementById('edit-tipo').value = mantenimiento.tipo_mantenimiento || '';
+      
+      // Formatear fechas para el input type="date"
+      const fecha = mantenimiento.fecha ? new Date(mantenimiento.fecha) : null;
+      const fechaCierre = mantenimiento.fecha_cierre ? new Date(mantenimiento.fecha_cierre) : null;
+      
+      document.getElementById('edit-fecha').value = fecha ? fecha.toISOString().split('T')[0] : '';
+      document.getElementById('edit-fecha-cierre').value = fechaCierre ? fechaCierre.toISOString().split('T')[0] : '';
+      
+      document.getElementById('edit-kilometraje').value = mantenimiento.kilometraje || '';
+      document.getElementById('edit-tipo').value = mantenimiento.tipo_mantenimiento || 'Kilometraje Bus';
       document.getElementById('edit-descripcion').value = mantenimiento.descripcion || '';
       document.getElementById('edit-hecho-por').value = mantenimiento.hecho_por || '';
 
+      // Establecer el estado de realizado
       const realizadoSi = document.querySelector('input[name="edit-realizado"][value="true"]');
       const realizadoNo = document.querySelector('input[name="edit-realizado"][value="false"]');
       if (mantenimiento.realizado) {
@@ -1166,9 +1269,11 @@
         realizadoNo.checked = true;
       }
 
+      // Cargar insumos
       insumosEdit = mantenimiento.insumos || [];
       actualizarTablaInsumosEdit();
 
+      // Mostrar el modal
       document.getElementById('editModal').style.display = 'block';
     }
 
@@ -1190,7 +1295,7 @@
         tr.innerHTML = `
           <td>${insumo.descripcion}</td>
           <td>${insumo.cantidad}</td>
-          <td>
+          <td class="no-print">
             <button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumoEdit(${index})">
               <i class="fas fa-trash-alt"></i> Eliminar
             </button>
