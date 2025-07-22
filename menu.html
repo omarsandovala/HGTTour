@@ -11,8 +11,8 @@
       --color-text: #112d4e;
     }
     
-   body {
-  background: linear-gradient(135deg, #3f72af, #dbe2ef);
+    body {
+      background: linear-gradient(135deg, #3f72af, #dbe2ef);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       justify-content: center;
@@ -32,7 +32,7 @@
     }
     
     .logo {
-      width: 200px; /* Tamaño aumentado de 120px a 200px */
+      width: 200px;
       margin-bottom: 2rem;
       height: auto;
     }
@@ -81,7 +81,7 @@
 
     @media (max-width: 768px) {
       .logo {
-        width: 180px; /* Tamaño ligeramente reducido para móviles */
+        width: 180px;
       }
       
       .menu-grid {
@@ -91,7 +91,7 @@
 
     @media (max-width: 480px) {
       .logo {
-        width: 150px; /* Tamaño más pequeño para pantallas muy pequeñas */
+        width: 150px;
       }
       
       .menu-grid {
@@ -112,7 +112,6 @@
 <body>
 
   <div class="menu-container">
-    <!-- Logo con tamaño aumentado -->
     <img src="img/logo.png" alt="Logo HGT Tour" class="logo">
     <h1 class="titulo-app">Software de Mantenciones HGT Tour</h1>
     <h2>Menú Principal</h2>
@@ -132,6 +131,9 @@
       </button>
       <button onclick="window.location.href='documentacion.html'">
         <i class="bi bi-journal-text"></i><span>Documentación</span>
+      </button>
+      <button onclick="window.location.href='control_pinchazos.html'">
+        <i class="bi bi-exclamation-circle"></i><span>Pinchazos y Cambio de Rueda</span>
       </button>
       <button onclick="window.location.href='index.html'">
         <i class="bi bi-box-arrow-left"></i><span>Salir</span>
