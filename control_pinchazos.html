@@ -951,6 +951,32 @@
       }, 3000);
     }
 
+    // Función para abrir la página de impresión con los datos del registro
+    function imprimirRegistro(registro) {
+      // Crear una nueva URL con los parámetros del registro
+      const url = new URL('Imprimirp.html', window.location.href);
+      
+      // Agregar los datos del registro como parámetros de consulta
+      url.searchParams.append('fecha', registro.fecha);
+      url.searchParams.append('turno', registro.turno);
+      url.searchParams.append('kilometaje', registro.kilometaje);
+      url.searchParams.append('tipo_vehiculo', registro.tipo_vehiculo);
+      url.searchParams.append('patente', registro.patente);
+      url.searchParams.append('conductor', registro.conductor);
+      url.searchParams.append('ruedas', registro.ruedas);
+      url.searchParams.append('tipo_problema', registro.tipo_problema);
+      url.searchParams.append('problema', registro.problema);
+      url.searchParams.append('accion', registro.accion);
+      url.searchParams.append('neumatico', registro.neumatico);
+      url.searchParams.append('checklist', registro.checklist);
+      url.searchParams.append('torque', registro.torque);
+      url.searchParams.append('revision_km', registro.revision_km);
+      url.searchParams.append('responsable', registro.responsable);
+      
+      // Abrir la página de impresión en una nueva ventana
+      window.open(url, '_blank');
+    }
+
     // Cargar registros desde Supabase
     async function loadRegistros(page = 1) {
       currentPage = page;
@@ -1061,6 +1087,9 @@
                   </button>
                   <button class="btn btn-danger btn-sm" onclick="confirmarEliminar('${registro.id}')" title="Eliminar">
                     <i class="fas fa-trash"></i>
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="imprimirRegistro(${JSON.stringify(registro).replace(/"/g, '&quot;')})" title="Imprimir">
+                    <i class="fas fa-print"></i>
                   </button>
                 </div>
               </td>
