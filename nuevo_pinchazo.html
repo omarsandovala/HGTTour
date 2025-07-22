@@ -466,42 +466,6 @@
       }
     }
 
-    /* Modal para vista previa de impresión */
-    .print-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.8);
-      z-index: 1000;
-      overflow: auto;
-    }
-
-    .print-content {
-      background-color: white;
-      margin: 2% auto;
-      padding: 20px;
-      width: 80%;
-      max-width: 800px;
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
-
-    .print-actions {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .print-title {
-      text-align: center;
-      margin-bottom: 20px;
-      color: var(--color-primary);
-    }
-
     .connection-status {
       position: fixed;
       bottom: 20px;
@@ -526,6 +490,31 @@
     .connection-loading {
       background-color: var(--color-primary);
       color: white;
+    }
+
+    /* Estilos para datalist y autocompletado */
+    datalist {
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 0 0 4px 4px;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    option {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    option:hover {
+      background-color: #f0f0f0;
+    }
+
+    .autocomplete-container {
+      position: relative;
     }
   </style>
 </head>
@@ -557,40 +546,42 @@
         <h2>Información General</h2>
         <div class="row">
           <div class="col">
-            <label for="fecha" class="required-field">Fecha:</label>
-            <input type="date" id="fecha" required>
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha">
           </div>
           <div class="col">
-            <label for="turno" class="required-field">Turno:</label>
-            <select id="turno" required>
+            <label for="turno">Turno:</label>
+            <select id="turno">
               <option value="">Seleccione...</option>
               <option value="A">A</option>
               <option value="B">B</option>
             </select>
           </div>
           <div class="col">
-            <label for="kilometaje" class="required-field">Kilometaje Inicial:</label>
-            <input type="number" id="kilometaje" min="0" step="1" required>
+            <label for="kilometaje">Kilometaje Inicial:</label>
+            <input type="number" id="kilometaje" min="0" step="1">
           </div>
         </div>
         
         <div class="row">
           <div class="col">
-            <label for="tipo-vehiculo" class="required-field">Tipo de Vehículo:</label>
-            <input type="text" id="tipo-vehiculo" required>
+            <label for="tipo-vehiculo">Tipo de Vehículo:</label>
+            <input type="text" id="tipo-vehiculo">
           </div>
           <div class="col">
             <label for="patente" class="required-field">Patente:</label>
-            <input type="text" id="patente" required>
+            <input type="text" id="patente" list="patentes-list" required>
+            <datalist id="patentes-list"></datalist>
           </div>
           <div class="col">
-            <label for="conductor" class="required-field">Conductor:</label>
-            <input type="text" id="conductor" required>
+            <label for="conductor">Conductor:</label>
+            <input type="text" id="conductor" list="conductores-list">
+            <datalist id="conductores-list"></datalist>
           </div>
         </div>
 
         <div class="ruedas-selector">
-          <label class="required-field">Cantidad de Ruedas:</label>
+          <label>Cantidad de Ruedas:</label>
           <div class="ruedas-options">
             <div class="rueda-option selected" onclick="seleccionarRuedas(4)">
               <div class="rueda-img" id="rueda-4">
@@ -628,12 +619,12 @@
         <h2>Detalles del Pinchazo</h2>
         <div class="row">
           <div class="col">
-            <label for="problema" class="required-field">Detalle del Problema:</label>
-            <textarea id="problema" rows="3" required></textarea>
+            <label for="problema">Detalle del Problema:</label>
+            <textarea id="problema" rows="3"></textarea>
           </div>
           <div class="col">
-            <label for="accion" class="required-field">Acción Inmediata:</label>
-            <textarea id="accion" rows="3" required></textarea>
+            <label for="accion">Acción Inmediata:</label>
+            <textarea id="accion" rows="3"></textarea>
           </div>
         </div>
         
@@ -691,24 +682,24 @@
         <h2>Control de Seguridad</h2>
         <div class="row">
           <div class="col">
-            <label class="required-field">Checklist de revisión:</label>
+            <label>Checklist de revisión:</label>
             <div class="radio-group">
               <label>
-                <input type="radio" name="checklist" value="SI" id="checklist-si" required> Sí
+                <input type="radio" name="checklist" value="SI" id="checklist-si"> Sí
               </label>
               <label>
-                <input type="radio" name="checklist" value="NO" id="checklist-no" required checked> No
+                <input type="radio" name="checklist" value="NO" id="checklist-no" checked> No
               </label>
             </div>
           </div>
           <div class="col">
-            <label class="required-field">Torque de tuercas:</label>
+            <label>Torque de tuercas:</label>
             <div class="radio-group">
               <label>
-                <input type="radio" name="torque" value="SI" id="torque-si" required> Sí
+                <input type="radio" name="torque" value="SI" id="torque-si"> Sí
               </label>
               <label>
-                <input type="radio" name="torque" value="NO" id="torque-no" required checked> No
+                <input type="radio" name="torque" value="NO" id="torque-no" checked> No
               </label>
             </div>
           </div>
@@ -716,12 +707,13 @@
         
         <div class="row">
           <div class="col">
-            <label for="revision-km" class="required-field">Verificación de Torque (km o hrs):</label>
-            <input type="number" id="revision-km" min="0" step="1" placeholder="Ingrese kilómetros u horas" required>
+            <label for="revision-km">Verificación de Torque (km o hrs):</label>
+            <input type="number" id="revision-km" min="0" step="1" placeholder="Ingrese kilómetros u horas">
           </div>
           <div class="col">
-            <label for="responsable" class="required-field">Responsable:</label>
-            <input type="text" id="responsable" required>
+            <label for="responsable">Responsable:</label>
+            <input type="text" id="responsable" list="mecanicos-list">
+            <datalist id="mecanicos-list"></datalist>
           </div>
         </div>
       </div>
@@ -740,22 +732,6 @@
     </form>
   </div>
 
-  <!-- Modal para vista previa de impresión -->
-  <div id="print-modal" class="print-modal">
-    <div class="print-content">
-      <h2 class="print-title">Vista Previa del Registro</h2>
-      <div id="print-preview-content"></div>
-      <div class="print-actions">
-        <button class="btn btn-secondary" onclick="cerrarVistaPrevia()">
-          <i class="fas fa-times"></i> Cerrar
-        </button>
-        <button class="btn btn-primary" onclick="imprimirRegistro()">
-          <i class="fas fa-print"></i> Imprimir
-        </button>
-      </div>
-    </div>
-  </div>
-
   <div id="connection-status" class="connection-status connection-loading" style="display: none;">
     <i class="fas fa-circle-notch fa-spin"></i> Conectando a la base de datos...
   </div>
@@ -763,6 +739,9 @@
   <script>
     // Variables globales
     let supabaseClient;
+    let conductores = [];
+    let mecanicos = [];
+    let patentes = [];
     
     // Función para verificar si Supabase está cargado
     function verificarSupabaseCargado() {
@@ -770,6 +749,69 @@
         return true;
       }
       return false;
+    }
+
+    // Función para cargar datos de conductores
+    async function cargarConductores() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('conductores')
+          .select('nombre')
+          .order('nombre', { ascending: true });
+        
+        if (error) throw error;
+        
+        conductores = data.map(item => item.nombre);
+        actualizarDatalist('conductores-list', conductores);
+      } catch (error) {
+        console.error('Error al cargar conductores:', error);
+      }
+    }
+
+    // Función para cargar datos de mecánicos
+    async function cargarMecanicos() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('mecanicos')
+          .select('nombre')
+          .order('nombre', { ascending: true });
+        
+        if (error) throw error;
+        
+        mecanicos = data.map(item => item.nombre);
+        actualizarDatalist('mecanicos-list', mecanicos);
+      } catch (error) {
+        console.error('Error al cargar mecánicos:', error);
+      }
+    }
+
+    // Función para cargar datos de patentes
+    async function cargarPatentes() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('maquinas')
+          .select('patente')
+          .order('patente', { ascending: true });
+        
+        if (error) throw error;
+        
+        patentes = data.map(item => item.patente);
+        actualizarDatalist('patentes-list', patentes);
+      } catch (error) {
+        console.error('Error al cargar patentes:', error);
+      }
+    }
+
+    // Función para actualizar un datalist con opciones
+    function actualizarDatalist(id, items) {
+      const datalist = document.getElementById(id);
+      datalist.innerHTML = '';
+      
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item;
+        datalist.appendChild(option);
+      });
     }
 
     // Función para inicializar Supabase con reintentos
@@ -811,6 +853,11 @@
         // Mostrar éxito en conexión
         connectionStatus.className = 'connection-status connection-success';
         connectionStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado a la base de datos';
+        
+        // Cargar datos adicionales
+        await cargarConductores();
+        await cargarMecanicos();
+        await cargarPatentes();
         
         // Ocultar después de 3 segundos
         setTimeout(() => {
@@ -967,32 +1014,31 @@
         return;
       }
 
-      // Obtener todos los valores del formulario
-      const registro = {
-        fecha: document.getElementById('fecha').value,
-        turno: document.getElementById('turno').value,
-        kilometaje: document.getElementById('kilometaje').value,
-        tipo_vehiculo: document.getElementById('tipo-vehiculo').value,
-        patente: document.getElementById('patente').value,
-        conductor: document.getElementById('conductor').value,
-        problema: document.getElementById('problema').value,
-        accion: document.getElementById('accion').value,
-        neumatico: document.getElementById('neumatico').value,
-        checklist: document.querySelector('input[name="checklist"]:checked').value,
-        torque: document.querySelector('input[name="torque"]:checked').value,
-        revision_km: document.getElementById('revision-km').value,
-        responsable: document.getElementById('responsable').value,
-        ruedas: document.getElementById('ruedas').value,
-        tipo_problema: document.querySelector('input[name="tipoProblema"]:checked').value
-      };
-
-      // Validación básica
-      if (!registro.fecha || !registro.turno || !registro.kilometaje || !registro.tipo_vehiculo || 
-          !registro.patente || !registro.conductor || !registro.problema || !registro.accion || 
-          !registro.neumatico || !registro.revision_km || !registro.responsable) {
-        mostrarError('Todos los campos marcados con * son obligatorios');
+      // Validar patente (único campo obligatorio)
+      const patente = document.getElementById('patente').value;
+      if (!patente) {
+        mostrarError('El campo Patente es obligatorio');
         return;
       }
+
+      // Obtener todos los valores del formulario
+      const registro = {
+        fecha: document.getElementById('fecha').value || null,
+        turno: document.getElementById('turno').value || null,
+        kilometaje: document.getElementById('kilometaje').value || null,
+        tipo_vehiculo: document.getElementById('tipo-vehiculo').value || null,
+        patente: patente,
+        conductor: document.getElementById('conductor').value || null,
+        problema: document.getElementById('problema').value || null,
+        accion: document.getElementById('accion').value || null,
+        neumatico: document.getElementById('neumatico').value || null,
+        checklist: document.querySelector('input[name="checklist"]:checked')?.value || 'NO',
+        torque: document.querySelector('input[name="torque"]:checked')?.value || 'NO',
+        revision_km: document.getElementById('revision-km').value || null,
+        responsable: document.getElementById('responsable').value || null,
+        ruedas: document.getElementById('ruedas').value || 4,
+        tipo_problema: document.querySelector('input[name="tipoProblema"]:checked')?.value || 'PINCHADURA'
+      };
 
       try {
         // Insertar el registro en la base de datos
@@ -1035,309 +1081,47 @@
     }
 
     function mostrarVistaPrevia() {
-      // Validar formulario antes de mostrar vista previa
-      const registro = {
-        fecha: document.getElementById('fecha').value,
-        turno: document.getElementById('turno').value,
-        kilometaje: document.getElementById('kilometaje').value,
-        tipo_vehiculo: document.getElementById('tipo-vehiculo').value,
-        patente: document.getElementById('patente').value,
-        conductor: document.getElementById('conductor').value,
-        problema: document.getElementById('problema').value,
-        accion: document.getElementById('accion').value,
-        neumatico: document.getElementById('neumatico').value,
-        checklist: document.querySelector('input[name="checklist"]:checked')?.value,
-        torque: document.querySelector('input[name="torque"]:checked')?.value,
-        revision_km: document.getElementById('revision-km').value,
-        responsable: document.getElementById('responsable').value,
-        ruedas: document.getElementById('ruedas').value,
-        tipo_problema: document.querySelector('input[name="tipoProblema"]:checked')?.value
-      };
-
-      if (!registro.fecha || !registro.turno || !registro.kilometaje || !registro.tipo_vehiculo || 
-          !registro.patente || !registro.conductor || !registro.problema || !registro.accion || 
-          !registro.neumatico || !registro.revision_km || !registro.responsable) {
-        mostrarError('Complete todos los campos obligatorios antes de generar la vista previa');
+      // Validar patente (único campo obligatorio)
+      const patente = document.getElementById('patente').value;
+      if (!patente) {
+        mostrarError('El campo Patente es obligatorio para generar la vista previa');
         return;
       }
 
-      // Generar contenido para la vista previa
-      const previewContent = document.getElementById('print-preview-content');
-      previewContent.innerHTML = `
-        <style>
-          .preview-container {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-          }
-          .preview-header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #3f72af;
-            padding-bottom: 10px;
-          }
-          .preview-section {
-            margin-bottom: 20px;
-            page-break-inside: avoid;
-          }
-          .preview-section h3 {
-            color: #3f72af;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-          }
-          .preview-row {
-            display: flex;
-            margin-bottom: 8px;
-          }
-          .preview-label {
-            font-weight: bold;
-            width: 200px;
-          }
-          .preview-value {
-            flex: 1;
-          }
-          .neumaticos-seleccionados {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-          }
-          .neumatico-badge {
-            background-color: #e3f2fd;
-            border: 1px solid #3f72af;
-            border-radius: 4px;
-            padding: 5px 10px;
-            font-size: 0.9em;
-          }
-          .print-logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
-            display: block;
-          }
-          .tipo-problema-print {
-            background-color: #e3f2fd;
-            border: 1px solid #3f72af;
-            border-radius: 4px;
-            padding: 10px;
-            margin: 10px 0;
-            font-weight: bold;
-            text-align: center;
-          }
-        </style>
-        <div class="preview-container">
-          <img src="img/logo.png" alt="Logo" class="print-logo">
-          <div class="preview-header">
-            <h2>Registro de Pinchazos</h2>
-            <p>Fecha de generación: ${new Date().toLocaleDateString()}</p>
-          </div>
-          
-          <div class="preview-section">
-            <h3>Información General</h3>
-            <div class="preview-row">
-              <div class="preview-label">Fecha:</div>
-              <div class="preview-value">${registro.fecha}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Turno:</div>
-              <div class="preview-value">${registro.turno}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Kilometaje Inicial:</div>
-              <div class="preview-value">${registro.kilometaje} km</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Tipo de Vehículo:</div>
-              <div class="preview-value">${registro.tipo_vehiculo}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Patente:</div>
-              <div class="preview-value">${registro.patente}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Conductor:</div>
-              <div class="preview-value">${registro.conductor}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Cantidad de Ruedas:</div>
-              <div class="preview-value">${registro.ruedas}</div>
-            </div>
-          </div>
-          
-          <div class="preview-section">
-            <h3>Tipo de Problema</h3>
-            <div class="tipo-problema-print">
-              ${registro.tipo_problema === 'PINCHADURA' ? 'PINCHADURA' : 'CAMBIO DE NEUMÁTICO'}
-            </div>
-          </div>
-          
-          <div class="preview-section">
-            <h3>Detalles del Pinchazo</h3>
-            <div class="preview-row">
-              <div class="preview-label">Detalle del Problema:</div>
-              <div class="preview-value">${registro.problema}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Acción Inmediata:</div>
-              <div class="preview-value">${registro.accion}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Neumáticos Afectados:</div>
-              <div class="preview-value">
-                <div class="neumaticos-seleccionados">
-                  ${registro.neumatico.split('-').map(n => `<span class="neumatico-badge">${n}</span>`).join('')}
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="preview-section">
-            <h3>Control de Seguridad</h3>
-            <div class="preview-row">
-              <div class="preview-label">Checklist de revisión:</div>
-              <div class="preview-value">${registro.checklist === 'SI' ? 'Sí' : 'No'}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Torque de tuercas:</div>
-              <div class="preview-value">${registro.torque === 'SI' ? 'Sí' : 'No'}</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Verificación de Torque:</div>
-              <div class="preview-value">${registro.revision_km} km/hrs</div>
-            </div>
-            <div class="preview-row">
-              <div class="preview-label">Responsable:</div>
-              <div class="preview-value">${registro.responsable}</div>
-            </div>
-          </div>
-        </div>
-      `;
+      // Obtener todos los valores del formulario
+      const registro = {
+        fecha: document.getElementById('fecha').value || '',
+        turno: document.getElementById('turno').value || '',
+        kilometaje: document.getElementById('kilometaje').value || '',
+        tipo_vehiculo: document.getElementById('tipo-vehiculo').value || '',
+        patente: patente,
+        conductor: document.getElementById('conductor').value || '',
+        problema: document.getElementById('problema').value || '',
+        accion: document.getElementById('accion').value || '',
+        neumatico: document.getElementById('neumatico').value || '',
+        checklist: document.querySelector('input[name="checklist"]:checked')?.value || 'NO',
+        torque: document.querySelector('input[name="torque"]:checked')?.value || 'NO',
+        revision_km: document.getElementById('revision-km').value || '',
+        responsable: document.getElementById('responsable').value || '',
+        ruedas: document.getElementById('ruedas').value || '4',
+        tipo_problema: document.querySelector('input[name="tipoProblema"]:checked')?.value || 'PINCHADURA'
+      };
 
-      // Mostrar el modal de vista previa
-      document.getElementById('print-modal').style.display = 'block';
-    }
+      // Crear URL con parámetros
+      const params = new URLSearchParams();
+      for (const key in registro) {
+        if (registro[key] !== null && registro[key] !== undefined) {
+          params.append(key, registro[key]);
+        }
+      }
 
-    function cerrarVistaPrevia() {
-      document.getElementById('print-modal').style.display = 'none';
-    }
-
-    function imprimirRegistro() {
-      // Crear un iframe para la impresión
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'absolute';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
-      iframe.style.left = '-9999px';
+      // Abrir la página de impresión en una nueva ventana
+      const url = 'Imprimirp.html?' + params.toString();
+      const printWindow = window.open(url, '_blank');
       
-      document.body.appendChild(iframe);
-      
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-      
-      // Copiar el contenido de la vista previa al iframe
-      iframeDoc.open();
-      iframeDoc.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Registro de Pinchazos</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              line-height: 1.6;
-              padding: 20px;
-              color: black;
-            }
-            .preview-container {
-              max-width: 800px;
-              margin: 0 auto;
-            }
-            .preview-header {
-              text-align: center;
-              margin-bottom: 20px;
-              border-bottom: 2px solid #3f72af;
-              padding-bottom: 10px;
-            }
-            .preview-section {
-              margin-bottom: 20px;
-              page-break-inside: avoid;
-            }
-            .preview-section h3 {
-              color: #3f72af;
-              border-bottom: 1px solid #ddd;
-              padding-bottom: 5px;
-              margin-bottom: 10px;
-            }
-            .preview-row {
-              display: flex;
-              margin-bottom: 8px;
-            }
-            .preview-label {
-              font-weight: bold;
-              width: 200px;
-            }
-            .preview-value {
-              flex: 1;
-            }
-            .neumaticos-seleccionados {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 10px;
-              margin-top: 10px;
-            }
-            .neumatico-badge {
-              background-color: #e3f2fd;
-              border: 1px solid #3f72af;
-              border-radius: 4px;
-              padding: 5px 10px;
-              font-size: 0.9em;
-            }
-            .print-logo {
-              width: 80px;
-              height: 80px;
-              margin: 0 auto 15px;
-              display: block;
-            }
-            .tipo-problema-print {
-              background-color: #e3f2fd;
-              border: 1px solid #3f72af;
-              border-radius: 4px;
-              padding: 10px;
-              margin: 10px 0;
-              font-weight: bold;
-              text-align: center;
-            }
-            @page {
-              size: A4;
-              margin: 15mm;
-            }
-            @media print {
-              .no-print {
-                display: none !important;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${document.getElementById('print-preview-content').innerHTML}
-        </body>
-        </html>
-      `);
-      iframeDoc.close();
-      
-      // Imprimir el contenido del iframe
-      setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        
-        // Eliminar el iframe después de imprimir
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 1000);
-      }, 500);
-      
-      // Cerrar el modal
-      cerrarVistaPrevia();
+      if (!printWindow) {
+        mostrarError('El navegador bloqueó la ventana emergente. Por favor, permita ventanas emergentes para este sitio.');
+      }
     }
   </script>
 </body>

@@ -26,7 +26,7 @@
     }
 
     body {
-  background: linear-gradient(135deg, #3f72af, #dbe2ef);
+      background-color: #f5f7fa;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 20px;
       display: flex;
@@ -53,6 +53,7 @@
       display: flex;
       border-bottom: 2px solid var(--color-secondary);
       margin-bottom: 20px;
+      overflow-x: auto;
     }
 
     .tab {
@@ -61,6 +62,7 @@
       font-weight: 600;
       border-bottom: 3px solid transparent;
       transition: all 0.3s;
+      white-space: nowrap;
     }
 
     .tab.active {
@@ -244,6 +246,7 @@
     <div class="tabs">
       <div class="tab active" onclick="cambiarTab('mecanicos')">Mecánicos</div>
       <div class="tab" onclick="cambiarTab('supervisores')">Supervisores</div>
+      <div class="tab" onclick="cambiarTab('conductores')">Conductores</div>
     </div>
 
     <!-- Tab Mecánicos -->
@@ -287,6 +290,28 @@
       <div class="person-list">
         <h3>Supervisores Registrados</h3>
         <div id="lista-supervisores"></div>
+      </div>
+    </div>
+
+    <!-- Tab Conductores -->
+    <div id="conductores-tab" class="tab-content">
+      <h2>Agregar Conductor</h2>
+      
+      <label for="nombre-conductor">Nombre del Conductor:</label>
+      <input type="text" id="nombre-conductor" placeholder="Ej: Luis García">
+
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="guardarConductor()">
+          <i class="fas fa-save"></i> Guardar Conductor
+        </button>
+        <a href="menu.html" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Volver
+        </a>
+      </div>
+
+      <div class="person-list">
+        <h3>Conductores Registrados</h3>
+        <div id="lista-conductores"></div>
       </div>
     </div>
   </div>
@@ -386,6 +411,31 @@
       } catch (error) {
         console.error("Error al guardar supervisor:", error);
         mostrarError("Error al guardar el supervisor: " + error.message);
+      }
+    }
+
+    // Guardar nuevo conductor
+    async function guardarConductor() {
+      const nombre = document.getElementById("nombre-conductor").value.trim();
+      
+      if (!nombre) {
+        mostrarError("Por favor, ingresa un nombre válido.");
+        return;
+      }
+
+      try {
+        const { error } = await supabase
+          .from("conductores")
+          .insert([{ nombre: nombre }]);
+
+        if (error) throw error;
+
+        mostrarExito("Conductor guardado correctamente");
+        document.getElementById("nombre-conductor").value = "";
+        cargarConductores();
+      } catch (error) {
+        console.error("Error al guardar conductor:", error);
+        mostrarError("Error al guardar el conductor: " + error.message);
       }
     }
 
@@ -497,7 +547,61 @@
       }
     }
 
-    // Editar persona (mecánico o supervisor)
+    // Cargar conductores desde Supabase
+    async function cargarConductores() {
+      const lista = document.getElementById("lista-conductores");
+      lista.innerHTML = "<p>Cargando conductores...</p>";
+
+      try {
+        const { data, error } = await supabase
+          .from("conductores")
+          .select("*")
+          .order("nombre", { ascending: true });
+
+        if (error) throw error;
+
+        lista.innerHTML = "";
+
+        if (data.length === 0) {
+          lista.innerHTML = "<p>No hay conductores registrados</p>";
+          return;
+        }
+
+        data.forEach(conductor => {
+          const item = document.createElement("div");
+          item.className = "person-item";
+          
+          const infoDiv = document.createElement("div");
+          infoDiv.className = "person-info";
+          infoDiv.innerHTML = `<h4>${conductor.nombre}</h4>`;
+          
+          const actionsDiv = document.createElement("div");
+          actionsDiv.className = "person-actions";
+          
+          const editButton = document.createElement("button");
+          editButton.className = "btn btn-success btn-sm";
+          editButton.innerHTML = '<i class="fas fa-edit"></i> Editar';
+          editButton.onclick = () => editarPersona('conductores', conductor);
+          
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "btn btn-danger btn-sm";
+          deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i> Eliminar';
+          deleteButton.onclick = () => eliminarPersona('conductores', conductor.id);
+          
+          actionsDiv.appendChild(editButton);
+          actionsDiv.appendChild(deleteButton);
+          
+          item.appendChild(infoDiv);
+          item.appendChild(actionsDiv);
+          lista.appendChild(item);
+        });
+      } catch (error) {
+        console.error("Error al cargar conductores:", error);
+        lista.innerHTML = "<p>Error al cargar los conductores. Recarga la página.</p>";
+      }
+    }
+
+    // Editar persona (mecánico, supervisor o conductor)
     async function editarPersona(tabla, persona) {
       const nuevoNombre = prompt("Editar nombre:", persona.nombre);
       
@@ -515,8 +619,10 @@
           // Recargar la lista correspondiente
           if (tabla === 'mecanicos') {
             cargarMecanicos();
-          } else {
+          } else if (tabla === 'supervisores') {
             cargarSupervisores();
+          } else {
+            cargarConductores();
           }
         } catch (error) {
           mostrarError("Error al actualizar: " + error.message);
@@ -524,7 +630,7 @@
       }
     }
 
-    // Eliminar persona (mecánico o supervisor)
+    // Eliminar persona (mecánico, supervisor o conductor)
     async function eliminarPersona(tabla, id) {
       if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) {
         return;
@@ -543,8 +649,10 @@
         // Recargar la lista correspondiente
         if (tabla === 'mecanicos') {
           cargarMecanicos();
-        } else {
+        } else if (tabla === 'supervisores') {
           cargarSupervisores();
+        } else {
+          cargarConductores();
         }
       } catch (error) {
         mostrarError("Error al eliminar: " + error.message);
@@ -555,6 +663,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       cargarMecanicos();
       cargarSupervisores();
+      cargarConductores();
     });
   </script>
   <script>
@@ -626,6 +735,16 @@
         return;
       }
       return originalGuardarSupervisor();
+    };
+
+    const originalGuardarConductor = window.guardarConductor;
+    window.guardarConductor = async function() {
+      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+      if (tipoUsuario === 'lectura') {
+        alert('No tienes permisos para guardar conductores. Modo de solo lectura.');
+        return;
+      }
+      return originalGuardarConductor();
     };
 
     const originalEditarPersona = window.editarPersona;

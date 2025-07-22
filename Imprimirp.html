@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Pinchazos - Documento Impreso</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.4;
+      color: #000;
+      padding: 10px;
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 12px;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #3f72af;
+      padding-bottom: 5px;
+      gap: 15px;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .title-container {
+      flex: 1;
+      text-align: center;
+    }
+    
+    .document-title {
+      color: #3f72af;
+      margin: 0;
+      font-size: 16px;
+    }
+    
+    .subtitle {
+      color: #555;
+      margin: 2px 0 0 0;
+      font-size: 12px;
+    }
+    
+    .section {
+      margin-bottom: 10px;
+      page-break-inside: avoid;
+    }
+    
+    .section h2 {
+      color: #3f72af;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 3px;
+      margin-bottom: 5px;
+      font-size: 13px;
+    }
+    
+    .row {
+      display: flex;
+      margin-bottom: 5px;
+      min-height: 18px;
+    }
+    
+    .label {
+      font-weight: bold;
+      width: 150px;
+    }
+    
+    .value {
+      flex: 1;
+      word-break: break-word;
+    }
+    
+    .neumaticos-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    
+    .neumatico-badge {
+      background-color: #e3f2fd;
+      border: 1px solid #3f72af;
+      border-radius: 3px;
+      padding: 3px 6px;
+      font-size: 10px;
+    }
+    
+    .tipo-problema {
+      background-color: #e3f2fd;
+      border: 1px solid #3f72af;
+      border-radius: 3px;
+      padding: 5px;
+      margin: 5px 0;
+      font-weight: bold;
+      text-align: center;
+      font-size: 11px;
+    }
+    
+    .print-actions {
+      text-align: center;
+      margin-top: 15px;
+    }
+    
+    .print-btn {
+      padding: 8px 15px;
+      background-color: #3f72af;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .close-btn {
+      padding: 8px 15px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+    
+    /* Estilos para firmas */
+    .firmas-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 40px;
+      padding-top: 10px;
+      border-top: 1px solid #112d4e;
+    }
+    
+    .firma {
+      width: 45%;
+      text-align: center;
+    }
+    
+    .linea-firma {
+      border-top: 1px solid #112d4e;
+      margin-top: 30px;
+      padding-top: 3px;
+      font-size: 11px;
+    }
+    
+    @page {
+      size: letter;
+      margin: 10mm;
+    }
+    
+    @media print {
+      body {
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        font-size: 11px;
+      }
+      
+      .print-actions {
+        display: none;
+      }
+      
+      .header {
+        margin-bottom: 5px;
+        padding-bottom: 3px;
+      }
+      
+      .section {
+        margin-bottom: 8px;
+      }
+      
+      .section h2 {
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+      
+      .row {
+        margin-bottom: 3px;
+      }
+      
+      .firmas-container {
+        margin-top: 30px;
+        padding-top: 5px;
+      }
+      
+      .linea-firma {
+        margin-top: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-container">
+      <img src="img/logo.png" alt="Logo" class="logo">
+    </div>
+    <div class="title-container">
+      <h1 class="document-title" id="document-title">Registro de Pinchazos</h1>
+      <p class="subtitle">Fecha de impresión: <span id="fecha-impresion"></span></p>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2>Información General</h2>
+    <div class="row">
+      <div class="label">Fecha:</div>
+      <div class="value" id="fecha"></div>
+    </div>
+    <div class="row">
+      <div class="label">Turno:</div>
+      <div class="value" id="turno"></div>
+    </div>
+    <div class="row">
+      <div class="label">Kilometaje Inicial:</div>
+      <div class="value" id="kilometaje"></div>
+    </div>
+    <div class="row">
+      <div class="label">Tipo de Vehículo:</div>
+      <div class="value" id="tipo-vehiculo"></div>
+    </div>
+    <div class="row">
+      <div class="label">Patente:</div>
+      <div class="value" id="patente"></div>
+    </div>
+    <div class="row">
+      <div class="label">Conductor:</div>
+      <div class="value" id="conductor"></div>
+    </div>
+    <div class="row">
+      <div class="label">Cantidad de Ruedas:</div>
+      <div class="value" id="ruedas"></div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2>Tipo de Problema</h2>
+    <div class="tipo-problema" id="tipo-problema"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Detalles</h2>
+    <div class="row">
+      <div class="label">Detalle del Problema:</div>
+      <div class="value" id="problema"></div>
+    </div>
+    <div class="row">
+      <div class="label">Acción Inmediata:</div>
+      <div class="value" id="accion"></div>
+    </div>
+    <div class="row">
+      <div class="label">Neumáticos Afectados:</div>
+      <div class="value">
+        <div class="neumaticos-list" id="neumaticos"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2>Control de Seguridad</h2>
+    <div class="row">
+      <div class="label">Checklist de revisión:</div>
+      <div class="value" id="checklist"></div>
+    </div>
+    <div class="row">
+      <div class="label">Torque de tuercas:</div>
+      <div class="value" id="torque"></div>
+    </div>
+    <div class="row">
+      <div class="label">Verificación de Torque:</div>
+      <div class="value" id="revision-km"></div>
+    </div>
+    <div class="row">
+      <div class="label">Responsable:</div>
+      <div class="value" id="responsable"></div>
+    </div>
+  </div>
+  
+  <!-- Sección de firmas -->
+  <div class="firmas-container">
+    <div class="firma">
+      <div class="linea-firma">Firma del Conductor</div>
+    </div>
+    <div class="firma">
+      <div class="linea-firma">Firma del Responsable</div>
+    </div>
+  </div>
+  
+  <div class="print-actions no-print">
+    <button class="print-btn" onclick="window.print()">Imprimir</button>
+    <button class="close-btn" onclick="window.close()">Cerrar</button>
+  </div>
+
+  <script>
+    // Obtener parámetros de la URL
+    function getFormData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const data = {};
+      
+      for (const [key, value] of urlParams.entries()) {
+        data[key] = value;
+      }
+      
+      return data;
+    }
+    
+    // Mostrar los datos en la página
+    function displayData() {
+      const data = getFormData();
+      
+      // Mostrar la fecha de impresión
+      document.getElementById('fecha-impresion').textContent = new Date().toLocaleDateString();
+      
+      // Establecer título del documento según el tipo de problema
+      const titleElement = document.getElementById('document-title');
+      if (data.tipo_problema === 'PINCHADURA') {
+        titleElement.textContent = 'Registro de Pinchadura';
+      } else if (data.tipo_problema === 'CAMBIO') {
+        titleElement.textContent = 'Registro de Cambio de Neumático';
+      }
+      
+      // Rellenar los datos del formulario
+      if (data.fecha) {
+        document.getElementById('fecha').textContent = data.fecha;
+      }
+      
+      if (data.turno) {
+        document.getElementById('turno').textContent = data.turno;
+      }
+      
+      if (data.kilometaje) {
+        document.getElementById('kilometaje').textContent = data.kilometaje + ' km';
+      }
+      
+      if (data.tipo_vehiculo) {
+        document.getElementById('tipo-vehiculo').textContent = data.tipo_vehiculo;
+      }
+      
+      if (data.patente) {
+        document.getElementById('patente').textContent = data.patente;
+      }
+      
+      if (data.conductor) {
+        document.getElementById('conductor').textContent = data.conductor;
+      }
+      
+      if (data.ruedas) {
+        document.getElementById('ruedas').textContent = data.ruedas;
+      }
+      
+      if (data.tipo_problema) {
+        const tipoProblema = data.tipo_problema === 'PINCHADURA' ? 'PINCHADURA' : 'CAMBIO DE NEUMÁTICO';
+        document.getElementById('tipo-problema').textContent = tipoProblema;
+      }
+      
+      if (data.problema) {
+        document.getElementById('problema').textContent = data.problema;
+      }
+      
+      if (data.accion) {
+        document.getElementById('accion').textContent = data.accion;
+      }
+      
+      if (data.neumatico) {
+        const neumaticos = data.neumatico.split('-');
+        const neumaticosContainer = document.getElementById('neumaticos');
+        
+        neumaticos.forEach(n => {
+          const badge = document.createElement('span');
+          badge.className = 'neumatico-badge';
+          badge.textContent = n;
+          neumaticosContainer.appendChild(badge);
+        });
+      }
+      
+      if (data.checklist) {
+        document.getElementById('checklist').textContent = data.checklist === 'SI' ? 'Sí' : 'No';
+      }
+      
+      if (data.torque) {
+        document.getElementById('torque').textContent = data.torque === 'SI' ? 'Sí' : 'No';
+      }
+      
+      if (data.revision_km) {
+        document.getElementById('revision-km').textContent = data.revision_km + ' km/hrs';
+      }
+      
+      if (data.responsable) {
+        document.getElementById('responsable').textContent = data.responsable;
+      }
+    }
+    
+    // Imprimir automáticamente si se abre en una nueva ventana
+    window.onload = function() {
+      displayData();
+      
+      // Si la página se abrió desde el formulario principal, imprimir automáticamente
+      if (window.opener) {
+        setTimeout(() => {
+          window.print();
+        }, 200);
+      }
+    };
+  </script>
+</body>
+</html>
