@@ -2,414 +2,346 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Pinchazos - Documento Impreso</title>
+  <title>Registro de Pinchazos - Impresión</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      line-height: 1.4;
-      color: #000;
-      padding: 10px;
-      width: 100%;
-      max-width: 700px;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 800px;
       margin: 0 auto;
-      font-size: 12px;
+      border: 1px solid #ddd;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     
     .header {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       border-bottom: 2px solid #3f72af;
-      padding-bottom: 5px;
-      gap: 15px;
-    }
-    
-    .logo-container {
-      display: flex;
-      align-items: center;
+      padding-bottom: 15px;
     }
     
     .logo {
-      width: 60px;
-      height: 60px;
+      width: 80px;
+      height: 80px;
+      margin-right: 20px;
     }
     
-    .title-container {
-      flex: 1;
+    .title {
+      flex-grow: 1;
       text-align: center;
     }
     
-    .document-title {
-      color: #3f72af;
+    h1 {
+      color: #112d4e;
       margin: 0;
-      font-size: 16px;
+      font-size: 24px;
+      text-transform: uppercase;
     }
     
     .subtitle {
-      color: #555;
-      margin: 2px 0 0 0;
-      font-size: 12px;
+      color: #3f72af;
+      margin: 5px 0 0;
+      font-size: 18px;
+      text-transform: uppercase;
+      font-weight: bold;
     }
     
     .section {
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       page-break-inside: avoid;
     }
     
-    .section h2 {
-      color: #3f72af;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 3px;
-      margin-bottom: 5px;
-      font-size: 13px;
+    h2 {
+      color: #2c5282;
+      font-size: 18px;
+      border-bottom: 1px solid #dbe2ef;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
     }
     
     .row {
       display: flex;
-      margin-bottom: 5px;
-      min-height: 18px;
+      margin-bottom: 10px;
+    }
+    
+    .col {
+      flex: 1;
+      padding: 0 10px;
     }
     
     .label {
       font-weight: bold;
-      width: 150px;
+      margin-bottom: 5px;
     }
     
     .value {
-      flex: 1;
-      word-break: break-word;
+      padding: 5px;
+      border-bottom: 1px dotted #ccc;
+      min-height: 20px;
     }
     
-    .neumaticos-list {
+    .neumaticos-container {
+      margin-top: 20px;
+    }
+    
+    .neumaticos-title {
+      font-weight: bold;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    
+    .neumaticos-seleccionados {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 5px;
-    }
-    
-    .neumatico-badge {
-      background-color: #e3f2fd;
-      border: 1px solid #3f72af;
-      border-radius: 3px;
-      padding: 3px 6px;
-      font-size: 10px;
-    }
-    
-    .tipo-problema {
-      background-color: #e3f2fd;
-      border: 1px solid #3f72af;
-      border-radius: 3px;
-      padding: 5px;
-      margin: 5px 0;
-      font-weight: bold;
-      text-align: center;
-      font-size: 11px;
-    }
-    
-    .print-actions {
-      text-align: center;
+      gap: 15px;
       margin-top: 15px;
     }
     
-    .print-btn {
-      padding: 8px 15px;
-      background-color: #3f72af;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    
-    .close-btn {
-      padding: 8px 15px;
-      background-color: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-left: 8px;
-    }
-    
-    /* Estilos para firmas */
-    .firmas-container {
+    .neumatico-selected {
+      background-color: #e3f2fd;
+      border: 2px solid #3f72af;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
       display: flex;
-      justify-content: space-between;
-      margin-top: 40px;
-      padding-top: 10px;
-      border-top: 1px solid #112d4e;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
     }
     
     .firma {
-      width: 45%;
+      margin-top: 50px;
       text-align: center;
+      width: 300px;
+      float: left;
     }
     
     .linea-firma {
-      border-top: 1px solid #112d4e;
-      margin-top: 30px;
-      padding-top: 3px;
-      font-size: 11px;
+      border-top: 1px solid #333;
+      width: 100%;
+      margin-top: 60px;
+      padding-top: 5px;
+      text-align: center;
     }
     
-    @page {
-      size: letter;
-      margin: 10mm;
+    .clear {
+      clear: both;
     }
     
     @media print {
       body {
         padding: 0;
-        width: 100%;
-        max-width: 100%;
-        font-size: 11px;
       }
       
-      .print-actions {
+      .container {
+        border: none;
+        box-shadow: none;
+        padding: 10px;
+      }
+      
+      .no-print {
         display: none;
       }
       
-      .header {
-        margin-bottom: 5px;
-        padding-bottom: 3px;
-      }
-      
-      .section {
-        margin-bottom: 8px;
-      }
-      
-      .section h2 {
-        font-size: 12px;
-        margin-bottom: 3px;
-      }
-      
-      .row {
-        margin-bottom: 3px;
-      }
-      
-      .firmas-container {
-        margin-top: 30px;
-        padding-top: 5px;
-      }
-      
-      .linea-firma {
-        margin-top: 25px;
+      .page-break {
+        page-break-after: always;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo-container">
-      <img src="img/logo.png" alt="Logo" class="logo">
-    </div>
-    <div class="title-container">
-      <h1 class="document-title" id="document-title">Registro de Pinchazos</h1>
-      <p class="subtitle">Fecha de impresión: <span id="fecha-impresion"></span></p>
-    </div>
-  </div>
-  
-  <div class="section">
-    <h2>Información General</h2>
-    <div class="row">
-      <div class="label">Fecha:</div>
-      <div class="value" id="fecha"></div>
-    </div>
-    <div class="row">
-      <div class="label">Turno:</div>
-      <div class="value" id="turno"></div>
-    </div>
-    <div class="row">
-      <div class="label">Kilometaje Inicial:</div>
-      <div class="value" id="kilometaje"></div>
-    </div>
-    <div class="row">
-      <div class="label">Tipo de Vehículo:</div>
-      <div class="value" id="tipo-vehiculo"></div>
-    </div>
-    <div class="row">
-      <div class="label">Patente:</div>
-      <div class="value" id="patente"></div>
-    </div>
-    <div class="row">
-      <div class="label">Conductor:</div>
-      <div class="value" id="conductor"></div>
-    </div>
-    <div class="row">
-      <div class="label">Cantidad de Ruedas:</div>
-      <div class="value" id="ruedas"></div>
-    </div>
-  </div>
-  
-  <div class="section">
-    <h2>Tipo de Problema</h2>
-    <div class="tipo-problema" id="tipo-problema"></div>
-  </div>
-  
-  <div class="section">
-    <h2>Detalles</h2>
-    <div class="row">
-      <div class="label">Detalle del Problema:</div>
-      <div class="value" id="problema"></div>
-    </div>
-    <div class="row">
-      <div class="label">Acción Inmediata:</div>
-      <div class="value" id="accion"></div>
-    </div>
-    <div class="row">
-      <div class="label">Neumáticos Afectados:</div>
-      <div class="value">
-        <div class="neumaticos-list" id="neumaticos"></div>
+  <div class="container">
+    <div class="header">
+      <img src="img/logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+      <div class="title">
+        <h1>REGISTRO</h1>
+        <p class="subtitle" id="titulo-registro"></p>
       </div>
     </div>
-  </div>
-  
-  <div class="section">
-    <h2>Control de Seguridad</h2>
-    <div class="row">
-      <div class="label">Checklist de revisión:</div>
-      <div class="value" id="checklist"></div>
+    
+    <div class="section">
+      <h2>Información General</h2>
+      <div class="row">
+        <div class="col">
+          <div class="label">Fecha:</div>
+          <div class="value" id="fecha"></div>
+        </div>
+        <div class="col">
+          <div class="label">Turno:</div>
+          <div class="value" id="turno"></div>
+        </div>
+        <div class="col">
+          <div class="label">Kilometaje:</div>
+          <div class="value" id="kilometaje"></div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col">
+          <div class="label">Tipo de Vehículo:</div>
+          <div class="value" id="tipo-vehiculo"></div>
+        </div>
+        <div class="col">
+          <div class="label">Patente:</div>
+          <div class="value" id="patente"></div>
+        </div>
+        <div class="col">
+          <div class="label">Conductor:</div>
+          <div class="value" id="conductor"></div>
+        </div>
+      </div>
     </div>
-    <div class="row">
-      <div class="label">Torque de tuercas:</div>
-      <div class="value" id="torque"></div>
+    
+    <div class="section">
+      <h2>Detalles del Problema</h2>
+      <div class="row">
+        <div class="col">
+          <div class="label">Problema Detectado:</div>
+          <div class="value" id="problema" style="min-height: 60px;"></div>
+        </div>
+        <div class="col">
+          <div class="label">Acción Tomada:</div>
+          <div class="value" id="accion" style="min-height: 60px;"></div>
+        </div>
+      </div>
     </div>
-    <div class="row">
-      <div class="label">Verificación de Torque:</div>
-      <div class="value" id="revision-km"></div>
+    
+    <div class="section neumaticos-container">
+      <h2>Neumáticos Afectados</h2>
+      <div class="neumaticos-title">Selección de neumáticos afectados:</div>
+      <div class="neumaticos-seleccionados" id="neumaticos-seleccionados-container">
+        <!-- Aquí se insertarán dinámicamente los neumáticos seleccionados -->
+      </div>
     </div>
-    <div class="row">
-      <div class="label">Responsable:</div>
-      <div class="value" id="responsable"></div>
+    
+    <div class="section">
+      <h2>Control de Seguridad</h2>
+      <div class="row">
+        <div class="col">
+          <div class="label">Checklist de revisión:</div>
+          <div class="value" id="checklist"></div>
+        </div>
+        <div class="col">
+          <div class="label">Torque de tuercas:</div>
+          <div class="value" id="torque"></div>
+        </div>
+        <div class="col">
+          <div class="label">Verificación de Torque (km/hrs):</div>
+          <div class="value" id="revision-km"></div>
+        </div>
+      </div>
     </div>
-  </div>
-  
-  <!-- Sección de firmas -->
-  <div class="firmas-container">
+    
+    <div class="clear"></div>
+    
+    <div class="firma" style="margin-right: 50px;">
+      <div class="linea-firma" id="supervisor-linea"></div>
+      <div>Supervisor</div>
+    </div>
+    
     <div class="firma">
-      <div class="linea-firma">Firma del Conductor</div>
+      <div class="linea-firma" id="responsable-linea"></div>
+      <div>Responsable</div>
     </div>
-    <div class="firma">
-      <div class="linea-firma">Firma del Responsable</div>
+    
+    <div class="clear"></div>
+    
+    <div class="no-print" style="text-align: center; margin-top: 30px;">
+      <button onclick="window.print()" style="padding: 10px 20px; background: #3f72af; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Imprimir
+      </button>
+      <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+        Cerrar
+      </button>
     </div>
-  </div>
-  
-  <div class="print-actions no-print">
-    <button class="print-btn" onclick="window.print()">Imprimir</button>
-    <button class="close-btn" onclick="window.close()">Cerrar</button>
   </div>
 
   <script>
     // Obtener parámetros de la URL
-    function getFormData() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const data = {};
-      
-      for (const [key, value] of urlParams.entries()) {
-        data[key] = value;
-      }
-      
-      return data;
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Función para decodificar valores de la URL
+    function getParam(key) {
+      const value = urlParams.get(key);
+      return value ? decodeURIComponent(value) : '';
     }
     
-    // Mostrar los datos en la página
-    function displayData() {
-      const data = getFormData();
-      
-      // Mostrar la fecha de impresión
-      document.getElementById('fecha-impresion').textContent = new Date().toLocaleDateString();
-      
-      // Establecer título del documento según el tipo de problema
-      const titleElement = document.getElementById('document-title');
-      if (data.tipo_problema === 'PINCHADURA') {
-        titleElement.textContent = 'Registro de Pinchadura';
-      } else if (data.tipo_problema === 'CAMBIO') {
-        titleElement.textContent = 'Registro de Cambio de Neumático';
-      }
-      
-      // Rellenar los datos del formulario
-      if (data.fecha) {
-        document.getElementById('fecha').textContent = data.fecha;
-      }
-      
-      if (data.turno) {
-        document.getElementById('turno').textContent = data.turno;
-      }
-      
-      if (data.kilometaje) {
-        document.getElementById('kilometaje').textContent = data.kilometaje + ' km';
-      }
-      
-      if (data.tipo_vehiculo) {
-        document.getElementById('tipo-vehiculo').textContent = data.tipo_vehiculo;
-      }
-      
-      if (data.patente) {
-        document.getElementById('patente').textContent = data.patente;
-      }
-      
-      if (data.conductor) {
-        document.getElementById('conductor').textContent = data.conductor;
-      }
-      
-      if (data.ruedas) {
-        document.getElementById('ruedas').textContent = data.ruedas;
-      }
-      
-      if (data.tipo_problema) {
-        const tipoProblema = data.tipo_problema === 'PINCHADURA' ? 'PINCHADURA' : 'CAMBIO DE NEUMÁTICO';
-        document.getElementById('tipo-problema').textContent = tipoProblema;
-      }
-      
-      if (data.problema) {
-        document.getElementById('problema').textContent = data.problema;
-      }
-      
-      if (data.accion) {
-        document.getElementById('accion').textContent = data.accion;
-      }
-      
-      if (data.neumatico) {
-        const neumaticos = data.neumatico.split('-');
-        const neumaticosContainer = document.getElementById('neumaticos');
-        
-        neumaticos.forEach(n => {
-          const badge = document.createElement('span');
-          badge.className = 'neumatico-badge';
-          badge.textContent = n;
-          neumaticosContainer.appendChild(badge);
-        });
-      }
-      
-      if (data.checklist) {
-        document.getElementById('checklist').textContent = data.checklist === 'SI' ? 'Sí' : 'No';
-      }
-      
-      if (data.torque) {
-        document.getElementById('torque').textContent = data.torque === 'SI' ? 'Sí' : 'No';
-      }
-      
-      if (data.revision_km) {
-        document.getElementById('revision-km').textContent = data.revision_km + ' km/hrs';
-      }
-      
-      if (data.responsable) {
-        document.getElementById('responsable').textContent = data.responsable;
-      }
+    // Mostrar el tipo de problema como título
+    const tipoProblema = getParam('tipo_problema') || 'PINCHADURA';
+    let titulo = '';
+    
+    switch(tipoProblema) {
+      case 'PINCHADURA':
+        titulo = 'DE PINCHEZOS';
+        break;
+      case 'CAMBIO':
+        titulo = 'DE CAMBIO DE NEUMÁTICO';
+        break;
+      case 'PREVENTIVO_CORRECTIVO':
+        titulo = 'PREVENTIVO/CORRECTIVO';
+        break;
+      default:
+        titulo = 'DE PINCHEZOS';
     }
     
-    // Imprimir automáticamente si se abre en una nueva ventana
-    window.onload = function() {
-      displayData();
-      
-      // Si la página se abrió desde el formulario principal, imprimir automáticamente
-      if (window.opener) {
-        setTimeout(() => {
+    document.getElementById('titulo-registro').textContent = titulo;
+    
+    // Mostrar datos del formulario
+    document.getElementById('fecha').textContent = getParam('fecha') || 'No especificado';
+    document.getElementById('turno').textContent = getParam('turno') || 'No especificado';
+    document.getElementById('kilometaje').textContent = getParam('kilometaje') || 'No especificado';
+    document.getElementById('tipo-vehiculo').textContent = getParam('tipo_vehiculo') || 'No especificado';
+    document.getElementById('patente').textContent = getParam('patente') || 'No especificado';
+    document.getElementById('conductor').textContent = getParam('conductor') || 'No especificado';
+    document.getElementById('problema').textContent = getParam('problema') || 'No especificado';
+    document.getElementById('accion').textContent = getParam('accion') || 'No especificado';
+    document.getElementById('checklist').textContent = (getParam('checklist') === 'SI' ? 'Sí' : 'No');
+    document.getElementById('torque').textContent = (getParam('torque') === 'SI' ? 'Sí' : 'No');
+    document.getElementById('revision-km').textContent = getParam('revision_km') || 'No especificado';
+    
+    // Mostrar supervisor y responsable
+    const supervisor = getParam('supervisor') || '_______________________';
+    const responsable = getParam('responsable') || '_______________________';
+    document.getElementById('supervisor-linea').textContent = supervisor;
+    document.getElementById('responsable-linea').textContent = responsable;
+    
+    // Mostrar solo neumáticos seleccionados
+    const neumaticosSeleccionados = (getParam('neumatico') || '').split('-');
+    const container = document.getElementById('neumaticos-seleccionados-container');
+    
+    // Limpiar contenedor
+    container.innerHTML = '';
+    
+    // Agregar cada neumático seleccionado
+    neumaticosSeleccionados.forEach(pos => {
+      if (pos) { // Asegurarse de que no sea una cadena vacía
+        const neumatico = document.createElement('div');
+        neumatico.className = 'neumatico-selected';
+        neumatico.textContent = pos;
+        container.appendChild(neumatico);
+      }
+    });
+    
+    // Si no hay neumáticos seleccionados, mostrar mensaje
+    if (container.children.length === 0) {
+      container.innerHTML = '<div style="font-style: italic;">No se seleccionaron neumáticos</div>';
+    }
+    
+    // Configurar impresión automática si se abre desde la vista previa
+    if (window.opener) {
+      window.addEventListener('load', function() {
+        setTimeout(function() {
           window.print();
-        }, 200);
-      }
-    };
+        }, 500);
+      });
+    }
   </script>
 </body>
 </html>
