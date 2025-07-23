@@ -325,7 +325,9 @@
 
     .neumaticos-options {
       display: flex;
-      justify-content: space-around;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
     }
 
     .neumatico-option {
@@ -333,6 +335,7 @@
       flex-direction: column;
       align-items: center;
       cursor: pointer;
+      min-width: 80px;
     }
 
     .neumatico-option input {
@@ -580,6 +583,14 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="col">
+            <label for="supervisor">Supervisor:</label>
+            <input type="text" id="supervisor" list="supervisores-list">
+            <datalist id="supervisores-list"></datalist>
+          </div>
+        </div>
+
         <div class="ruedas-selector">
           <label>Cantidad de Ruedas:</label>
           <div class="ruedas-options">
@@ -612,6 +623,10 @@
             <input type="radio" name="tipoProblema" id="tipo-cambio" value="CAMBIO">
             <label for="tipo-cambio">Cambio de Neumático</label>
           </div>
+          <div class="tipo-problema-option" onclick="seleccionarTipoProblema('PREVENTIVO_CORRECTIVO')">
+            <input type="radio" name="tipoProblema" id="tipo-preventivo-correctivo" value="PREVENTIVO_CORRECTIVO">
+            <label for="tipo-preventivo-correctivo">Preventivo/Correctivo</label>
+          </div>
         </div>
       </div>
       
@@ -636,12 +651,12 @@
               <div class="neumaticos-options">
                 <div class="neumatico-option" onclick="seleccionarNeumatico('P1')">
                   <div class="neumatico-img" id="neumatico-P1">P1</div>
-                  <div class="neumatico-label">Izquierdo</div>
+                  <div class="neumatico-label" id="label-P1">Izquierdo</div>
                   <input type="checkbox" id="check-P1" style="display: none;">
                 </div>
                 <div class="neumatico-option" onclick="seleccionarNeumatico('P2')">
                   <div class="neumatico-img" id="neumatico-P2">P2</div>
-                  <div class="neumatico-label">Derecho</div>
+                  <div class="neumatico-label" id="label-P2">Derecho</div>
                   <input type="checkbox" id="check-P2" style="display: none;">
                 </div>
               </div>
@@ -650,25 +665,35 @@
             <div class="eje">
               <div class="eje-title">Eje Trasero</div>
               <div class="neumaticos-options">
-                <div class="neumatico-option" onclick="seleccionarNeumatico('P3')">
+                <div class="neumatico-option" id="neumatico-P3-container" onclick="seleccionarNeumatico('P3')">
                   <div class="neumatico-img" id="neumatico-P3">P3</div>
-                  <div class="neumatico-label">Izquierdo</div>
+                  <div class="neumatico-label" id="label-P3">Izquierdo</div>
                   <input type="checkbox" id="check-P3" style="display: none;">
                 </div>
-                <div class="neumatico-option" onclick="seleccionarNeumatico('P4')">
+                <div class="neumatico-option" id="neumatico-P4-container" onclick="seleccionarNeumatico('P4')">
                   <div class="neumatico-img" id="neumatico-P4">P4</div>
-                  <div class="neumatico-label">Derecho</div>
+                  <div class="neumatico-label" id="label-P4">Derecho</div>
                   <input type="checkbox" id="check-P4" style="display: none;">
                 </div>
-                <div class="neumatico-option" id="neumatico-P5-container" style="display: none;" onclick="seleccionarNeumatico('P5')">
-                  <div class="neumatico-img" id="neumatico-P5">P5</div>
-                  <div class="neumatico-label">Extra Izq.</div>
-                  <input type="checkbox" id="check-P5" style="display: none;">
+                <div class="neumatico-option" id="neumatico-P3I-container" style="display: none;" onclick="seleccionarNeumatico('P3I')">
+                  <div class="neumatico-img" id="neumatico-P3I">P3I</div>
+                  <div class="neumatico-label" id="label-P3I">Interior</div>
+                  <input type="checkbox" id="check-P3I" style="display: none;">
                 </div>
-                <div class="neumatico-option" id="neumatico-P6-container" style="display: none;" onclick="seleccionarNeumatico('P6')">
-                  <div class="neumatico-img" id="neumatico-P6">P6</div>
-                  <div class="neumatico-label">Extra Der.</div>
-                  <input type="checkbox" id="check-P6" style="display: none;">
+                <div class="neumatico-option" id="neumatico-P3E-container" style="display: none;" onclick="seleccionarNeumatico('P3E')">
+                  <div class="neumatico-img" id="neumatico-P3E">P3E</div>
+                  <div class="neumatico-label" id="label-P3E">Exterior</div>
+                  <input type="checkbox" id="check-P3E" style="display: none;">
+                </div>
+                <div class="neumatico-option" id="neumatico-P4I-container" style="display: none;" onclick="seleccionarNeumatico('P4I')">
+                  <div class="neumatico-img" id="neumatico-P4I">P4I</div>
+                  <div class="neumatico-label" id="label-P4I">Interior</div>
+                  <input type="checkbox" id="check-P4I" style="display: none;">
+                </div>
+                <div class="neumatico-option" id="neumatico-P4E-container" style="display: none;" onclick="seleccionarNeumatico('P4E')">
+                  <div class="neumatico-img" id="neumatico-P4E">P4E</div>
+                  <div class="neumatico-label" id="label-P4E">Exterior</div>
+                  <input type="checkbox" id="check-P4E" style="display: none;">
                 </div>
               </div>
             </div>
@@ -742,6 +767,7 @@
     let conductores = [];
     let mecanicos = [];
     let patentes = [];
+    let supervisores = [];
     
     // Función para verificar si Supabase está cargado
     function verificarSupabaseCargado() {
@@ -802,6 +828,23 @@
       }
     }
 
+    // Función para cargar datos de supervisores
+    async function cargarSupervisores() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('supervisores')
+          .select('nombre')
+          .order('nombre', { ascending: true });
+        
+        if (error) throw error;
+        
+        supervisores = data.map(item => item.nombre);
+        actualizarDatalist('supervisores-list', supervisores);
+      } catch (error) {
+        console.error('Error al cargar supervisores:', error);
+      }
+    }
+
     // Función para actualizar un datalist con opciones
     function actualizarDatalist(id, items) {
       const datalist = document.getElementById(id);
@@ -858,6 +901,7 @@
         await cargarConductores();
         await cargarMecanicos();
         await cargarPatentes();
+        await cargarSupervisores();
         
         // Ocultar después de 3 segundos
         setTimeout(() => {
@@ -953,19 +997,50 @@
       });
       document.getElementById(`rueda-${cantidad}`).parentElement.classList.add('selected');
       
-      // Mostrar/ocultar neumáticos adicionales
-      const mostrarExtras = cantidad === 6;
-      document.getElementById('neumatico-P5-container').style.display = mostrarExtras ? 'flex' : 'none';
-      document.getElementById('neumatico-P6-container').style.display = mostrarExtras ? 'flex' : 'none';
-      
-      // Si cambiamos de 6 a 4 ruedas, deseleccionar P5 y P6 si estaban seleccionados
-      if (cantidad === 4) {
-        document.getElementById('check-P5').checked = false;
-        document.getElementById('check-P6').checked = false;
-        document.getElementById('neumatico-P5').parentElement.classList.remove('selected');
-        document.getElementById('neumatico-P6').parentElement.classList.remove('selected');
-        actualizarNeumaticosSeleccionados();
+      // Mostrar/ocultar neumáticos según la cantidad de ruedas
+      if (cantidad === 6) {
+        // Ocultar neumáticos simples
+        document.getElementById('neumatico-P3-container').style.display = 'none';
+        document.getElementById('neumatico-P4-container').style.display = 'none';
+        
+        // Mostrar neumáticos dobles
+        document.getElementById('neumatico-P3I-container').style.display = 'flex';
+        document.getElementById('neumatico-P3E-container').style.display = 'flex';
+        document.getElementById('neumatico-P4I-container').style.display = 'flex';
+        document.getElementById('neumatico-P4E-container').style.display = 'flex';
+        
+        // Actualizar etiquetas
+        document.getElementById('label-P3I').textContent = 'P3 Interior';
+        document.getElementById('label-P3E').textContent = 'P3 Exterior';
+        document.getElementById('label-P4I').textContent = 'P4 Interior';
+        document.getElementById('label-P4E').textContent = 'P4 Exterior';
+      } else {
+        // Mostrar neumáticos simples
+        document.getElementById('neumatico-P3-container').style.display = 'flex';
+        document.getElementById('neumatico-P4-container').style.display = 'flex';
+        
+        // Ocultar neumáticos dobles
+        document.getElementById('neumatico-P3I-container').style.display = 'none';
+        document.getElementById('neumatico-P3E-container').style.display = 'none';
+        document.getElementById('neumatico-P4I-container').style.display = 'none';
+        document.getElementById('neumatico-P4E-container').style.display = 'none';
+        
+        // Actualizar etiquetas
+        document.getElementById('label-P3').textContent = 'Izquierdo';
+        document.getElementById('label-P4').textContent = 'Derecho';
+        
+        // Deseleccionar neumáticos dobles si estaban seleccionados
+        document.getElementById('check-P3I').checked = false;
+        document.getElementById('check-P3E').checked = false;
+        document.getElementById('check-P4I').checked = false;
+        document.getElementById('check-P4E').checked = false;
+        document.getElementById('neumatico-P3I').parentElement.classList.remove('selected');
+        document.getElementById('neumatico-P3E').parentElement.classList.remove('selected');
+        document.getElementById('neumatico-P4I').parentElement.classList.remove('selected');
+        document.getElementById('neumatico-P4E').parentElement.classList.remove('selected');
       }
+      
+      actualizarNeumaticosSeleccionados();
     }
 
     function seleccionarNeumatico(posicion) {
@@ -997,10 +1072,22 @@
       const neumaticosSeleccionados = [];
       const cantidadRuedas = parseInt(document.getElementById('ruedas').value);
       
-      for (let i = 1; i <= cantidadRuedas; i++) {
-        const checkbox = document.getElementById(`check-P${i}`);
-        if (checkbox && checkbox.checked) {
-          neumaticosSeleccionados.push(`P${i}`);
+      if (cantidadRuedas === 6) {
+        // Para 6 ruedas, comprobar P1, P2, P3I, P3E, P4I, P4E
+        const posiciones = ['P1', 'P2', 'P3I', 'P3E', 'P4I', 'P4E'];
+        posiciones.forEach(pos => {
+          const checkbox = document.getElementById(`check-${pos}`);
+          if (checkbox && checkbox.checked) {
+            neumaticosSeleccionados.push(pos);
+          }
+        });
+      } else {
+        // Para 4 ruedas, comprobar P1, P2, P3, P4
+        for (let i = 1; i <= 4; i++) {
+          const checkbox = document.getElementById(`check-P${i}`);
+          if (checkbox && checkbox.checked) {
+            neumaticosSeleccionados.push(`P${i}`);
+          }
         }
       }
       
@@ -1029,6 +1116,7 @@
         tipo_vehiculo: document.getElementById('tipo-vehiculo').value || null,
         patente: patente,
         conductor: document.getElementById('conductor').value || null,
+        supervisor: document.getElementById('supervisor').value || null,
         problema: document.getElementById('problema').value || null,
         accion: document.getElementById('accion').value || null,
         neumatico: document.getElementById('neumatico').value || null,
@@ -1063,16 +1151,17 @@
         seleccionarRuedas(4);
         
         // Limpiar selección de neumáticos
-        for (let i = 1; i <= 6; i++) {
-          const checkbox = document.getElementById(`check-P${i}`);
+        const allPositions = ['P1', 'P2', 'P3', 'P4', 'P3I', 'P3E', 'P4I', 'P4E'];
+        allPositions.forEach(pos => {
+          const checkbox = document.getElementById(`check-${pos}`);
           if (checkbox) {
             checkbox.checked = false;
-            const neumaticoElement = document.getElementById(`neumatico-P${i}`);
+            const neumaticoElement = document.getElementById(`neumatico-${pos}`);
             if (neumaticoElement) {
               neumaticoElement.parentElement.classList.remove('selected');
             }
           }
-        }
+        });
         
       } catch (error) {
         console.error('Error al guardar:', error);
@@ -1096,6 +1185,7 @@
         tipo_vehiculo: document.getElementById('tipo-vehiculo').value || '',
         patente: patente,
         conductor: document.getElementById('conductor').value || '',
+        supervisor: document.getElementById('supervisor').value || '',
         problema: document.getElementById('problema').value || '',
         accion: document.getElementById('accion').value || '',
         neumatico: document.getElementById('neumatico').value || '',
@@ -1121,6 +1211,13 @@
       
       if (!printWindow) {
         mostrarError('El navegador bloqueó la ventana emergente. Por favor, permita ventanas emergentes para este sitio.');
+      } else {
+        // Esperar a que la ventana se cargue completamente antes de imprimir
+        printWindow.onload = function() {
+          setTimeout(() => {
+            printWindow.print();
+          }, 500);
+        };
       }
     }
   </script>
