@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Estadísticas de Pinchazos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #3f72af;
+      --color-secondary: #dbe2ef;
+      --color-text: #112d4e;
+      --color-accent: #2c5282;
+      --color-success: #2ecc71;
+      --color-error: #e74c3c;
+      --color-warning: #f39c12;
+      --border-radius: 8px;
+      --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      --header-bg-color: #2c5282;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #3f72af, #dbe2ef);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--color-text);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+      background-color: var(--header-bg-color);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      color: white;
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+      color: white;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--color-secondary);
+    }
+
+    h2 {
+      margin-top: 30px;
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-top: 20px;
+      color: var(--color-text);
+      border-bottom: 1px solid var(--color-primary);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background-color: white;
+      padding: 5px;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .title-container {
+      flex: 1;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #dbe2ef;
+      margin-top: -10px;
+      font-size: 1.1rem;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--border-radius);
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-accent);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: var(--color-success);
+    }
+
+    .btn-success:hover {
+      background: #27ae60;
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: var(--color-error);
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .btn-info {
+      background: var(--color-primary);
+    }
+
+    .btn-info:hover {
+      background: var(--color-accent);
+      transform: translateY(-2px);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .status-message {
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: var(--border-radius);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: var(--color-error);
+      border-left: 4px solid var(--color-error);
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: var(--color-success);
+      border-left: 4px solid var(--color-success);
+    }
+
+    .info {
+      background-color: #e7f5ff;
+      color: var(--color-primary);
+      border-left: 4px solid var(--color-primary);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 5px;
+      color: var(--color-text);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+      font-size: 0.9rem;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--color-primary);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(63, 114, 175, 0.2);
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .col {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .filters-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 20px;
+    }
+
+    .chart-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 20px;
+      position: relative;
+      height: 400px;
+    }
+
+    .table-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow-x: auto;
+      margin-bottom: 20px;
+      max-width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 0.8rem;
+      table-layout: fixed;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      word-wrap: break-word;
+    }
+
+    th {
+      background-color: var(--color-primary);
+      color: white;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      white-space: nowrap;
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .badge-primary {
+      background-color: #e3f2fd;
+      color: var(--color-primary);
+    }
+
+    .badge-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .badge-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 15px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin: 10px 0;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .neumaticos-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .neumatico-badge {
+      background-color: #e3f2fd;
+      border: 1px solid var(--color-primary);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .connection-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      box-shadow: var(--box-shadow);
+      z-index: 100;
+    }
+
+    .connection-success {
+      background-color: var(--color-success);
+      color: white;
+    }
+
+    .connection-error {
+      background-color: var(--color-error);
+      color: white;
+    }
+
+    .connection-loading {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    /* Estilo para el tipo de problema */
+    .tipo-problema-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .tipo-pinchadura {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .tipo-cambio {
+      background-color: #e3f2fd;
+      color: var(--color-primary);
+    }
+
+    .tipo-preventivo {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    /* Estilos para impresión */
+    @media print {
+      body {
+        background: white;
+        color: black;
+        padding: 0;
+      }
+
+      .header-container, .filters-container, .btn-group {
+        display: none !important;
+      }
+
+      .chart-container, .table-container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        page-break-inside: avoid;
+      }
+
+      table {
+        width: 100%;
+        font-size: 10px;
+      }
+
+      th, td {
+        padding: 4px 6px;
+      }
+
+      .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      h2, h3 {
+        color: black;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .btn-group {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      
+      table {
+        font-size: 0.7rem;
+      }
+      
+      th, td {
+        padding: 6px 8px;
+      }
+      
+      /* Columnas a ocultar en móviles */
+      .hide-on-mobile {
+        display: none;
+      }
+
+      /* Ajustar ancho de columnas en móviles */
+      td, th {
+        max-width: 120px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Estilos para texto multilínea */
+    .multiline-text {
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    /* Ajustar columnas específicas */
+    .col-fecha {
+      width: 90px;
+    }
+
+    .col-turno {
+      width: 50px;
+    }
+
+    .col-patente {
+      width: 80px;
+    }
+
+    .col-tipo {
+      width: 100px;
+    }
+
+    .col-acciones {
+      width: 120px;
+    }
+
+    .chart-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-wrapper {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .tab-container {
+      margin-bottom: 20px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 15px;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--color-text);
+      transition: all 0.3s;
+    }
+
+    .tab-button.active {
+      border-bottom-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .summary-card {
+      background-color: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .summary-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--color-primary);
+    }
+
+    .summary-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .summary-description {
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-container">
+      <div class="logo-container">
+        <div class="logo">
+          <img src="img/logo.png" alt="Logo">
+        </div>
+        <div>
+          <h1>Estadísticas de Pinchazos</h1>
+          <div class="subtitle">Análisis y reportes de incidentes</div>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="window.location.href='control_pinchazos.html'">
+          <i class="fas fa-list"></i> Lista de Registros
+        </button>
+        <button class="btn btn-success" onclick="exportarEstadisticas()">
+          <i class="fas fa-file-export"></i> Exportar
+        </button>
+        <button class="btn btn-info" onclick="window.print()">
+          <i class="fas fa-print"></i> Imprimir
+        </button>
+      </div>
+    </div>
+
+    <div id="error-message" class="status-message error" style="display: none;"></div>
+    <div id="success-message" class="status-message success" style="display: none;"></div>
+    <div id="connection-message" class="status-message info" style="display: none;"></div>
+
+    <div class="filters-container">
+      <h2>Filtrar Estadísticas</h2>
+      <div class="row">
+        <div class="col">
+          <label for="stats-fecha-desde">Fecha desde:</label>
+          <input type="date" id="stats-fecha-desde">
+        </div>
+        <div class="col">
+          <label for="stats-fecha-hasta">Fecha hasta:</label>
+          <input type="date" id="stats-fecha-hasta">
+        </div>
+        <div class="col">
+          <label for="stats-turno">Turno:</label>
+          <select id="stats-turno">
+            <option value="">Todos</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+          </select>
+        </div>
+        <div class="col">
+          <label for="stats-tipo-problema">Tipo de problema:</label>
+          <select id="stats-tipo-problema">
+            <option value="">Todos</option>
+            <option value="PINCHADURA">Pinchadura</option>
+            <option value="CAMBIO">Cambio de neumático</option>
+            <option value="PREVENTIVO_CORRECTIVO">Preventivo/Correctivo</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="resetStatsFilters()">
+          <i class="fas fa-times"></i> Limpiar
+        </button>
+        <button type="button" class="btn btn-primary" onclick="loadStatistics()">
+          <i class="fas fa-search"></i> Aplicar Filtros
+        </button>
+      </div>
+    </div>
+
+    <div class="tab-container">
+      <div class="tab-buttons">
+        <button class="tab-button active" onclick="openTab('resumen')">Resumen</button>
+        <button class="tab-button" onclick="openTab('patentes')">Por Patente</button>
+        <button class="tab-button" onclick="openTab('conductores')">Por Conductor</button>
+        <button class="tab-button" onclick="openTab('neumaticos')">Por Neumático</button>
+        <button class="tab-button" onclick="openTab('temporal')">Temporal</button>
+      </div>
+
+      <!-- Tab Resumen -->
+      <div id="resumen" class="tab-content active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="total-incidentes">0</div>
+            <div class="stat-label">Total de Incidentes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="promedio-mensual">0</div>
+            <div class="stat-label">Promedio Mensual</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="patente-mas-problemas">-</div>
+            <div class="stat-label">Patente con más incidentes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="neumatico-mas-afectado">-</div>
+            <div class="stat-label">Neumático más afectado</div>
+          </div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-wrapper">
+            <div class="chart-container">
+              <h3>Distribución por Tipo de Problema</h3>
+              <canvas id="tipoProblemaChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <div class="chart-container">
+              <h3>Incidentes por Turno</h3>
+              <canvas id="turnoChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-wrapper">
+            <div class="chart-container">
+              <h3>Evolución Mensual</h3>
+              <canvas id="evolucionMensualChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <div class="chart-container">
+              <h3>Torque Verificado</h3>
+              <canvas id="torqueChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <h3>Últimos 5 Incidentes Registrados</h3>
+          <table id="ultimos-incidentes">
+            <thead>
+              <tr>
+                <th class="col-fecha">Fecha</th>
+                <th class="col-turno">Turno</th>
+                <th class="col-patente">Patente</th>
+                <th>Conductor</th>
+                <th>Tipo</th>
+                <th>Neumático</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="6" style="text-align: center;">Cargando datos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Patentes -->
+      <div id="patentes" class="tab-content">
+        <div class="chart-container">
+          <h3>Top 10 Patentes con más Incidentes</h3>
+          <canvas id="topPatentesChart"></canvas>
+        </div>
+
+        <div class="table-container">
+          <h3>Detalle por Patente</h3>
+          <table id="patentes-table">
+            <thead>
+              <tr>
+                <th>Patente</th>
+                <th>Total Incidentes</th>
+                <th>Pinchaduras</th>
+                <th>Cambios</th>
+                <th>Preventivos</th>
+                <th>Último Incidente</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="6" style="text-align: center;">Cargando datos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Conductores -->
+      <div id="conductores" class="tab-content">
+        <div class="chart-container">
+          <h3>Top 10 Conductores con más Incidentes</h3>
+          <canvas id="topConductoresChart"></canvas>
+        </div>
+
+        <div class="table-container">
+          <h3>Detalle por Conductor</h3>
+          <table id="conductores-table">
+            <thead>
+              <tr>
+                <th>Conductor</th>
+                <th>Total Incidentes</th>
+                <th>Pinchaduras</th>
+                <th>Cambios</th>
+                <th>Preventivos</th>
+                <th>Patentes Asociadas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="6" style="text-align: center;">Cargando datos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Neumáticos -->
+      <div id="neumaticos" class="tab-content">
+        <div class="chart-container">
+          <h3>Distribución por Posición de Neumático</h3>
+          <canvas id="neumaticosChart"></canvas>
+        </div>
+
+        <div class="table-container">
+          <h3>Detalle por Posición de Neumático</h3>
+          <table id="neumaticos-table">
+            <thead>
+              <tr>
+                <th>Posición</th>
+                <th>Total Incidentes</th>
+                <th>% del Total</th>
+                <th>Pinchaduras</th>
+                <th>Cambios</th>
+                <th>Preventivos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="6" style="text-align: center;">Cargando datos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Temporal -->
+      <div id="temporal" class="tab-content">
+        <div class="chart-row">
+          <div class="chart-wrapper">
+            <div class="chart-container">
+              <h3>Incidentes por Mes</h3>
+              <canvas id="incidentesMensualesChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <div class="chart-container">
+              <h3>Incidentes por Día de la Semana</h3>
+              <canvas id="diaSemanaChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3>Evolución de Incidentes por Tipo</h3>
+          <canvas id="evolucionTipoChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="connection-status" class="connection-status connection-loading" style="display: none;">
+    <i class="fas fa-circle-notch fa-spin"></i> Conectando a la base de datos...
+  </div>
+
+  <script>
+    // Variables globales
+    let supabaseClient;
+    let allRegistros = [];
+    let filteredRegistros = [];
+    let charts = {};
+    
+    // Función para verificar si Supabase está cargado
+    function verificarSupabaseCargado() {
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
+        return true;
+      }
+      return false;
+    }
+
+    // Función para inicializar Supabase con reintentos
+    async function inicializarSupabase() {
+      const connectionStatus = document.getElementById('connection-status');
+      connectionStatus.style.display = 'block';
+      
+      // Verificar si Supabase está cargado
+      if (!verificarSupabaseCargado()) {
+        connectionStatus.className = 'connection-status connection-error';
+        connectionStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: Biblioteca Supabase no cargada';
+        mostrarError('La biblioteca Supabase no se ha cargado correctamente. Recargue la página.');
+        return false;
+      }
+
+      try {
+        // Configuración de Supabase
+        const supabaseUrl = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
+        
+        // Inicializar Supabase
+        supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Verificar conexión con un timeout
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Tiempo de espera agotado al conectar con Supabase')), 5000)
+        );
+        
+        const connectionPromise = supabaseClient
+          .from('pinchazos')
+          .select('*')
+          .limit(1);
+        
+        // Usar Promise.race para manejar el timeout
+        const { data, error } = await Promise.race([connectionPromise, timeoutPromise]);
+        
+        if (error) throw error;
+        
+        // Mostrar éxito en conexión
+        connectionStatus.className = 'connection-status connection-success';
+        connectionStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado a la base de datos';
+        
+        // Ocultar después de 3 segundos
+        setTimeout(() => {
+          connectionStatus.style.display = 'none';
+        }, 3000);
+        
+        mostrarExito('Conexión con la base de datos establecida correctamente');
+        return true;
+      } catch (error) {
+        console.error('Error al conectar con Supabase:', error);
+        
+        // Mostrar error en conexión
+        connectionStatus.className = 'connection-status connection-error';
+        connectionStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
+        
+        mostrarError(`Error al conectar con la base de datos: ${error.message}`);
+        return false;
+      }
+    }
+
+    // Esperar a que se cargue la biblioteca Supabase
+    async function esperarSupabase() {
+      const maxIntentos = 5;
+      let intentos = 0;
+      
+      while (intentos < maxIntentos) {
+        if (verificarSupabaseCargado()) {
+          return true;
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+        intentos++;
+      }
+      return false;
+    }
+
+    // Mostrar mensaje de error
+    function mostrarError(mensaje) {
+      const errorElement = document.getElementById('error-message');
+      errorElement.textContent = mensaje;
+      errorElement.style.display = 'block';
+      
+      setTimeout(() => {
+        errorElement.style.display = 'none';
+      }, 5000);
+    }
+
+    // Mostrar mensaje de éxito
+    function mostrarExito(mensaje) {
+      const successElement = document.getElementById('success-message');
+      successElement.textContent = mensaje;
+      successElement.style.display = 'block';
+      
+      setTimeout(() => {
+        successElement.style.display = 'none';
+      }, 3000);
+    }
+
+    // Función para formatear fecha en zona horaria de Chile
+    function formatChileanDate(dateString) {
+      if (!dateString) return '';
+      
+      // Crear la fecha y ajustar a zona horaria de Chile
+      const date = new Date(dateString);
+      
+      // Ajustar la fecha sumando la diferencia horaria para evitar el problema del día anterior
+      const timezoneOffset = date.getTimezoneOffset() * 60000; // en milisegundos
+      const adjustedDate = new Date(date.getTime() + timezoneOffset);
+      
+      // Opciones para el formato de fecha
+      const options = {
+        timeZone: 'America/Santiago',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      };
+      
+      return adjustedDate.toLocaleDateString('es-CL', options);
+    }
+
+    // Función para obtener el nombre del mes
+    function getMonthName(month) {
+      const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      return months[month];
+    }
+
+    // Función para obtener el nombre del día de la semana
+    function getDayName(day) {
+      const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      return days[day];
+    }
+
+    // Función para cargar todos los registros
+    async function loadAllRegistros() {
+      try {
+        const { data: registros, error } = await supabaseClient
+          .from('pinchazos')
+          .select('*')
+          .order('fecha', { ascending: false });
+        
+        if (error) throw error;
+        
+        allRegistros = registros;
+        filteredRegistros = [...registros];
+        
+        // Calcular estadísticas
+        calculateStatistics();
+        
+      } catch (error) {
+        console.error('Error al cargar registros:', error);
+        mostrarError('Error al cargar los registros: ' + error.message);
+      }
+    }
+
+    // Función para aplicar filtros
+    function applyFilters() {
+      const fechaDesde = document.getElementById('stats-fecha-desde').value;
+      const fechaHasta = document.getElementById('stats-fecha-hasta').value;
+      const turno = document.getElementById('stats-turno').value;
+      const tipoProblema = document.getElementById('stats-tipo-problema').value;
+      
+      filteredRegistros = allRegistros.filter(registro => {
+        // Filtro por fecha
+        if (fechaDesde && registro.fecha < fechaDesde) return false;
+        if (fechaHasta && registro.fecha > fechaHasta) return false;
+        
+        // Filtro por turno
+        if (turno && registro.turno !== turno) return false;
+        
+        // Filtro por tipo de problema
+        if (tipoProblema && registro.tipo_problema !== tipoProblema) return false;
+        
+        return true;
+      });
+      
+      calculateStatistics();
+    }
+
+    // Función para calcular estadísticas
+    function calculateStatistics() {
+      if (filteredRegistros.length === 0) {
+        mostrarError('No hay registros que coincidan con los filtros aplicados');
+        return;
+      }
+      
+      // Actualizar estadísticas generales
+      document.getElementById('total-incidentes').textContent = filteredRegistros.length;
+      
+      // Calcular promedio mensual
+      const firstDate = new Date(filteredRegistros[filteredRegistros.length - 1].fecha);
+      const lastDate = new Date(filteredRegistros[0].fecha);
+      const monthsDiff = (lastDate.getFullYear() - firstDate.getFullYear()) * 12 + 
+                        (lastDate.getMonth() - firstDate.getMonth()) + 1;
+      const promedioMensual = (filteredRegistros.length / Math.max(1, monthsDiff)).toFixed(1);
+      document.getElementById('promedio-mensual').textContent = promedioMensual;
+      
+      // Calcular patente con más problemas
+      const patentesCount = {};
+      filteredRegistros.forEach(r => {
+        patentesCount[r.patente] = (patentesCount[r.patente] || 0) + 1;
+      });
+      const topPatente = Object.entries(patentesCount).sort((a, b) => b[1] - a[1])[0];
+      document.getElementById('patente-mas-problemas').textContent = 
+        topPatente ? `${topPatente[0]} (${topPatente[1]})` : '-';
+      
+      // Calcular neumático más afectado
+      const neumaticosCount = {};
+      filteredRegistros.forEach(r => {
+        if (r.neumatico) {
+          r.neumatico.split('-').forEach(n => {
+            neumaticosCount[n] = (neumaticosCount[n] || 0) + 1;
+          });
+        }
+      });
+      const topNeumatico = Object.entries(neumaticosCount).sort((a, b) => b[1] - a[1])[0];
+      document.getElementById('neumatico-mas-afectado').textContent = 
+        topNeumatico ? `${topNeumatico[0]} (${topNeumatico[1]})` : '-';
+      
+      // Actualizar últimos 5 incidentes
+      updateLastIncidents();
+      
+      // Generar gráficos
+      generateCharts();
+      
+      // Generar tablas detalladas
+      generateDetailedTables();
+    }
+
+    // Función para actualizar la tabla de últimos incidentes
+    function updateLastIncidents() {
+      const lastIncidents = filteredRegistros.slice(0, 5);
+      const tbody = document.querySelector('#ultimos-incidentes tbody');
+      
+      if (lastIncidents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No hay registros</td></tr>';
+        return;
+      }
+      
+      let html = '';
+      lastIncidents.forEach(registro => {
+        // Determinar clase CSS según el tipo de problema
+        let tipoClase = '';
+        let tipoTexto = '';
+        switch(registro.tipo_problema) {
+          case 'PINCHADURA':
+            tipoClase = 'tipo-pinchadura';
+            tipoTexto = 'Pinchadura';
+            break;
+          case 'CAMBIO':
+            tipoClase = 'tipo-cambio';
+            tipoTexto = 'Cambio';
+            break;
+          case 'PREVENTIVO_CORRECTIVO':
+            tipoClase = 'tipo-preventivo';
+            tipoTexto = 'Preventivo/Correctivo';
+            break;
+          default:
+            tipoClase = '';
+            tipoTexto = registro.tipo_problema || '';
+        }
+        
+        html += `
+          <tr>
+            <td>${formatChileanDate(registro.fecha)}</td>
+            <td>${registro.turno}</td>
+            <td>${registro.patente}</td>
+            <td>${registro.conductor || '-'}</td>
+            <td><span class="tipo-problema-badge ${tipoClase}">${tipoTexto}</span></td>
+            <td>${registro.neumatico || '-'}</td>
+          </tr>
+        `;
+      });
+      
+      tbody.innerHTML = html;
+    }
+
+    // Función para generar todos los gráficos
+    function generateCharts() {
+      // Destruir gráficos existentes
+      Object.values(charts).forEach(chart => {
+        if (chart) chart.destroy();
+      });
+      
+      // Gráfico de distribución por tipo de problema
+      generateTipoProblemaChart();
+      
+      // Gráfico de incidentes por turno
+      generateTurnoChart();
+      
+      // Gráfico de evolución mensual
+      generateEvolucionMensualChart();
+      
+      // Gráfico de torque verificado
+      generateTorqueChart();
+      
+      // Gráfico de top patentes
+      generateTopPatentesChart();
+      
+      // Gráfico de top conductores
+      generateTopConductoresChart();
+      
+      // Gráfico de distribución por neumático
+      generateNeumaticosChart();
+      
+      // Gráfico de incidentes por mes
+      generateIncidentesMensualesChart();
+      
+      // Gráfico de incidentes por día de la semana
+      generateDiaSemanaChart();
+      
+      // Gráfico de evolución por tipo
+      generateEvolucionTipoChart();
+    }
+
+    // Generar gráfico de distribución por tipo de problema
+    function generateTipoProblemaChart() {
+      const tipos = {
+        'PINCHADURA': 0,
+        'CAMBIO': 0,
+        'PREVENTIVO_CORRECTIVO': 0
+      };
+      
+      filteredRegistros.forEach(r => {
+        tipos[r.tipo_problema] = (tipos[r.tipo_problema] || 0) + 1;
+      });
+      
+      const ctx = document.getElementById('tipoProblemaChart').getContext('2d');
+      charts.tipoProblema = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Pinchaduras', 'Cambios', 'Preventivo/Correctivo'],
+          datasets: [{
+            data: Object.values(tipos),
+            backgroundColor: [
+              '#fff3cd',
+              '#e3f2fd',
+              '#d4edda'
+            ],
+            borderColor: [
+              '#856404',
+              '#0d6efd',
+              '#155724'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de incidentes por turno
+    function generateTurnoChart() {
+      const turnos = {
+        'A': 0,
+        'B': 0
+      };
+      
+      filteredRegistros.forEach(r => {
+        turnos[r.turno] = (turnos[r.turno] || 0) + 1;
+      });
+      
+      const ctx = document.getElementById('turnoChart').getContext('2d');
+      charts.turno = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Turno A', 'Turno B'],
+          datasets: [{
+            label: 'Incidentes',
+            data: Object.values(turnos),
+            backgroundColor: [
+              'rgba(63, 114, 175, 0.7)',
+              'rgba(219, 226, 239, 0.7)'
+            ],
+            borderColor: [
+              'rgba(63, 114, 175, 1)',
+              'rgba(219, 226, 239, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Incidentes'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de evolución mensual
+    function generateEvolucionMensualChart() {
+      // Agrupar por mes y año
+      const meses = {};
+      
+      filteredRegistros.forEach(r => {
+        const date = new Date(r.fecha);
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
+        
+        if (!meses[key]) {
+          meses[key] = {
+            count: 0,
+            label: `${getMonthName(date.getMonth())} ${date.getFullYear()}`
+          };
+        }
+        
+        meses[key].count++;
+      });
+      
+      // Ordenar por fecha
+      const sortedMonths = Object.entries(meses)
+        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+        .map(entry => entry[1]);
+      
+      const labels = sortedMonths.map(m => m.label);
+      const data = sortedMonths.map(m => m.count);
+      
+      const ctx = document.getElementById('evolucionMensualChart').getContext('2d');
+      charts.evolucionMensual = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Incidentes',
+            data: data,
+            backgroundColor: 'rgba(63, 114, 175, 0.2)',
+            borderColor: 'rgba(63, 114, 175, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Incidentes'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de torque verificado
+    function generateTorqueChart() {
+      const torque = {
+        'SI': 0,
+        'NO': 0
+      };
+      
+      filteredRegistros.forEach(r => {
+        torque[r.torque] = (torque[r.torque] || 0) + 1;
+      });
+      
+      const ctx = document.getElementById('torqueChart').getContext('2d');
+      charts.torque = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Torque Verificado', 'Torque No Verificado'],
+          datasets: [{
+            data: Object.values(torque),
+            backgroundColor: [
+              'rgba(46, 204, 113, 0.7)',
+              'rgba(231, 76, 60, 0.7)'
+            ],
+            borderColor: [
+              'rgba(46, 204, 113, 1)',
+              'rgba(231, 76, 60, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de top patentes
+    function generateTopPatentesChart() {
+      const patentesCount = {};
+      
+      filteredRegistros.forEach(r => {
+        patentesCount[r.patente] = (patentesCount[r.patente] || 0) + 1;
+      });
+      
+      const sortedPatentes = Object.entries(patentesCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+      
+      const labels = sortedPatentes.map(p => p[0]);
+      const data = sortedPatentes.map(p => p[1]);
+      
+      const ctx = document.getElementById('topPatentesChart').getContext('2d');
+      charts.topPatentes = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Incidentes',
+            data: data,
+            backgroundColor: 'rgba(63, 114, 175, 0.7)',
+            borderColor: 'rgba(63, 114, 175, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Incidentes'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de top conductores
+    function generateTopConductoresChart() {
+      const conductoresCount = {};
+      
+      filteredRegistros.forEach(r => {
+        if (r.conductor) {
+          conductoresCount[r.conductor] = (conductoresCount[r.conductor] || 0) + 1;
+        }
+      });
+      
+      const sortedConductores = Object.entries(conductoresCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+      
+      const labels = sortedConductores.map(c => c[0]);
+      const data = sortedConductores.map(c => c[1]);
+      
+      const ctx = document.getElementById('topConductoresChart').getContext('2d');
+      charts.topConductores = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Incidentes',
+            data: data,
+            backgroundColor: 'rgba(63, 114, 175, 0.7)',
+            borderColor: 'rgba(63, 114, 175, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Incidentes'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de distribución por neumático
+    function generateNeumaticosChart() {
+      const neumaticosCount = {};
+      
+      filteredRegistros.forEach(r => {
+        if (r.neumatico) {
+          r.neumatico.split('-').forEach(n => {
+            neumaticosCount[n] = (neumaticosCount[n] || 0) + 1;
+          });
+        }
+      });
+      
+      const sortedNeumaticos = Object.entries(neumaticosCount)
+        .sort((a, b) => b[1] - a[1]);
+      
+      const labels = sortedNeumaticos.map(n => n[0]);
+      const data = sortedNeumaticos.map(n => n[1]);
+      
+      const ctx = document.getElementById('neumaticosChart').getContext('2d');
+      charts.neumaticos = new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Incidentes',
+            data: data,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.7)',
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)',
+              'rgba(255, 159, 64, 0.7)',
+              'rgba(199, 199, 199, 0.7)',
+              'rgba(83, 102, 255, 0.7)'
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(199, 199, 199, 1)',
+              'rgba(83, 102, 255, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de incidentes por mes
+    function generateIncidentesMensualesChart() {
+      // Agrupar por mes y año
+      const meses = {};
+      
+      filteredRegistros.forEach(r => {
+        const date = new Date(r.fecha);
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
+        
+        if (!meses[key]) {
+          meses[key] = {
+            count: 0,
+            label: `${getMonthName(date.getMonth())} ${date.getFullYear()}`
+          };
+        }
+        
+        meses[key].count++;
+      });
+      
+      // Ordenar por fecha
+      const sortedMonths = Object.entries(meses)
+        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+        .map(entry => entry[1]);
+      
+      const labels = sortedMonths.map(m => m.label);
+      const data = sortedMonths.map(m => m.count);
+      
+      const ctx = document.getElementById('incidentesMensualesChart').getContext('2d');
+      charts.incidentesMensuales = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Incidentes',
+            data: data,
+            backgroundColor: 'rgba(63, 114, 175, 0.7)',
+            borderColor: 'rgba(63, 114, 175, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Incidentes'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de incidentes por día de la semana
+    function generateDiaSemanaChart() {
+      const dias = {
+        0: 0, // Domingo
+        1: 0, // Lunes
+        2: 0, // Martes
+        3: 0, // Miércoles
+        4: 0, // Jueves
+        5: 0, // Viernes
+        6: 0  // Sábado
+      };
+      
+      filteredRegistros.forEach(r => {
+        const date = new Date(r.fecha);
+        dias[date.getDay()]++;
+      });
+      
+      // Ordenar de lunes a domingo
+      const orderedDays = [
+        dias[1], // Lunes
+        dias[2], // Martes
+        dias[3], // Miércoles
+        dias[4], // Jueves
+        dias[5], // Viernes
+        dias[6], // Sábado
+        dias[0]  // Domingo
+      ];
+      
+      const labels = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+      
+      const ctx = document.getElementById('diaSemanaChart').getContext('2d');
+      charts.diaSemana = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Incidentes',
+            data: orderedDays,
+            backgroundColor: 'rgba(63, 114, 175, 0.7)',
+            borderColor: 'rgba(63, 114, 175, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Incidentes'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // Generar gráfico de evolución por tipo
+    function generateEvolucionTipoChart() {
+      // Agrupar por mes y año y tipo
+      const meses = {};
+      
+      filteredRegistros.forEach(r => {
+        const date = new Date(r.fecha);
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
+        
+        if (!meses[key]) {
+          meses[key] = {
+            label: `${getMonthName(date.getMonth())} ${date.getFullYear()}`,
+            PINCHADURA: 0,
+            CAMBIO: 0,
+            PREVENTIVO_CORRECTIVO: 0
+          };
+        }
+        
+        meses[key][r.tipo_problema]++;
+      });
+      
+      // Ordenar por fecha
+      const sortedMonths = Object.entries(meses)
+        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+        .map(entry => entry[1]);
+      
+      const labels = sortedMonths.map(m => m.label);
+      const pinchaduras = sortedMonths.map(m => m.PINCHADURA);
+      const cambios = sortedMonths.map(m => m.CAMBIO);
+      const preventivos = sortedMonths.map(m => m.PREVENTIVO_CORRECTIVO);
+      
+      const ctx = document.getElementById('evolucionTipoChart').getContext('2d');
+      charts.evolucionTipo = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Pinchaduras',
+              data: pinchaduras,
+              backgroundColor: 'rgba(255, 193, 7, 0.2)',
+              borderColor: 'rgba(255, 193, 7, 1)',
+              borderWidth: 2,
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Cambios',
+              data: cambios,
+              backgroundColor: 'rgba(13, 110, 253, 0.2)',
+              borderColor: 'rgba(13, 110, 253, 1)',
+              borderWidth: 2,
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Preventivos/Correctivos',
+              data: preventivos,
+              backgroundColor: 'rgba(25, 135, 84, 0.2)',
+              borderColor: 'rgba(25, 135, 84, 1)',
+              borderWidth: 2,
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Cantidad de Incidentes'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Generar tablas detalladas
+    function generateDetailedTables() {
+      generatePatentesTable();
+      generateConductoresTable();
+      generateNeumaticosTable();
+    }
+
+    // Generar tabla detallada de patentes
+    function generatePatentesTable() {
+      const patentesData = {};
+      
+      filteredRegistros.forEach(r => {
+        if (!patentesData[r.patente]) {
+          patentesData[r.patente] = {
+            total: 0,
+            PINCHADURA: 0,
+            CAMBIO: 0,
+            PREVENTIVO_CORRECTIVO: 0,
+            ultimoIncidente: r.fecha
+          };
+        }
+        
+        patentesData[r.patente].total++;
+        patentesData[r.patente][r.tipo_problema]++;
+        
+        if (new Date(r.fecha) > new Date(patentesData[r.patente].ultimoIncidente)) {
+          patentesData[r.patente].ultimoIncidente = r.fecha;
+        }
+      });
+      
+      const sortedPatentes = Object.entries(patentesData)
+        .sort((a, b) => b[1].total - a[1].total);
+      
+      const tbody = document.querySelector('#patentes-table tbody');
+      let html = '';
+      
+      sortedPatentes.forEach(([patente, data]) => {
+        html += `
+          <tr>
+            <td>${patente}</td>
+            <td>${data.total}</td>
+            <td>${data.PINCHADURA}</td>
+            <td>${data.CAMBIO}</td>
+            <td>${data.PREVENTIVO_CORRECTIVO}</td>
+            <td>${formatChileanDate(data.ultimoIncidente)}</td>
+          </tr>
+        `;
+      });
+      
+      tbody.innerHTML = html || '<tr><td colspan="6" style="text-align: center;">No hay datos</td></tr>';
+    }
+
+    // Generar tabla detallada de conductores
+    function generateConductoresTable() {
+      const conductoresData = {};
+      
+      filteredRegistros.forEach(r => {
+        if (!r.conductor) return;
+        
+        if (!conductoresData[r.conductor]) {
+          conductoresData[r.conductor] = {
+            total: 0,
+            PINCHADURA: 0,
+            CAMBIO: 0,
+            PREVENTIVO_CORRECTIVO: 0,
+            patentes: new Set()
+          };
+        }
+        
+        conductoresData[r.conductor].total++;
+        conductoresData[r.conductor][r.tipo_problema]++;
+        conductoresData[r.conductor].patentes.add(r.patente);
+      });
+      
+      const sortedConductores = Object.entries(conductoresData)
+        .sort((a, b) => b[1].total - a[1].total);
+      
+      const tbody = document.querySelector('#conductores-table tbody');
+      let html = '';
+      
+      sortedConductores.forEach(([conductor, data]) => {
+        html += `
+          <tr>
+            <td>${conductor}</td>
+            <td>${data.total}</td>
+            <td>${data.PINCHADURA}</td>
+            <td>${data.CAMBIO}</td>
+            <td>${data.PREVENTIVO_CORRECTIVO}</td>
+            <td>${Array.from(data.patentes).join(', ')}</td>
+          </tr>
+        `;
+      });
+      
+      tbody.innerHTML = html || '<tr><td colspan="6" style="text-align: center;">No hay datos</td></tr>';
+    }
+
+    // Generar tabla detallada de neumáticos
+    function generateNeumaticosTable() {
+      const neumaticosData = {};
+      const totalIncidentes = filteredRegistros.length;
+      
+      filteredRegistros.forEach(r => {
+        if (!r.neumatico) return;
+        
+        r.neumatico.split('-').forEach(n => {
+          if (!neumaticosData[n]) {
+            neumaticosData[n] = {
+              total: 0,
+              PINCHADURA: 0,
+              CAMBIO: 0,
+              PREVENTIVO_CORRECTIVO: 0
+            };
+          }
+          
+          neumaticosData[n].total++;
+          neumaticosData[n][r.tipo_problema]++;
+        });
+      });
+      
+      const sortedNeumaticos = Object.entries(neumaticosData)
+        .sort((a, b) => b[1].total - a[1].total);
+      
+      const tbody = document.querySelector('#neumaticos-table tbody');
+      let html = '';
+      
+      sortedNeumaticos.forEach(([neumatico, data]) => {
+        const porcentaje = ((data.total / totalIncidentes) * 100).toFixed(1);
+        
+        html += `
+          <tr>
+            <td>${neumatico}</td>
+            <td>${data.total}</td>
+            <td>${porcentaje}%</td>
+            <td>${data.PINCHADURA}</td>
+            <td>${data.CAMBIO}</td>
+            <td>${data.PREVENTIVO_CORRECTIVO}</td>
+          </tr>
+        `;
+      });
+      
+      tbody.innerHTML = html || '<tr><td colspan="6" style="text-align: center;">No hay datos</td></tr>';
+    }
+
+    // Función para cargar estadísticas
+    function loadStatistics() {
+      applyFilters();
+    }
+
+    // Función para resetear filtros
+    function resetStatsFilters() {
+      document.getElementById('stats-fecha-desde').value = '';
+      document.getElementById('stats-fecha-hasta').value = '';
+      document.getElementById('stats-turno').value = '';
+      document.getElementById('stats-tipo-problema').value = '';
+      
+      loadStatistics();
+    }
+
+    // Función para exportar estadísticas
+    async function exportarEstadisticas() {
+      try {
+        // Crear HTML para la exportación
+        let html = `
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+            <meta charset="UTF-8">
+            <title>Reporte Estadístico de Pinchazos</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+              .header { display: flex; align-items: center; margin-bottom: 20px; }
+              .logo { width: 80px; height: 80px; margin-right: 20px; }
+              .title { flex-grow: 1; }
+              h1 { margin: 0; color: #2c5282; text-align: center; }
+              .subtitle { margin: 0; color: #666; text-align: center; }
+              .section { margin-bottom: 30px; }
+              .section-title { color: #2c5282; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; }
+              .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+              .stat-card { border: 1px solid #ddd; border-radius: 5px; padding: 15px; text-align: center; }
+              .stat-value { font-size: 2rem; font-weight: 700; color: #2c5282; margin: 10px 0; }
+              .stat-label { font-size: 0.9rem; color: #666; }
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; }
+              .chart-container { margin-bottom: 30px; page-break-inside: avoid; }
+              .chart-title { text-align: center; font-weight: 600; margin-bottom: 10px; }
+              .page-break { page-break-after: always; }
+              @page { size: A4 landscape; margin: 10mm; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="logo">
+                <img src="img/logo.png" alt="Logo" style="width:100%; height:auto;">
+              </div>
+              <div class="title">
+                <h1>Reporte Estadístico de Pinchazos</h1>
+                <p class="subtitle">Generado el ${new Date().toLocaleDateString('es-CL')}</p>
+              </div>
+            </div>
+            
+            <div class="section">
+              <h2 class="section-title">Resumen General</h2>
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-value">${filteredRegistros.length}</div>
+                  <div class="stat-label">Total de Incidentes</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">${document.getElementById('promedio-mensual').textContent}</div>
+                  <div class="stat-label">Promedio Mensual</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">${document.getElementById('patente-mas-problemas').textContent}</div>
+                  <div class="stat-label">Patente con más incidentes</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value">${document.getElementById('neumatico-mas-afectado').textContent}</div>
+                  <div class="stat-label">Neumático más afectado</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="section">
+              <h2 class="section-title">Distribución por Tipo de Problema</h2>
+              <div class="chart-container">
+                <div class="chart-title">Distribución por Tipo de Problema</div>
+                <img src="${charts.tipoProblema.toBase64Image()}" style="width:100%; max-width:500px; display:block; margin:0 auto;">
+              </div>
+            </div>
+            
+            <div class="page-break"></div>
+            
+            <div class="section">
+              <h2 class="section-title">Análisis por Patente</h2>
+              <div class="chart-container">
+                <div class="chart-title">Top 10 Patentes con más Incidentes</div>
+                <img src="${charts.topPatentes.toBase64Image()}" style="width:100%; max-width:600px; display:block; margin:0 auto;">
+              </div>
+              
+              <table>
+                <thead>
+                  <tr>
+                    <th>Patente</th>
+                    <th>Total Incidentes</th>
+                    <th>Pinchaduras</th>
+                    <th>Cambios</th>
+                    <th>Preventivos</th>
+                    <th>Último Incidente</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        // Agregar datos de patentes
+        const patentesData = {};
+        filteredRegistros.forEach(r => {
+          if (!patentesData[r.patente]) {
+            patentesData[r.patente] = {
+              total: 0,
+              PINCHADURA: 0,
+              CAMBIO: 0,
+              PREVENTIVO_CORRECTIVO: 0,
+              ultimoIncidente: r.fecha
+            };
+          }
+          
+          patentesData[r.patente].total++;
+          patentesData[r.patente][r.tipo_problema]++;
+          
+          if (new Date(r.fecha) > new Date(patentesData[r.patente].ultimoIncidente)) {
+            patentesData[r.patente].ultimoIncidente = r.fecha;
+          }
+        });
+        
+        const sortedPatentes = Object.entries(patentesData)
+          .sort((a, b) => b[1].total - a[1].total);
+        
+        sortedPatentes.forEach(([patente, data]) => {
+          html += `
+            <tr>
+              <td>${patente}</td>
+              <td>${data.total}</td>
+              <td>${data.PINCHADURA}</td>
+              <td>${data.CAMBIO}</td>
+              <td>${data.PREVENTIVO_CORRECTIVO}</td>
+              <td>${formatChileanDate(data.ultimoIncidente)}</td>
+            </tr>
+          `;
+        });
+        
+        html += `
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="page-break"></div>
+            
+            <div class="section">
+              <h2 class="section-title">Análisis por Conductor</h2>
+              <div class="chart-container">
+                <div class="chart-title">Top 10 Conductores con más Incidentes</div>
+                <img src="${charts.topConductores.toBase64Image()}" style="width:100%; max-width:600px; display:block; margin:0 auto;">
+              </div>
+              
+              <table>
+                <thead>
+                  <tr>
+                    <th>Conductor</th>
+                    <th>Total Incidentes</th>
+                    <th>Pinchaduras</th>
+                    <th>Cambios</th>
+                    <th>Preventivos</th>
+                    <th>Patentes Asociadas</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        // Agregar datos de conductores
+        const conductoresData = {};
+        filteredRegistros.forEach(r => {
+          if (!r.conductor) return;
+          
+          if (!conductoresData[r.conductor]) {
+            conductoresData[r.conductor] = {
+              total: 0,
+              PINCHADURA: 0,
+              CAMBIO: 0,
+              PREVENTIVO_CORRECTIVO: 0,
+              patentes: new Set()
+            };
+          }
+          
+          conductoresData[r.conductor].total++;
+          conductoresData[r.conductor][r.tipo_problema]++;
+          conductoresData[r.conductor].patentes.add(r.patente);
+        });
+        
+        const sortedConductores = Object.entries(conductoresData)
+          .sort((a, b) => b[1].total - a[1].total);
+        
+        sortedConductores.forEach(([conductor, data]) => {
+          html += `
+            <tr>
+              <td>${conductor}</td>
+              <td>${data.total}</td>
+              <td>${data.PINCHADURA}</td>
+              <td>${data.CAMBIO}</td>
+              <td>${data.PREVENTIVO_CORRECTIVO}</td>
+              <td>${Array.from(data.patentes).join(', ')}</td>
+            </tr>
+          `;
+        });
+        
+        html += `
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="page-break"></div>
+            
+            <div class="section">
+              <h2 class="section-title">Análisis por Neumático</h2>
+              <div class="chart-container">
+                <div class="chart-title">Distribución por Posición de Neumático</div>
+                <img src="${charts.neumaticos.toBase64Image()}" style="width:100%; max-width:500px; display:block; margin:0 auto;">
+              </div>
+              
+              <table>
+                <thead>
+                  <tr>
+                    <th>Posición</th>
+                    <th>Total Incidentes</th>
+                    <th>% del Total</th>
+                    <th>Pinchaduras</th>
+                    <th>Cambios</th>
+                    <th>Preventivos</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        // Agregar datos de neumáticos
+        const neumaticosData = {};
+        const totalIncidentes = filteredRegistros.length;
+        
+        filteredRegistros.forEach(r => {
+          if (!r.neumatico) return;
+          
+          r.neumatico.split('-').forEach(n => {
+            if (!neumaticosData[n]) {
+              neumaticosData[n] = {
+                total: 0,
+                PINCHADURA: 0,
+                CAMBIO: 0,
+                PREVENTIVO_CORRECTIVO: 0
+              };
+            }
+            
+            neumaticosData[n].total++;
+            neumaticosData[n][r.tipo_problema]++;
+          });
+        });
+        
+        const sortedNeumaticos = Object.entries(neumaticosData)
+          .sort((a, b) => b[1].total - a[1].total);
+        
+        sortedNeumaticos.forEach(([neumatico, data]) => {
+          const porcentaje = ((data.total / totalIncidentes) * 100).toFixed(1);
+          
+          html += `
+            <tr>
+              <td>${neumatico}</td>
+              <td>${data.total}</td>
+              <td>${porcentaje}%</td>
+              <td>${data.PINCHADURA}</td>
+              <td>${data.CAMBIO}</td>
+              <td>${data.PREVENTIVO_CORRECTIVO}</td>
+            </tr>
+          `;
+        });
+        
+        html += `
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="page-break"></div>
+            
+            <div class="section">
+              <h2 class="section-title">Análisis Temporal</h2>
+              <div class="chart-container">
+                <div class="chart-title">Evolución Mensual</div>
+                <img src="${charts.evolucionMensual.toBase64Image()}" style="width:100%; max-width:600px; display:block; margin:0 auto;">
+              </div>
+              
+              <div class="chart-container">
+                <div class="chart-title">Incidentes por Día de la Semana</div>
+                <img src="${charts.diaSemana.toBase64Image()}" style="width:100%; max-width:600px; display:block; margin:0 auto;">
+              </div>
+              
+              <div class="chart-container">
+                <div class="chart-title">Evolución por Tipo de Problema</div>
+                <img src="${charts.evolucionTipo.toBase64Image()}" style="width:100%; max-width:600px; display:block; margin:0 auto;">
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+        
+        // Abrir ventana de impresión
+        const printWindow = window.open('', '_blank');
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+        
+      } catch (error) {
+        console.error('Error al exportar estadísticas:', error);
+        mostrarError('Error al exportar las estadísticas: ' + error.message);
+      }
+    }
+
+    // Función para cambiar entre pestañas
+    function openTab(tabId) {
+      // Ocultar todos los contenidos de pestañas
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Desactivar todos los botones de pestañas
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      // Mostrar la pestaña seleccionada y activar su botón
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+
+    // Inicializar la aplicación cuando se cargue la página
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Esperar a que se cargue Supabase
+      const supabaseCargado = await esperarSupabase();
+      
+      if (!supabaseCargado) {
+        mostrarError('No se pudo cargar la biblioteca Supabase. Verifique su conexión a internet y recargue la página.');
+        return;
+      }
+      
+      // Inicializar Supabase
+      await inicializarSupabase();
+      
+      // Cargar todos los registros
+      await loadAllRegistros();
+      
+      // Establecer fecha actual como predeterminada en el filtro "hasta"
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('stats-fecha-hasta').value = today;
+      
+      // Establecer fecha de hace 3 meses como predeterminada en el filtro "desde"
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      document.getElementById('stats-fecha-desde').value = threeMonthsAgo.toISOString().split('T')[0];
+    });
+  </script>
+</body>
+</html>
