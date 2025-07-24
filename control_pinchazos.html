@@ -886,11 +886,11 @@
           <div class="row">
             <div class="col">
               <label for="edit-fecha">Fecha:</label>
-              <input type="date" id="edit-fecha" required>
+              <input type="date" id="edit-fecha">
             </div>
             <div class="col">
               <label for="edit-turno">Turno:</label>
-              <select id="edit-turno" required>
+              <select id="edit-turno">
                 <option value="">Seleccione...</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -898,18 +898,18 @@
             </div>
             <div class="col">
               <label for="edit-kilometaje">Kilometaje:</label>
-              <input type="number" id="edit-kilometaje" min="0" step="1" required>
+              <input type="number" id="edit-kilometaje" min="0" step="1">
             </div>
           </div>
           
           <div class="row">
             <div class="col">
               <label for="edit-tipo-vehiculo">Tipo de Vehículo:</label>
-              <input type="text" id="edit-tipo-vehiculo" required>
+              <input type="text" id="edit-tipo-vehiculo">
             </div>
             <div class="col">
-              <label for="edit-patente" class="required-field">Patente:</label>
-              <input type="text" id="edit-patente" required>
+              <label for="edit-patente">Patente:</label>
+              <input type="text" id="edit-patente">
             </div>
             <div class="col">
               <label for="edit-conductor">Conductor:</label>
@@ -968,11 +968,11 @@
           <div class="row">
             <div class="col">
               <label for="edit-problema">Detalle del Problema:</label>
-              <textarea id="edit-problema" rows="3" required></textarea>
+              <textarea id="edit-problema" rows="3"></textarea>
             </div>
             <div class="col">
               <label for="edit-accion">Acción Inmediata:</label>
-              <textarea id="edit-accion" rows="3" required></textarea>
+              <textarea id="edit-accion" rows="3"></textarea>
             </div>
           </div>
           
@@ -1064,11 +1064,11 @@
           <div class="row">
             <div class="col">
               <label for="edit-revision-km">Verificación de Torque (km o hrs):</label>
-              <input type="number" id="edit-revision-km" min="0" step="1" required>
+              <input type="number" id="edit-revision-km" min="0" step="1">
             </div>
             <div class="col">
               <label for="edit-responsable">Responsable:</label>
-              <input type="text" id="edit-responsable" required>
+              <input type="text" id="edit-responsable">
             </div>
           </div>
         </div>
@@ -1228,8 +1228,27 @@
 
     // Función para abrir la página de impresión con los datos del registro
     function imprimirRegistro(registro) {
-      // Redirigir a Imprimirp.html con el ID del registro
-      window.location.href = `Imprimirp.html?id=${registro.id}`;
+      // Crear URL con parámetros
+      const params = new URLSearchParams();
+      params.append('id', registro.id);
+      params.append('fecha', registro.fecha);
+      params.append('turno', registro.turno);
+      params.append('kilometaje', registro.kilometaje);
+      params.append('tipo_vehiculo', registro.tipo_vehiculo);
+      params.append('patente', registro.patente);
+      params.append('conductor', registro.conductor || '');
+      params.append('supervisor', registro.supervisor || '');
+      params.append('problema', registro.problema || '');
+      params.append('accion', registro.accion || '');
+      params.append('neumatico', registro.neumatico || '');
+      params.append('checklist', registro.checklist || 'NO');
+      params.append('torque', registro.torque || 'NO');
+      params.append('revision_km', registro.revision_km || '');
+      params.append('responsable', registro.responsable || '');
+      params.append('tipo_problema', registro.tipo_problema || 'PINCHADURA');
+      
+      // Abrir la página de impresión
+      window.open(`Imprimirp.html?${params.toString()}`, '_blank');
     }
 
     // Función para imprimir desde el modal de edición
@@ -1801,14 +1820,6 @@
       }
       
       registro.neumatico = neumaticosSeleccionados.join('-');
-      
-      // Validación básica
-      if (!registro.fecha || !registro.turno || !registro.kilometaje || !registro.tipo_vehiculo || 
-          !registro.patente || !registro.conductor || !registro.problema || !registro.accion || 
-          !registro.revision_km || !registro.responsable) {
-        mostrarError('Todos los campos obligatorios deben estar completos');
-        return;
-      }
       
       try {
         const id = document.getElementById('edit-id').value;
