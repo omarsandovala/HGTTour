@@ -388,33 +388,6 @@
       flex-wrap: wrap;
     }
 
-    .connection-status {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 15px;
-      border-radius: var(--border-radius);
-      font-weight: 500;
-      box-shadow: var(--box-shadow);
-      z-index: 100;
-    }
-
-    .connection-success {
-      background-color: var(--color-success);
-      color: white;
-    }
-
-    .connection-error {
-      background-color: var(--color-error);
-      color: white;
-    }
-
-    .connection-loading {
-      background-color: var(--color-primary);
-      color: white;
-    }
-
-    /* Estilo para el tipo de problema */
     .tipo-problema-badge {
       display: inline-block;
       padding: 3px 8px;
@@ -634,14 +607,11 @@
         <button class="btn btn-success" onclick="exportarEstadisticas()">
           <i class="fas fa-file-export"></i> Exportar
         </button>
-        
-        </button>
       </div>
     </div>
 
     <div id="error-message" class="status-message error" style="display: none;"></div>
     <div id="success-message" class="status-message success" style="display: none;"></div>
-    <div id="connection-message" class="status-message info" style="display: none;"></div>
 
     <div class="filters-container">
       <h2>Filtrar Estadísticas</h2>
@@ -675,6 +645,9 @@
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="resetStatsFilters()">
           <i class="fas fa-times"></i> Limpiar
+        </button>
+        <button type="button" class="btn btn-info" onclick="window.history.back()">
+          <i class="fas fa-arrow-left"></i> Volver
         </button>
         <button type="button" class="btn btn-primary" onclick="loadStatistics()">
           <i class="fas fa-search"></i> Aplicar Filtros
@@ -896,10 +869,6 @@
     </div>
   </div>
 
-  <div id="connection-status" class="connection-status connection-loading" style="display: none;">
-    <i class="fas fa-circle-notch fa-spin"></i> Conectando a la base de datos...
-  </div>
-
   <script>
     // Variables globales
     let supabaseClient;
@@ -917,13 +886,8 @@
 
     // Función para inicializar Supabase con reintentos
     async function inicializarSupabase() {
-      const connectionStatus = document.getElementById('connection-status');
-      connectionStatus.style.display = 'block';
-      
       // Verificar si Supabase está cargado
       if (!verificarSupabaseCargado()) {
-        connectionStatus.className = 'connection-status connection-error';
-        connectionStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: Biblioteca Supabase no cargada';
         mostrarError('La biblioteca Supabase no se ha cargado correctamente. Recargue la página.');
         return false;
       }
@@ -951,24 +915,10 @@
         
         if (error) throw error;
         
-        // Mostrar éxito en conexión
-        connectionStatus.className = 'connection-status connection-success';
-        connectionStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado a la base de datos';
-        
-        // Ocultar después de 3 segundos
-        setTimeout(() => {
-          connectionStatus.style.display = 'none';
-        }, 3000);
-        
         mostrarExito('Conexión con la base de datos establecida correctamente');
         return true;
       } catch (error) {
         console.error('Error al conectar con Supabase:', error);
-        
-        // Mostrar error en conexión
-        connectionStatus.className = 'connection-status connection-error';
-        connectionStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
-        
         mostrarError(`Error al conectar con la base de datos: ${error.message}`);
         return false;
       }
