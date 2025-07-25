@@ -485,7 +485,7 @@
     <script>
       // Variables globales
       let supabaseClient;
-      const patentesEspecificas = ['LWPP77', 'PHVW53', 'LJSJ82', 'RJTK26', 'LYZB94', 'PPPJ70', 'PHVW56', 'PBYS78', 'PHVW54', 'PPPJ69', 'TDDW14', 'TDDW16', 'TDDW18', 'TDDW19'];
+      let patentesRegistradas = []; // Aquí almacenaremos todas las patentes de la tabla maquinas
       const intervaloMantencionKm = 3000; // Mantenciones cada 3,000 km
       const margenKm = 500; // Margen de 500 km antes/después
 
@@ -495,6 +495,23 @@
           return true;
         }
         return false;
+      }
+
+      // Función para obtener todas las patentes de la tabla maquinas
+      async function obtenerTodasLasPatentes() {
+        try {
+          const { data, error } = await supabaseClient
+            .from('maquinas')
+            .select('patente');
+          
+          if (error) throw error;
+          
+          return data.map(item => item.patente);
+        } catch (error) {
+          console.error('Error al obtener patentes de máquinas:', error);
+          mostrarError('Error al obtener la lista de patentes');
+          return [];
+        }
       }
 
       // Función para obtener el último mantenimiento preventivo por kilometraje de una patente
@@ -697,9 +714,17 @@
         resultadosDiv.innerHTML = '<p>Cargando datos...</p>';
         
         try {
+          // Obtener todas las patentes de la tabla maquinas
+          patentesRegistradas = await obtenerTodasLasPatentes();
+          
+          if (patentesRegistradas.length === 0) {
+            resultadosDiv.innerHTML = '<p>No se encontraron máquinas registradas en la base de datos.</p>';
+            return;
+          }
+          
           let resultadosHTML = '';
           
-          for (const patente of patentesEspecificas) {
+          for (const patente of patentesRegistradas) {
             const [ultimoMantenimiento, datosMaquina, historialMantenciones] = await Promise.all([
               obtenerUltimoMantenimientoPreventivo(patente),
               obtenerDatosMaquina(patente),
@@ -987,4 +1012,4 @@
     </script>
   </div>
 </body>
-</html>	
+</html>

@@ -465,6 +465,80 @@
       margin-left: 10px;
     }
 
+    .patentes-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 20px;
+    }
+
+    .patentes-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .patente-tag {
+      background-color: var(--color-secondary);
+      padding: 5px 10px;
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .patente-tag button {
+      background: none;
+      border: none;
+      color: var(--color-error);
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .add-patente-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .add-patente-form input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: var(--border-radius);
+    }
+
+    .sm-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+
+    .sm1 {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .sm2 {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .sm3 {
+      background-color: #cce5ff;
+      color: #004085;
+    }
+
+    .sm4 {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
     @media print {
       body {
         background: white;
@@ -508,7 +582,7 @@
         </div>
         <div>
           <h1>Cálculo de Próxima Mantención Sprinter</h1>
-          <div class="subtitle">Por Kilometraje - Cada 10,000 km (Chile)</div>
+          <div class="subtitle">Por Kilometraje - Sistema SM1, SM2, SM3, SM4 (Chile)</div>
         </div>
       </div>
       <div class="btn-group">
@@ -524,9 +598,35 @@
 
     <div class="filtros-container">
       <h2>Configuración de Cálculo</h2>
-      <button class="btn btn-primary" onclick="calcularProximasMantenciones()">
-        <i class="fas fa-calculator"></i> Calcular Próximas Mantenciones
-      </button>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="calcularProximasMantenciones()">
+          <i class="fas fa-calculator"></i> Calcular Próximas Mantenciones
+        </button>
+        <button class="btn btn-info" onclick="mostrarConfigPatentes()">
+          <i class="fas fa-car"></i> Gestionar Patentes
+        </button>
+      </div>
+    </div>
+
+    <div class="patentes-container hidden" id="config-patentes">
+      <h2>Gestión de Patentes</h2>
+      <div class="add-patente-form">
+        <input type="text" id="nueva-patente" placeholder="Ingrese nueva patente" maxlength="6">
+        <button class="btn btn-success" onclick="agregarPatente()">
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+      </div>
+      <div class="patentes-list" id="lista-patentes">
+        <!-- Las patentes se cargarán aquí -->
+      </div>
+      <div class="btn-group" style="margin-top: 15px;">
+        <button class="btn btn-primary" onclick="guardarPatentes()">
+          <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+        <button class="btn btn-secondary" onclick="ocultarConfigPatentes()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
     </div>
 
     <div id="resultados-container">
@@ -546,10 +646,54 @@
     <script>
       // Variables globales
       let supabaseClient;
-      const patentesEspecificas = ['LWPP77', 'PHVW53', 'LJSJ82', 'RJTK26', 'LYZB94', 'PPPJ70', 'PHVW56', 'PBYS78', 'PHVW54', 'PPPJ69', 'TDDW14', 'TDDW16', 'TDDW18', 'TDDW19'];
-      const intervaloMantencionKm = 10000; // Mantenciones cada 10,000 km
+      let patentesEspecificas = ['LWPP77', 'PHVW53', 'LJSJ82', 'RJTK26', 'LYZB94', 'PPPJ70', 'PHVW56', 'PBYS78', 'PHVW54', 'PPPJ69', 'TDDW14', 'TDDW16', 'TDDW18', 'TDDW19'];
       const margenKm = 2000; // Margen de ±2000 km para considerar mantención
       let todosLosResultados = [];
+      
+      // Definición de los tipos de mantención SM
+      const tiposMantencion = [
+        { km: 10000, tipo: 'SM1' },
+        { km: 20000, tipo: 'SM1' },
+        { km: 30000, tipo: 'SM2' },
+        { km: 40000, tipo: 'SM1' },
+        { km: 50000, tipo: 'SM1' },
+        { km: 60000, tipo: 'SM3' },
+        { km: 70000, tipo: 'SM1' },
+        { km: 80000, tipo: 'SM1' },
+        { km: 90000, tipo: 'SM2' },
+        { km: 100000, tipo: 'SM1' },
+        { km: 110000, tipo: 'SM1' },
+        { km: 120000, tipo: 'SM3' },
+        { km: 140000, tipo: 'SM1' },
+        { km: 150000, tipo: 'SM4' },
+        { km: 160000, tipo: 'SM1' },
+        { km: 170000, tipo: 'SM1' },
+        { km: 180000, tipo: 'SM3' },
+        { km: 190000, tipo: 'SM1' },
+        { km: 200000, tipo: 'SM1' },
+        { km: 210000, tipo: 'SM2' },
+        { km: 220000, tipo: 'SM1' },
+        { km: 230000, tipo: 'SM1' },
+        { km: 240000, tipo: 'SM3' },
+        { km: 250000, tipo: 'SM1' },
+        { km: 260000, tipo: 'SM1' },
+        { km: 270000, tipo: 'SM2' },
+        { km: 280000, tipo: 'SM1' },
+        { km: 290000, tipo: 'SM1' },
+        { km: 300000, tipo: 'SM3' },
+        { km: 310000, tipo: 'SM1' },
+        { km: 320000, tipo: 'SM1' },
+        { km: 330000, tipo: 'SM4' },
+        { km: 340000, tipo: 'SM1' },
+        { km: 350000, tipo: 'SM1' },
+        { km: 360000, tipo: 'SM3' },
+        { km: 370000, tipo: 'SM1' },
+        { km: 380000, tipo: 'SM1' },
+        { km: 390000, tipo: 'SM2' },
+        { km: 400000, tipo: 'SM1' },
+        { km: 410000, tipo: 'SM1' },
+        { km: 420000, tipo: 'SM3' }
+      ];
 
       // Configurar zona horaria de Chile
       const opcionesFechaChile = {
@@ -674,22 +818,36 @@
         }
       }
 
-      // Función para calcular la próxima mantención (ajustada a múltiplos de 10,000 km con margen)
-      function calcularProximaMantencion(ultimoKm, kmActual, kmDiario) {
+      // Función para encontrar la próxima mantención SM basada en el kilometraje
+      function encontrarProximaMantencionSM(ultimoKm, kmActual) {
         if (!ultimoKm || !ultimoKm.kilometraje) return null;
         
         const kmUltimaMantencion = parseInt(ultimoKm.kilometraje);
         
-        // Calcular el próximo múltiplo de 10,000 km considerando el margen
-        let kmProximaMantencion = Math.ceil((kmUltimaMantencion + 1) / intervaloMantencionKm) * intervaloMantencionKm;
-        
-        // Verificar si ya estamos dentro del margen de la próxima mantención
-        if (kmActual >= kmProximaMantencion - margenKm) {
-          kmProximaMantencion += intervaloMantencionKm;
+        // Encontrar la próxima mantención SM que sea mayor al último km de mantención
+        let proximaMantencion = null;
+        for (const mantencion of tiposMantencion) {
+          if (mantencion.km > kmUltimaMantencion) {
+            proximaMantencion = mantencion;
+            break;
+          }
         }
         
-        const kmRestantes = kmProximaMantencion - kmActual;
+        if (!proximaMantencion) return null;
         
+        const kmRestantes = proximaMantencion.km - kmActual;
+        
+        return {
+          kmUltimaMantencion,
+          kmProximaMantencion: proximaMantencion.km,
+          tipoProximaMantencion: proximaMantencion.tipo,
+          kmRestantes,
+          ultimaFecha: ultimoKm.fecha
+        };
+      }
+
+      // Función para calcular días restantes basados en km diarios
+      function calcularDiasRestantes(kmRestantes, kmDiario) {
         if (kmDiario <= 0 || kmDiario === undefined) return null;
         
         const diasRestantes = Math.ceil(kmRestantes / kmDiario);
@@ -697,12 +855,8 @@
         fechaProxima.setDate(fechaProxima.getDate() + diasRestantes);
         
         return {
-          kmUltimaMantencion,
-          kmProximaMantencion,
-          kmRestantes,
           diasRestantes,
-          fechaProxima,
-          ultimaFecha: ultimoKm.fecha
+          fechaProxima
         };
       }
 
@@ -794,6 +948,78 @@
         }
       }
 
+      // Función para mostrar la configuración de patentes
+      function mostrarConfigPatentes() {
+        document.getElementById('config-patentes').classList.remove('hidden');
+        document.getElementById('resultados-container').classList.add('hidden');
+        actualizarListaPatentes();
+      }
+
+      // Función para ocultar la configuración de patentes
+      function ocultarConfigPatentes() {
+        document.getElementById('config-patentes').classList.add('hidden');
+        document.getElementById('resultados-container').classList.remove('hidden');
+      }
+
+      // Función para actualizar la lista visual de patentes
+      function actualizarListaPatentes() {
+        const lista = document.getElementById('lista-patentes');
+        lista.innerHTML = '';
+        
+        patentesEspecificas.forEach(patente => {
+          const tag = document.createElement('div');
+          tag.className = 'patente-tag';
+          tag.innerHTML = `
+            ${patente}
+            <button onclick="eliminarPatente('${patente}')">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+          lista.appendChild(tag);
+        });
+      }
+
+      // Función para agregar una nueva patente
+      function agregarPatente() {
+        const input = document.getElementById('nueva-patente');
+        const nuevaPatente = input.value.trim().toUpperCase();
+        
+        if (!nuevaPatente) {
+          mostrarError('Ingrese una patente válida');
+          return;
+        }
+        
+        if (patentesEspecificas.includes(nuevaPatente)) {
+          mostrarError('Esta patente ya está en la lista');
+          return;
+        }
+        
+        patentesEspecificas.push(nuevaPatente);
+        input.value = '';
+        actualizarListaPatentes();
+        mostrarExito(`Patente ${nuevaPatente} agregada`);
+      }
+
+      // Función para eliminar una patente
+      function eliminarPatente(patente) {
+        patentesEspecificas = patentesEspecificas.filter(p => p !== patente);
+        actualizarListaPatentes();
+        mostrarExito(`Patente ${patente} eliminada`);
+      }
+
+      // Función para guardar las patentes en la base de datos
+      async function guardarPatentes() {
+        try {
+          // Aquí podrías guardar las patentes en la base de datos si es necesario
+          // Por ahora solo actualizamos la lista en memoria
+          mostrarExito('Lista de patentes actualizada');
+          ocultarConfigPatentes();
+          await calcularProximasMantenciones();
+        } catch (error) {
+          mostrarError('Error al guardar las patentes: ' + error.message);
+        }
+      }
+
       // Función principal para calcular todas las próximas mantenciones
       async function calcularProximasMantenciones() {
         const resultadosDiv = document.getElementById('resultados-patentes');
@@ -812,19 +1038,11 @@
             const kmDiario = datosMaquina.km_diario || 100;
             const kmActual = datosMaquina.kilometraje || 0;
             
-            const calculo = calcularProximaMantencion(ultimoMantenimiento, kmActual, kmDiario);
+            const calculoSM = encontrarProximaMantencionSM(ultimoMantenimiento, kmActual);
             
-            const resultado = {
-              patente,
-              datosMaquina,
-              ultimoMantenimiento,
-              calculo
-            };
-            
-            todosLosResultados.push(resultado);
-            
-            if (calculo) {
-              const clasePrioridad = obtenerClasePrioridad(calculo.diasRestantes);
+            if (calculoSM) {
+              const calculoDias = calcularDiasRestantes(calculoSM.kmRestantes, kmDiario);
+              const clasePrioridad = calculoDias ? obtenerClasePrioridad(calculoDias.diasRestantes) : 'normal';
               
               resultadosHTML += `
                 <div class="proxima-mantencion">
@@ -836,18 +1054,26 @@
                     </div>
                     <div class="proxima-item">
                       <h4>Última Mantención</h4>
-                      <p>${calculo.ultimaFecha}</p>
-                      <p>${calculo.kmUltimaMantencion.toLocaleString('es-CL')} km</p>
+                      <p>${calculoSM.ultimaFecha}</p>
+                      <p>${calculoSM.kmUltimaMantencion.toLocaleString('es-CL')} km</p>
                     </div>
                     <div class="proxima-item">
                       <h4>Próxima Mantención</h4>
-                      <p>${calculo.kmProximaMantencion.toLocaleString('es-CL')} km</p>
+                      <p>${calculoSM.kmProximaMantencion.toLocaleString('es-CL')} km</p>
+                      <span class="sm-badge sm${calculoSM.tipoProximaMantencion.substring(2)}">
+                        ${calculoSM.tipoProximaMantencion}
+                      </span>
                       <small>(±${margenKm.toLocaleString('es-CL')} km de margen)</small>
                     </div>
                     <div class="proxima-item ${clasePrioridad}">
-                      <h4>Días Restantes</h4>
-                      <p>${calculo.diasRestantes} días</p>
-                      <p>${formatearFechaChilena(calculo.fechaProxima)}</p>
+                      <h4>${calculoDias ? 'Días Restantes' : 'Kilómetros Restantes'}</h4>
+                      ${calculoDias ? `
+                        <p>${calculoDias.diasRestantes} días</p>
+                        <p>${formatearFechaChilena(calculoDias.fechaProxima)}</p>
+                      ` : `
+                        <p>${calculoSM.kmRestantes.toLocaleString('es-CL')} km</p>
+                        <small>(No se puede calcular fecha sin km diario)</small>
+                      `}
                     </div>
                   </div>
                   <div class="update-section">
