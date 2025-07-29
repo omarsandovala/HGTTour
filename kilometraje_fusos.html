@@ -1123,10 +1123,10 @@
       function encontrarProximaMantencionSM(ultimoKm, kmActual) {
         // Si no hay mantención registrada, la primera es a los 10,000 km
         if (!ultimoKm || !ultimoKm.kilometraje) {
-          const kmRestantes = 10000 - kmActual;
+          const kmRestantes = 20000 - kmActual;
           return {
             kmUltimaMantencion: 0,
-            kmProximaMantencion: 10000,
+            kmProximaMantencion: 20000,
             tipoProximaMantencion: 'SM1',
             kmRestantes: kmRestantes,
             ultimaFecha: null
@@ -1147,12 +1147,12 @@
           }
         }
 
-        // Si no se encontró ninguna, usar 10,000 km por defecto
+        // Si no se encontró ninguna, usar 20,000 km por defecto
         if (!mantencionMasCercana) {
-          const kmRestantes = 10000 - kmActual;
+          const kmRestantes = 20000 - kmActual;
           return {
             kmUltimaMantencion: kmUltimaMantencion,
-            kmProximaMantencion: 10000,
+            kmProximaMantencion: 20000,
             tipoProximaMantencion: 'SM1',
             kmRestantes: kmRestantes,
             ultimaFecha: ultimoKm.fecha
