@@ -168,6 +168,24 @@
       transform: translateY(-2px);
     }
 
+    .btn-email {
+      background: #6f42c1;
+    }
+
+    .btn-email:hover {
+      background: #5a32a3;
+      transform: translateY(-2px);
+    }
+
+    .btn-print {
+      background: #17a2b8;
+    }
+
+    .btn-print:hover {
+      background: #138496;
+      transform: translateY(-2px);
+    }
+
     .btn-sm {
       padding: 6px 12px;
       font-size: 0.9rem;
@@ -406,6 +424,101 @@
       text-align: center;
     }
 
+    /* Modal para enviar reporte */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      width: 80%;
+      max-width: 600px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .modal-header h2 {
+      color: var(--color-primary);
+      margin: 0;
+      text-align: left;
+    }
+
+    .close {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+
+    .modal-body {
+      margin-bottom: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Filtro de búsqueda */
+    .filtro-container {
+      background-color: white;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 20px;
+    }
+
+    .filtro-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filtro-input {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .filtro-botones {
+      display: flex;
+      gap: 10px;
+    }
+
+    .no-resultados {
+      background-color: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--color-text);
+    }
+
     @media print {
       body {
         background: white;
@@ -424,7 +537,7 @@
         color: black !important;
       }
 
-      .btn, .btn-group {
+      .btn, .btn-group, .modal, .filtro-container {
         display: none !important;
       }
 
@@ -464,12 +577,44 @@
         <button class="btn btn-primary" onclick="calcularProximasMantenciones()">
           <i class="fas fa-sync-alt"></i> Actualizar
         </button>
+        <button class="btn btn-print" onclick="window.print()">
+          <i class="fas fa-print"></i> Imprimir
+        </button>
+        <button class="btn btn-email" onclick="mostrarModalReporte()">
+          <i class="fas fa-envelope"></i> Enviar Reporte
+        </button>
       </div>
     </div>
 
     <div id="error-message" class="status-message error" style="display: none;"></div>
     <div id="success-message" class="status-message success" style="display: none;"></div>
     <div id="connection-message" class="status-message info" style="display: none;"></div>
+
+    <!-- Filtro de búsqueda -->
+    <div class="filtro-container">
+      <h3>Filtrar por Patente</h3>
+      <div class="filtro-form">
+        <div class="input-group filtro-input">
+          <label for="filtro-patente">Buscar patente:</label>
+          <input type="text" id="filtro-patente" placeholder="Ingrese patente o parte de ella">
+        </div>
+        <div class="filtro-botones">
+          <button class="btn btn-primary" onclick="filtrarPatentes()">
+            <i class="fas fa-search"></i> Buscar
+          </button>
+          <button class="btn btn-secondary" onclick="limpiarFiltro()">
+            <i class="fas fa-times"></i> Limpiar
+          </button>
+        </div>
+      </div>
+      <div class="input-group" style="margin-top: 10px;">
+        <label for="lista-patentes">Patentes disponibles:</label>
+        <select id="lista-patentes" class="form-control" onchange="seleccionarPatente(this.value)" style="width: 100%; padding: 8px; border-radius: var(--border-radius); border: 1px solid #ddd;">
+          <option value="">-- Seleccione una patente --</option>
+          <!-- Las opciones se cargarán dinámicamente -->
+        </select>
+      </div>
+    </div>
 
     <div id="resultados-container">
       <h2>Próximas Mantenciones Preventivas</h2>
@@ -482,12 +627,43 @@
       <i class="fas fa-circle-notch fa-spin"></i> Conectando a la base de datos...
     </div>
 
+    <!-- Modal para enviar reporte -->
+    <div id="reporteModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Enviar Reporte de Mantenciones</h2>
+          <span class="close" onclick="cerrarModalReporte()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
+            <label for="emailDestino">Email de destino:</label>
+            <input type="email" id="emailDestino" value="osandovala@gmail.com">
+          </div>
+          <div class="input-group">
+            <label for="asuntoReporte">Asunto:</label>
+            <input type="text" id="asuntoReporte" value="Reporte de Próximas Mantenciones Preventivas">
+          </div>
+          <div class="input-group">
+            <label for="mensajeReporte">Mensaje adicional:</label>
+            <textarea id="mensajeReporte" rows="3" style="width: 100%; padding: 8px; border-radius: var(--border-radius); border: 1px solid #ddd;"></textarea>
+          </div>
+          <div id="email-status" class="status-message" style="display: none; margin-top: 15px;"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="cerrarModalReporte()">Cancelar</button>
+          <button class="btn btn-primary" onclick="enviarReporte()">Enviar</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       // Variables globales
       let supabaseClient;
       let patentesRegistradas = []; // Aquí almacenaremos todas las patentes de la tabla maquinas
       const intervaloMantencionKm = 3000; // Mantenciones cada 3,000 km
       const margenKm = 500; // Margen de 500 km antes/después
+      let resultadosActuales = []; // Almacena los resultados actuales para el reporte
+      let todasLasPatentes = []; // Almacena todas las patentes disponibles
 
       // Función para verificar si Supabase está cargado
       function verificarSupabaseCargado() {
@@ -502,16 +678,71 @@
         try {
           const { data, error } = await supabaseClient
             .from('maquinas')
-            .select('patente');
+            .select('patente')
+            .order('patente', { ascending: true });
           
           if (error) throw error;
           
-          return data.map(item => item.patente);
+          todasLasPatentes = data.map(item => item.patente);
+          actualizarListaPatentes();
+          return todasLasPatentes;
         } catch (error) {
           console.error('Error al obtener patentes de máquinas:', error);
           mostrarError('Error al obtener la lista de patentes');
           return [];
         }
+      }
+
+      // Función para actualizar la lista desplegable de patentes
+      function actualizarListaPatentes() {
+        const select = document.getElementById('lista-patentes');
+        // Limpiar opciones existentes excepto la primera
+        while (select.options.length > 1) {
+          select.remove(1);
+        }
+        
+        // Agregar todas las patentes ordenadas
+        todasLasPatentes.forEach(patente => {
+          const option = document.createElement('option');
+          option.value = patente;
+          option.textContent = patente;
+          select.appendChild(option);
+        });
+      }
+
+      // Función para filtrar patentes según el texto ingresado
+      function filtrarPatentes() {
+        const filtro = document.getElementById('filtro-patente').value.toLowerCase();
+        const select = document.getElementById('lista-patentes');
+        
+        // Limpiar opciones existentes excepto la primera
+        while (select.options.length > 1) {
+          select.remove(1);
+        }
+        
+        // Filtrar y agregar patentes que coincidan
+        todasLasPatentes
+          .filter(patente => patente.toLowerCase().includes(filtro))
+          .forEach(patente => {
+            const option = document.createElement('option');
+            option.value = patente;
+            option.textContent = patente;
+            select.appendChild(option);
+          });
+      }
+
+      // Función para limpiar el filtro y mostrar todas las patentes
+      function limpiarFiltro() {
+        document.getElementById('filtro-patente').value = '';
+        actualizarListaPatentes();
+        calcularProximasMantenciones(); // Mostrar todas las patentes
+      }
+
+      // Función para seleccionar una patente del dropdown
+      function seleccionarPatente(patente) {
+        if (!patente) return;
+        document.getElementById('filtro-patente').value = patente;
+        calcularProximasMantenciones(patente);
       }
 
       // Función para obtener el último mantenimiento preventivo por kilometraje de una patente
@@ -521,7 +752,7 @@
             .from('mantenimientos')
             .select('*')
             .eq('patente', patente)
-            .ilike('tipo', '%preventivo%')
+            .or('tipo.ilike.%preventiva%,tipo.ilike.%preventivo%')
             .order('fecha', { ascending: false })
             .limit(1);
           
@@ -541,7 +772,7 @@
             .from('mantenimientos')
             .select('*')
             .eq('patente', patente)
-            .ilike('tipo', '%preventivo%')
+            .or('tipo.ilike.%preventiva%,tipo.ilike.%preventivo%')
             .order('fecha', { ascending: false });
           
           if (error) throw error;
@@ -576,9 +807,14 @@
 
       // Función para calcular la próxima mantención en intervalos de 3,000 km
       function calcularProximaMantencion(ultimoKm, kmActual, kmDiario) {
-        if (!ultimoKm || !ultimoKm.kilometraje) return null;
+        let kmUltimaMantencion = 0;
         
-        const kmUltimaMantencion = parseInt(ultimoKm.kilometraje);
+        // Si no hay mantenimiento registrado, asumimos que se debe hacer a los 3,000 km
+        if (!ultimoKm || !ultimoKm.kilometraje) {
+          kmUltimaMantencion = 0;
+        } else {
+          kmUltimaMantencion = parseInt(ultimoKm.kilometraje);
+        }
         
         // Calcular el siguiente múltiplo de 3,000 km
         let kmProximaBase = Math.ceil(kmUltimaMantencion / intervaloMantencionKm) * intervaloMantencionKm;
@@ -682,6 +918,7 @@
               <tr>
                 <th>Fecha</th>
                 <th>Kilometraje</th>
+                <th>Tipo</th>
                 <th>Descripción</th>
                 <th>Realizado por</th>
               </tr>
@@ -694,6 +931,7 @@
             <tr>
               <td>${formatearFechaCortaChile(new Date(mantencion.fecha))}</td>
               <td>${mantencion.kilometraje ? mantencion.kilometraje.toLocaleString('es-CL') + ' km' : 'N/A'}</td>
+              <td>${mantencion.tipo || 'Preventiva'}</td>
               <td>${mantencion.descripcion || 'Sin descripción'}</td>
               <td>${mantencion.responsable || 'No especificado'}</td>
             </tr>
@@ -709,7 +947,7 @@
       }
 
       // Función principal para calcular todas las próximas mantenciones
-      async function calcularProximasMantenciones() {
+      async function calcularProximasMantenciones(patenteFiltro = null) {
         const resultadosDiv = document.getElementById('resultados-patentes');
         resultadosDiv.innerHTML = '<p>Cargando datos...</p>';
         
@@ -723,8 +961,26 @@
           }
           
           let resultadosHTML = '';
+          let resultadosCalculados = [];
           
-          for (const patente of patentesRegistradas) {
+          // Filtrar patentes si se especificó un filtro
+          const patentesAFiltrar = patenteFiltro 
+            ? patentesRegistradas.filter(p => p.toLowerCase().includes(patenteFiltro.toLowerCase())) 
+            : patentesRegistradas;
+          
+          if (patentesAFiltrar.length === 0) {
+            resultadosDiv.innerHTML = `
+              <div class="no-resultados">
+                <p>No se encontraron máquinas con la patente "${patenteFiltro}"</p>
+                <button class="btn btn-primary" onclick="calcularProximasMantenciones()">
+                  <i class="fas fa-undo"></i> Mostrar todas las patentes
+                </button>
+              </div>
+            `;
+            return;
+          }
+          
+          for (const patente of patentesAFiltrar) {
             const [ultimoMantenimiento, datosMaquina, historialMantenciones] = await Promise.all([
               obtenerUltimoMantenimientoPreventivo(patente),
               obtenerDatosMaquina(patente),
@@ -741,112 +997,98 @@
               const textoPrioridad = obtenerTextoPrioridad(calculo.diasRestantes);
               const iconoPrioridad = obtenerIconoPrioridad(calculo.diasRestantes);
               
-              resultadosHTML += `
-                <div class="proxima-mantencion">
-                  <h3>Patente: ${patente}</h3>
-                  <div class="proxima-info">
-                    <div class="proxima-item">
-                      <h4>Kilometraje Actual</h4>
-                      <p>${kmActual.toLocaleString('es-CL')} km</p>
-                    </div>
-                    <div class="proxima-item">
-                      <h4>Última Mantención Preventiva</h4>
-                      <p>${ultimoMantenimiento.fecha ? formatearFechaCortaChile(new Date(ultimoMantenimiento.fecha)) : 'No registrada'}</p>
-                      <p>${ultimoMantenimiento.kilometraje ? ultimoMantenimiento.kilometraje.toLocaleString('es-CL') + ' km' : 'N/A'}</p>
-                    </div>
-                    <div class="proxima-item">
-                      <h4>Próxima Mantención Preventiva</h4>
-                      <p>${calculo.kmProximaMantencion.toLocaleString('es-CL')} km</p>
-                      <p>${calculo.kmRestantes.toLocaleString('es-CL')} km restantes</p>
-                    </div>
-                    <div class="proxima-item ${clasePrioridad}">
-                      <h4>Días Restantes</h4>
-                      <p>${calculo.diasRestantes} días</p>
-                      <p>${formatearFechaChile(calculo.fechaProxima)}</p>
-                      <div class="prioridad-texto">
-                        <span class="prioridad-indicator prioridad-${clasePrioridad}"></span>
-                        ${textoPrioridad} ${iconoPrioridad}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="mantencion-info">
-                    <p><strong>Intervalo actual:</strong> ${calculo.intervaloActual.toLocaleString('es-CL')} km - ${(calculo.intervaloActual + intervaloMantencionKm).toLocaleString('es-CL')} km</p>
-                    <p><strong>Próximo intervalo:</strong> ${calculo.proximoIntervalo.toLocaleString('es-CL')} km - ${(calculo.proximoIntervalo + intervaloMantencionKm).toLocaleString('es-CL')} km</p>
-                    <p><small>Se considera margen de ±${margenKm} km para el cálculo</small></p>
-                  </div>
-                  
-                  <div class="update-section">
-                    <div class="update-box">
-                      <h4>Actualizar Kilometraje</h4>
-                      <div class="input-group">
-                        <label for="actualizar-km-${patente}">Kilometraje Actual:</label>
-                        <input type="number" id="actualizar-km-${patente}" placeholder="Nuevo kilometraje" value="${kmActual}">
-                        <button class="btn btn-sm btn-primary" onclick="actualizarKilometraje('${patente}')" style="margin-top: 5px;">
-                          <i class="fas fa-save"></i> Guardar
-                        </button>
-                      </div>
-                    </div>
-                    <div class="update-box">
-                      <h4>Kilometraje Diario</h4>
-                      <div class="input-group">
-                        <label for="actualizar-km-diario-${patente}">Km Diario Promedio:</label>
-                        <input type="number" id="actualizar-km-diario-${patente}" placeholder="Km diarios" value="${kmDiario}">
-                        <button class="btn btn-sm btn-primary" onclick="actualizarKmDiario('${patente}')" style="margin-top: 5px;">
-                          <i class="fas fa-save"></i> Guardar
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button id="boton-historial-${patente}" class="btn btn-info toggle-historial" onclick="toggleHistorial('${patente}')">
-                    <i class="fas fa-eye"></i> Ver Historial de Mantenciones
-                  </button>
-                  
-                  <div id="historial-${patente}" class="historial-mantenciones">
-                    ${renderizarHistorial(patente, historialMantenciones)}
-                  </div>
-                </div>
-              `;
-            } else {
-              resultadosHTML += `
-                <div class="proxima-mantencion">
-                  <h3>Patente: ${patente}</h3>
-                  <p>No se encontraron datos suficientes para calcular la próxima mantención preventiva.</p>
-                  <div class="update-section">
-                    <div class="update-box">
-                      <h4>Actualizar Kilometraje</h4>
-                      <div class="input-group">
-                        <label for="actualizar-km-${patente}">Kilometraje Actual:</label>
-                        <input type="number" id="actualizar-km-${patente}" placeholder="Nuevo kilometraje" value="${kmActual}">
-                        <button class="btn btn-sm btn-primary" onclick="actualizarKilometraje('${patente}')" style="margin-top: 5px;">
-                          <i class="fas fa-save"></i> Guardar
-                        </button>
-                      </div>
-                    </div>
-                    <div class="update-box">
-                      <h4>Kilometraje Diario</h4>
-                      <div class="input-group">
-                        <label for="actualizar-km-diario-${patente}">Km Diario Promedio:</label>
-                        <input type="number" id="actualizar-km-diario-${patente}" placeholder="Km diarios" value="${kmDiario}">
-                        <button class="btn btn-sm btn-primary" onclick="actualizarKmDiario('${patente}')" style="margin-top: 5px;">
-                          <i class="fas fa-save"></i> Guardar
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button id="boton-historial-${patente}" class="btn btn-info toggle-historial" onclick="toggleHistorial('${patente}')">
-                    <i class="fas fa-eye"></i> Ver Historial de Mantenciones
-                  </button>
-                  
-                  <div id="historial-${patente}" class="historial-mantenciones">
-                    ${renderizarHistorial(patente, historialMantenciones)}
-                  </div>
-                </div>
-              `;
+              resultadosCalculados.push({
+                patente,
+                kmActual,
+                kmDiario,
+                calculo,
+                clasePrioridad,
+                textoPrioridad,
+                iconoPrioridad,
+                ultimoMantenimiento,
+                historialMantenciones
+              });
             }
           }
+          
+          // Ordenar resultados por días restantes (de menor a mayor)
+          resultadosCalculados.sort((a, b) => a.calculo.diasRestantes - b.calculo.diasRestantes);
+          
+          // Generar HTML para los resultados ordenados
+          resultadosCalculados.forEach(item => {
+            const { patente, kmActual, kmDiario, calculo, clasePrioridad, textoPrioridad, iconoPrioridad, ultimoMantenimiento, historialMantenciones } = item;
+            
+            resultadosHTML += `
+              <div class="proxima-mantencion">
+                <h3>Patente: ${patente}</h3>
+                <div class="proxima-info">
+                  <div class="proxima-item">
+                    <h4>Kilometraje Actual</h4>
+                    <p>${kmActual.toLocaleString('es-CL')} km</p>
+                  </div>
+                  <div class="proxima-item">
+                    <h4>Última Mantención Preventiva</h4>
+                    <p>${ultimoMantenimiento && ultimoMantenimiento.fecha ? formatearFechaCortaChile(new Date(ultimoMantenimiento.fecha)) : 'No registrada'}</p>
+                    <p>${ultimoMantenimiento && ultimoMantenimiento.kilometraje ? ultimoMantenimiento.kilometraje.toLocaleString('es-CL') + ' km' : 'N/A'}</p>
+                  </div>
+                  <div class="proxima-item">
+                    <h4>Próxima Mantención Preventiva</h4>
+                    <p>${calculo.kmProximaMantencion.toLocaleString('es-CL')} km</p>
+                    <p>${calculo.kmRestantes.toLocaleString('es-CL')} km restantes</p>
+                  </div>
+                  <div class="proxima-item ${clasePrioridad}">
+                    <h4>Días Restantes</h4>
+                    <p>${calculo.diasRestantes} días</p>
+                    <p>${formatearFechaChile(calculo.fechaProxima)}</p>
+                    <div class="prioridad-texto">
+                      <span class="prioridad-indicator prioridad-${clasePrioridad}"></span>
+                      ${textoPrioridad} ${iconoPrioridad}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mantencion-info">
+                  <p><strong>Intervalo actual:</strong> ${calculo.intervaloActual.toLocaleString('es-CL')} km - ${(calculo.intervaloActual + intervaloMantencionKm).toLocaleString('es-CL')} km</p>
+                  <p><strong>Próximo intervalo:</strong> ${calculo.proximoIntervalo.toLocaleString('es-CL')} km - ${(calculo.proximoIntervalo + intervaloMantencionKm).toLocaleString('es-CL')} km</p>
+                  <p><small>Se considera margen de ±${margenKm} km para el cálculo</small></p>
+                </div>
+                
+                <div class="update-section">
+                  <div class="update-box">
+                    <h4>Actualizar Kilometraje</h4>
+                    <div class="input-group">
+                      <label for="actualizar-km-${patente}">Kilometraje Actual:</label>
+                      <input type="number" id="actualizar-km-${patente}" placeholder="Nuevo kilometraje" value="${kmActual}">
+                      <button class="btn btn-sm btn-primary" onclick="actualizarKilometraje('${patente}')" style="margin-top: 5px;">
+                        <i class="fas fa-save"></i> Guardar
+                      </button>
+                    </div>
+                  </div>
+                  <div class="update-box">
+                    <h4>Kilometraje Diario</h4>
+                    <div class="input-group">
+                      <label for="actualizar-km-diario-${patente}">Km Diario Promedio:</label>
+                      <input type="number" id="actualizar-km-diario-${patente}" placeholder="Km diarios" value="${kmDiario}">
+                      <button class="btn btn-sm btn-primary" onclick="actualizarKmDiario('${patente}')" style="margin-top: 5px;">
+                        <i class="fas fa-save"></i> Guardar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <button id="boton-historial-${patente}" class="btn btn-info toggle-historial" onclick="toggleHistorial('${patente}')">
+                  <i class="fas fa-eye"></i> Ver Historial de Mantenciones
+                </button>
+                
+                <div id="historial-${patente}" class="historial-mantenciones">
+                  ${renderizarHistorial(patente, historialMantenciones)}
+                </div>
+              </div>
+            `;
+          });
+          
+          // Almacenar resultados para posible reporte
+          resultadosActuales = resultadosCalculados;
           
           resultadosDiv.innerHTML = resultadosHTML;
           mostrarExito('Cálculo de próximas mantenciones preventivas completado');
@@ -905,6 +1147,126 @@
         } catch (error) {
           console.error(`Error al actualizar kilometraje diario para ${patente}:`, error);
           mostrarError(`Error al actualizar kilometraje diario para ${patente}`);
+        }
+      }
+
+      // Función para mostrar el modal de reporte
+      function mostrarModalReporte() {
+        document.getElementById('reporteModal').style.display = 'block';
+        document.getElementById('email-status').style.display = 'none';
+      }
+
+      // Función para cerrar el modal de reporte
+      function cerrarModalReporte() {
+        document.getElementById('reporteModal').style.display = 'none';
+      }
+
+      // Función para mostrar estado del email
+      function mostrarEstadoEmail(mensaje, esExito = true) {
+        const emailStatus = document.getElementById('email-status');
+        emailStatus.textContent = mensaje;
+        emailStatus.className = esExito ? 'status-message success' : 'status-message error';
+        emailStatus.style.display = 'block';
+      }
+
+      // Función para enviar reporte por email
+      async function enviarReporte() {
+        const emailDestino = document.getElementById('emailDestino').value;
+        const asunto = document.getElementById('asuntoReporte').value;
+        const mensajeAdicional = document.getElementById('mensajeReporte').value;
+        
+        if (!emailDestino) {
+          mostrarEstadoEmail('Ingrese un email de destino', false);
+          return;
+        }
+        
+        try {
+          // Construir el mensaje HTML
+          let mensajeHTML = `
+            <h2 style="color: #3f72af;">📅 Reporte de Próximas Mantenciones Preventivas 📅</h2>
+            <p>${mensajeAdicional || 'A continuación se detallan las próximas mantenciones preventivas por kilometraje:'}</p>
+            <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 20px;">
+              <thead>
+                <tr style="background-color: #f5f5f5;">
+                  <th>Patente</th>
+                  <th>Kilometraje Actual</th>
+                  <th>Próxima Mantención</th>
+                  <th>Km Restantes</th>
+                  <th>Días Restantes</th>
+                  <th>Fecha Estimada</th>
+                  <th>Prioridad</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          
+          resultadosActuales.forEach(item => {
+            const { patente, kmActual, calculo, textoPrioridad } = item;
+            
+            let prioridadClass = '';
+            if (calculo.diasRestantes <= 7) {
+              prioridadClass = 'color: #e74c3c; font-weight: bold;';
+            } else if (calculo.diasRestantes <= 30) {
+              prioridadClass = 'color: #f39c12; font-weight: bold;';
+            } else {
+              prioridadClass = 'color: #2ecc71;';
+            }
+            
+            mensajeHTML += `
+              <tr>
+                <td>${patente}</td>
+                <td>${kmActual.toLocaleString('es-CL')} km</td>
+                <td>${calculo.kmProximaMantencion.toLocaleString('es-CL')} km</td>
+                <td>${calculo.kmRestantes.toLocaleString('es-CL')} km</td>
+                <td>${calculo.diasRestantes}</td>
+                <td>${formatearFechaCortaChile(calculo.fechaProxima)}</td>
+                <td style="${prioridadClass}">${textoPrioridad}</td>
+              </tr>
+            `;
+          });
+          
+          mensajeHTML += `
+              </tbody>
+            </table>
+            <p style="margin-top: 20px; font-weight: bold;">Por favor tomar las medidas necesarias para su mantención.</p>
+            <p>Este es un mensaje automático generado el ${new Date().toLocaleDateString('es-CL')} a las ${new Date().toLocaleTimeString('es-CL')}.</p>
+          `;
+          
+          // Configurar EmailJS (similar a documentacion.html)
+          if (typeof emailjs === 'undefined') {
+            // Cargar EmailJS si no está cargado
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+            script.onload = function() {
+              emailjs.init('GTwhaObjJL2yucEbb'); // Usando tu Public Key
+              enviarEmailConDatos();
+            };
+            document.head.appendChild(script);
+          } else {
+            enviarEmailConDatos();
+          }
+          
+          function enviarEmailConDatos() {
+            const templateParams = {
+              to_email: emailDestino,
+              to_name: 'Administrador',
+              from_name: 'Sistema de Mantenciones Preventivas',
+              subject: asunto,
+              message: mensajeHTML
+            };
+            
+            emailjs.send('service_bblaxom', 'template_4aprfmr', templateParams)
+              .then(function(response) {
+                mostrarEstadoEmail('Reporte enviado correctamente');
+                cerrarModalReporte();
+              }, function(error) {
+                mostrarEstadoEmail('Error al enviar reporte: ' + error.text, false);
+              });
+          }
+          
+        } catch (error) {
+          console.error('Error al enviar reporte:', error);
+          mostrarEstadoEmail('Error al enviar reporte: ' + error.message, false);
         }
       }
 
