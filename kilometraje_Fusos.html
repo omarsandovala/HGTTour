@@ -2,7 +2,7 @@
 <html lang="es-CL">
 <head>
   <meta charset="UTF-8">
-  <title>Sistema de Mantenciones Kilometraje Sprinter</title>
+  <title>Sistema de Mantenciones Kilometraje Fusos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -718,7 +718,7 @@
       font-size: 1rem;
     }
 
-   @media print {
+@media print {
   body {
     background: white;
     color: black;
@@ -794,7 +794,7 @@
     <div class="print-header">
       <img class="print-logo" src="img/logo.png" alt="Logo">
       <div class="print-title">
-        <h1>Sistema de Mantenciones Kilometraje Sprinter</h1>
+        <h1>Sistema de Mantenciones Kilometraje Fusos</h1>
         <div class="subtitle">Sistema SM1, SM2, SM3, SM4 (Chile)</div>
       </div>
       <div class="print-date" id="print-date"></div>
@@ -806,7 +806,7 @@
           <img src="img/logo.png" alt="Logo">
         </div>
         <div>
-          <h1>Sistema de Mantenciones Kilometraje Sprinter</h1>
+          <h1>Sistema de Mantenciones Kilometraje Fusos</h1>
           <div class="subtitle">Sistema SM1, SM2, SM3, SM4 (Chile)</div>
         </div>
       </div>
@@ -831,7 +831,7 @@
     <div id="connection-message" class="status-message info" style="display: none;"></div>
 
     <div class="filtros-container">
-      <h2>Gestión de Kilometraje Sprinter</h2>
+      <h2>Gestión de Kilometraje Fusos</h2>
       <div class="btn-group">
         <button class="btn btn-info" onclick="mostrarConfigPatentes()">
           <i class="fas fa-car"></i> Gestionar Patentes
@@ -840,7 +840,7 @@
     </div>
 
     <div class="patentes-container hidden" id="config-patentes">
-      <h2>Gestión de Patentes Sprinter</h2>
+      <h2>Gestión de Patentes Fusos</h2>
       <div class="add-patente-form">
         <input type="text" id="nueva-patente" placeholder="Ingrese nueva patente" maxlength="6">
         <button class="btn btn-success" onclick="agregarPatente()">
@@ -861,7 +861,7 @@
     </div>
 
     <div id="resultados-container">
-      <h2>Información de Kilometraje Sprinter</h2>
+      <h2>Información de Kilometraje Fusos</h2>
       <div class="search-container">
         <input type="text" id="buscar-patente" placeholder="Buscar patente..." oninput="filtrarPatentes()">
       </div>
@@ -874,7 +874,7 @@
     <div id="reporteModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>Enviar Reporte de Kilometraje Sprinter</h2>
+          <h2>Enviar Reporte de Kilometraje Fusos</h2>
           <span class="close" onclick="cerrarModalReporte()">&times;</span>
         </div>
         <div class="modal-body">
@@ -884,7 +884,7 @@
           </div>
           <div class="input-group">
             <label for="asuntoReporte">Asunto:</label>
-            <input type="text" id="asuntoReporte" value="Reporte de Kilometraje Sprinter">
+            <input type="text" id="asuntoReporte" value="Reporte de Kilometraje Fusos">
           </div>
           <div class="input-group">
             <label for="mensajeReporte">Mensaje adicional:</label>
@@ -906,53 +906,38 @@
     <script>
       // Variables globales
       let supabaseClient;
-      let patentesEspecificas = ['LWPP77', 'PHVW53', 'LJSJ82', 'RJTK26', 'LYZB94', 'PPPJ70', 'PHVW56', 'PBYS78', 'PHVW54', 'PPPJ69', 'TDDW14', 'TDDW16', 'TDDW18', 'TDDW19'];
-      const margenKmSprinter = 3000; // Aumentado a ±3000 km para considerar mantención Sprinter
+      let patentesEspecificas = ['TBRJ54', 'SYLY37'];
+      const margenKmFusos = 3000; // Aumentado a ±3000 km para considerar mantención Fusos
       let resultadosActuales = []; // Almacena los resultados actuales para el reporte
       
       // Definición de los tipos de mantención SM
       const tiposMantencion = [
-        { km: 10000, tipo: 'SM1' },
-        { km: 20000, tipo: 'SM1' },
-        { km: 30000, tipo: 'SM2' },
+           { km: 20000, tipo: 'SM1' },
         { km: 40000, tipo: 'SM1' },
-        { km: 50000, tipo: 'SM1' },
-        { km: 60000, tipo: 'SM3' },
-        { km: 70000, tipo: 'SM1' },
+        { km: 60000, tipo: 'SM2' },
         { km: 80000, tipo: 'SM1' },
-        { km: 90000, tipo: 'SM2' },
         { km: 100000, tipo: 'SM1' },
-        { km: 110000, tipo: 'SM1' },
         { km: 120000, tipo: 'SM3' },
         { km: 140000, tipo: 'SM1' },
-        { km: 150000, tipo: 'SM4' },
         { km: 160000, tipo: 'SM1' },
-        { km: 170000, tipo: 'SM1' },
-        { km: 180000, tipo: 'SM3' },
+        { km: 180000, tipo: 'SM2' },
         { km: 190000, tipo: 'SM1' },
         { km: 200000, tipo: 'SM1' },
-        { km: 210000, tipo: 'SM2' },
-        { km: 220000, tipo: 'SM1' },
-        { km: 230000, tipo: 'SM1' },
-        { km: 240000, tipo: 'SM3' },
-        { km: 250000, tipo: 'SM1' },
-        { km: 260000, tipo: 'SM1' },
-        { km: 270000, tipo: 'SM2' },
-        { km: 280000, tipo: 'SM1' },
-        { km: 290000, tipo: 'SM1' },
-        { km: 300000, tipo: 'SM3' },
-        { km: 310000, tipo: 'SM1' },
-        { km: 320000, tipo: 'SM1' },
-        { km: 330000, tipo: 'SM4' },
-        { km: 340000, tipo: 'SM1' },
-        { km: 350000, tipo: 'SM1' },
-        { km: 360000, tipo: 'SM3' },
-        { km: 370000, tipo: 'SM1' },
+        { km: 220000, tipo: 'SM3' },
+        { km: 240000, tipo: 'SM1' },
+        { km: 280000, tipo: 'SM4' },
+        { km: 300000, tipo: 'SM1' },
+        { km: 330000, tipo: 'SM1' },
+        { km: 340000, tipo: 'SM3' },
+        { km: 360000, tipo: 'SM1' },
         { km: 380000, tipo: 'SM1' },
-        { km: 390000, tipo: 'SM2' },
-        { km: 400000, tipo: 'SM1' },
-        { km: 410000, tipo: 'SM1' },
-        { km: 420000, tipo: 'SM3' }
+        { km: 400000, tipo: 'SM2' },
+        { km: 420000, tipo: 'SM1' },
+        { km: 440000, tipo: 'SM1' },
+        { km: 460000, tipo: 'SM3' },
+        { km: 480000, tipo: 'SM1' },
+        { km: 500000, tipo: 'SM1' },
+        { km: 520000, tipo: 'SM2' }
       ];
 
       // Configurar zona horaria de Chile
@@ -1011,7 +996,7 @@
             .from('mantenimientos')
             .select('*')
             .eq('patente', patente)
-            .or('descripcion.ilike.%kilometraje%,descripcion.ilike.%km%,descripcion.ilike.%sprinter%')
+            .or('descripcion.ilike.%kilometraje%,descripcion.ilike.%km%,descripcion.ilike.%fusos%')
             .order('fecha', { ascending: false })
             .limit(1);
           
@@ -1031,7 +1016,7 @@
             .from('mantenimientos')
             .select('*')
             .eq('patente', patente)
-            .or('descripcion.ilike.%kilometraje%,descripcion.ilike.%km%,descripcion.ilike.%sprinter%')
+            .or('descripcion.ilike.%kilometraje%,descripcion.ilike.%km%,descripcion.ilike.%fusos%')
             .order('fecha', { ascending: false });
           
           if (error) throw error;
@@ -1047,7 +1032,7 @@
       async function cargarPatentesGuardadas() {
         try {
           const { data, error } = await supabaseClient
-            .from('patentes_sprinter')
+            .from('patentes_fusos')
             .select('patente')
             .order('id', { ascending: true });
           
@@ -1067,7 +1052,7 @@
         try {
           // Primero borrar todas las patentes existentes
           const { error: deleteError } = await supabaseClient
-            .from('patentes_sprinter')
+            .from('patentes_fusos')
             .delete()
             .neq('id', 0);
           
@@ -1080,7 +1065,7 @@
           }));
           
           const { error: insertError } = await supabaseClient
-            .from('patentes_sprinter')
+            .from('patentes_fusos')
             .insert(patentesParaInsertar);
           
           if (insertError) throw insertError;
@@ -1181,10 +1166,10 @@
             : mantencionMasCercana;
 
         // Verificar si el kilometraje actual ya superó la próxima mantención
-        if (kmActual > proximaMantencion.km + margenKmSprinter) {
+        if (kmActual > proximaMantencion.km + margenKmfusos) {
           // Buscar la siguiente mantención que aún no se haya alcanzado
           for (const mantencion of tiposMantencion) {
-            if (kmActual <= mantencion.km + margenKmSprinter) {
+            if (kmActual <= mantencion.km + margenKmFusos) {
               return {
                 kmUltimaMantencion: kmUltimaMantencion,
                 kmProximaMantencion: mantencion.km,
@@ -1436,8 +1421,8 @@
         try {
           // Construir el mensaje HTML
           let mensajeHTML = `
-            <h2 style="color: #3f72af;">📅 Reporte de Kilometraje Sprinter 📅</h2>
-            <p>${mensajeAdicional || 'A continuación se detallan las próximas mantenciones por kilometraje para las Sprinter:'}</p>
+            <h2 style="color: #3f72af;">📅 Reporte de Kilometraje Fusos 📅</h2>
+            <p>${mensajeAdicional || 'A continuación se detallan las próximas mantenciones por kilometraje para los Fusos:'}</p>
             <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 20px;">
               <thead>
                 <tr style="background-color: #f5f5f5;">
@@ -1511,7 +1496,7 @@
             emailjs.send('service_bblaxom', 'template_4aprfmr', {
               to_email: emailDestino,
               to_name: 'Administrador',
-              from_name: 'Sistema de Kilometraje Sprinter',
+              from_name: 'Sistema de Kilometraje Fusos',
               subject: asunto,
               message: mensajeHTML
             }).then(function(response) {
@@ -1586,7 +1571,7 @@
                         ${calculoSM.tipoProximaMantencion}
                       </span>
                       <p>Km faltantes: ${calculoSM.kmRestantes.toLocaleString('es-CL')} km</p>
-                      <small>(±${margenKmSprinter.toLocaleString('es-CL')} km de margen)</small>
+                      <small>(±${margenKmFusos.toLocaleString('es-CL')} km de margen)</small>
                     ` : ''}
                   </div>
                   <div class="proxima-item ${clasePrioridad}">
