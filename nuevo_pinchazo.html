@@ -2,8 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Pinchazos y Cambio de Neumaticos</title>
+  <title>Registro de Pinchazos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
@@ -468,6 +469,32 @@
       }
     }
 
+    .connection-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      box-shadow: var(--box-shadow);
+      z-index: 100;
+    }
+
+    .connection-success {
+      background-color: var(--color-success);
+      color: white;
+    }
+
+    .connection-error {
+      background-color: var(--color-error);
+      color: white;
+    }
+
+    .connection-loading {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
     /* Estilos para datalist y autocompletado */
     datalist {
       position: absolute;
@@ -502,7 +529,7 @@
           <img src="img/logo.png" alt="Logo">
         </div>
         <div>
-          <h1>Registro de Pinchazos y Cambio de Neumaticos</h1>
+          <h1>Registro de Pinchazos</h1>
           <div class="subtitle">Nuevo Registro</div>
         </div>
       </div>
@@ -515,6 +542,7 @@
 
     <div id="error-message" class="status-message error" style="display: none;"></div>
     <div id="success-message" class="status-message success" style="display: none;"></div>
+    <div id="connection-message" class="status-message info" style="display: none;"></div>
 
     <form id="registro-form">
       <div class="form-section">
@@ -603,7 +631,7 @@
       </div>
       
       <div class="form-section">
-        <h2>Detalles del Problema</h2>
+        <h2>Detalles del Pinchazo</h2>
         <div class="row">
           <div class="col">
             <label for="problema">Detalle del Problema:</label>
@@ -729,20 +757,198 @@
     </form>
   </div>
 
+  <div id="connection-status" class="connection-status connection-loading" style="display: none;">
+    <i class="fas fa-circle-notch fa-spin"></i> Conectando a la base de datos...
+  </div>
+
   <script>
-    // Datos de ejemplo para autocompletar
-    const conductores = ['Juan Pérez', 'Carlos Gómez', 'Luis Martínez', 'Pedro Rodríguez'];
-    const mecanicos = ['Mecánico 1', 'Mecánico 2', 'Mecánico 3'];
-    const patentes = ['ABC123', 'DEF456', 'GHI789', 'JKL012'];
-    const supervisores = ['Supervisor 1', 'Supervisor 2', 'Supervisor 3'];
+    // Variables globales
+    let supabaseClient;
+    let conductores = [];
+    let mecanicos = [];
+    let patentes = [];
+    let supervisores = [];
+    
+    // Función para verificar si Supabase está cargado
+    function verificarSupabaseCargado() {
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
+        return true;
+      }
+      return false;
+    }
+
+    // Función para cargar datos de conductores
+    async function cargarConductores() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('conductores')
+          .select('nombre')
+          .order('nombre', { ascending: true });
+        
+        if (error) throw error;
+        
+        conductores = data.map(item => item.nombre);
+        actualizarDatalist('conductores-list', conductores);
+      } catch (error) {
+        console.error('Error al cargar conductores:', error);
+      }
+    }
+
+    // Función para cargar datos de mecánicos
+    async function cargarMecanicos() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('mecanicos')
+          .select('nombre')
+          .order('nombre', { ascending: true });
+        
+        if (error) throw error;
+        
+        mecanicos = data.map(item => item.nombre);
+        actualizarDatalist('mecanicos-list', mecanicos);
+      } catch (error) {
+        console.error('Error al cargar mecánicos:', error);
+      }
+    }
+
+    // Función para cargar datos de patentes
+    async function cargarPatentes() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('maquinas')
+          .select('patente')
+          .order('patente', { ascending: true });
+        
+        if (error) throw error;
+        
+        patentes = data.map(item => item.patente);
+        actualizarDatalist('patentes-list', patentes);
+      } catch (error) {
+        console.error('Error al cargar patentes:', error);
+      }
+    }
+
+    // Función para cargar datos de supervisores
+    async function cargarSupervisores() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('supervisores')
+          .select('nombre')
+          .order('nombre', { ascending: true });
+        
+        if (error) throw error;
+        
+        supervisores = data.map(item => item.nombre);
+        actualizarDatalist('supervisores-list', supervisores);
+      } catch (error) {
+        console.error('Error al cargar supervisores:', error);
+      }
+    }
+
+    // Función para actualizar un datalist con opciones
+    function actualizarDatalist(id, items) {
+      const datalist = document.getElementById(id);
+      datalist.innerHTML = '';
+      
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item;
+        datalist.appendChild(option);
+      });
+    }
+
+    // Función para inicializar Supabase con reintentos
+    async function inicializarSupabase() {
+      const connectionStatus = document.getElementById('connection-status');
+      connectionStatus.style.display = 'block';
+      
+      // Verificar si Supabase está cargado
+      if (!verificarSupabaseCargado()) {
+        connectionStatus.className = 'connection-status connection-error';
+        connectionStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: Biblioteca Supabase no cargada';
+        mostrarError('La biblioteca Supabase no se ha cargado correctamente. Recargue la página.');
+        return false;
+      }
+
+      try {
+        // Configuración de Supabase
+        const supabaseUrl = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
+        
+        // Inicializar Supabase
+        supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Verificar conexión con un timeout
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Tiempo de espera agotado al conectar con Supabase')), 5000)
+        );
+        
+        const connectionPromise = supabaseClient
+          .from('pinchazos')
+          .select('*')
+          .limit(1);
+        
+        // Usar Promise.race para manejar el timeout
+        const { data, error } = await Promise.race([connectionPromise, timeoutPromise]);
+        
+        if (error) throw error;
+        
+        // Mostrar éxito en conexión
+        connectionStatus.className = 'connection-status connection-success';
+        connectionStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado a la base de datos';
+        
+        // Cargar datos adicionales
+        await cargarConductores();
+        await cargarMecanicos();
+        await cargarPatentes();
+        await cargarSupervisores();
+        
+        // Ocultar después de 3 segundos
+        setTimeout(() => {
+          connectionStatus.style.display = 'none';
+        }, 3000);
+        
+        mostrarExito('Conexión con la base de datos establecida correctamente');
+        return true;
+      } catch (error) {
+        console.error('Error al conectar con Supabase:', error);
+        
+        // Mostrar error en conexión
+        connectionStatus.className = 'connection-status connection-error';
+        connectionStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
+        
+        mostrarError(`Error al conectar con la base de datos: ${error.message}`);
+        return false;
+      }
+    }
+
+    // Esperar a que se cargue la biblioteca Supabase
+    async function esperarSupabase() {
+      const maxIntentos = 5;
+      let intentos = 0;
+      
+      while (intentos < maxIntentos) {
+        if (verificarSupabaseCargado()) {
+          return true;
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+        intentos++;
+      }
+      return false;
+    }
 
     // Inicializar la aplicación cuando se cargue la página
-    document.addEventListener('DOMContentLoaded', function() {
-      // Actualizar datalists con los datos de ejemplo
-      actualizarDatalist('conductores-list', conductores);
-      actualizarDatalist('mecanicos-list', mecanicos);
-      actualizarDatalist('patentes-list', patentes);
-      actualizarDatalist('supervisores-list', supervisores);
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Esperar a que se cargue Supabase
+      const supabaseCargado = await esperarSupabase();
+      
+      if (!supabaseCargado) {
+        mostrarError('No se pudo cargar la biblioteca Supabase. Verifique su conexión a internet y recargue la página.');
+        return;
+      }
+      
+      // Inicializar Supabase
+      await inicializarSupabase();
       
       // Establecer fecha actual como predeterminada
       const today = new Date();
@@ -780,18 +986,6 @@
       setTimeout(() => {
         successElement.style.display = 'none';
       }, 3000);
-    }
-
-    // Función para actualizar un datalist con opciones
-    function actualizarDatalist(id, items) {
-      const datalist = document.getElementById(id);
-      datalist.innerHTML = '';
-      
-      items.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item;
-        datalist.appendChild(option);
-      });
     }
 
     function seleccionarRuedas(cantidad) {
@@ -900,7 +1094,13 @@
       document.getElementById('neumatico').value = neumaticosSeleccionados.join('-');
     }
 
-    function guardarRegistro() {
+    async function guardarRegistro() {
+      // Verificar si Supabase está inicializado
+      if (!supabaseClient) {
+        mostrarError('No se ha establecido conexión con la base de datos. Por favor, recargue la página.');
+        return;
+      }
+
       // Validar patente (único campo obligatorio)
       const patente = document.getElementById('patente').value;
       if (!patente) {
@@ -928,33 +1128,45 @@
         tipo_problema: document.querySelector('input[name="tipoProblema"]:checked')?.value || 'PINCHADURA'
       };
 
-      // Aquí normalmente se enviaría a la base de datos, pero ahora solo mostraremos un mensaje
-      console.log('Registro a guardar:', registro);
-      mostrarExito('Registro guardado correctamente (simulado)');
-      
-      // Limpiar el formulario después de guardar
-      document.getElementById('registro-form').reset();
-      
-      // Restablecer valores por defecto
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('fecha').value = today;
-      document.getElementById('checklist-no').checked = true;
-      document.getElementById('torque-no').checked = true;
-      seleccionarTipoProblema('PINCHADURA');
-      seleccionarRuedas(4);
-      
-      // Limpiar selección de neumáticos
-      const allPositions = ['P1', 'P2', 'P3', 'P4', 'P3I', 'P3E', 'P4I', 'P4E'];
-      allPositions.forEach(pos => {
-        const checkbox = document.getElementById(`check-${pos}`);
-        if (checkbox) {
-          checkbox.checked = false;
-          const neumaticoElement = document.getElementById(`neumatico-${pos}`);
-          if (neumaticoElement) {
-            neumaticoElement.parentElement.classList.remove('selected');
+      try {
+        // Insertar el registro en la base de datos
+        const { data, error } = await supabaseClient
+          .from('pinchazos')
+          .insert([registro])
+          .select();
+
+        if (error) throw error;
+        
+        mostrarExito('Registro guardado correctamente');
+        
+        // Limpiar el formulario después de guardar
+        document.getElementById('registro-form').reset();
+        
+        // Restablecer valores por defecto
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha').value = today;
+        document.getElementById('checklist-no').checked = true;
+        document.getElementById('torque-no').checked = true;
+        seleccionarTipoProblema('PINCHADURA');
+        seleccionarRuedas(4);
+        
+        // Limpiar selección de neumáticos
+        const allPositions = ['P1', 'P2', 'P3', 'P4', 'P3I', 'P3E', 'P4I', 'P4E'];
+        allPositions.forEach(pos => {
+          const checkbox = document.getElementById(`check-${pos}`);
+          if (checkbox) {
+            checkbox.checked = false;
+            const neumaticoElement = document.getElementById(`neumatico-${pos}`);
+            if (neumaticoElement) {
+              neumaticoElement.parentElement.classList.remove('selected');
+            }
           }
-        }
-      });
+        });
+        
+      } catch (error) {
+        console.error('Error al guardar:', error);
+        mostrarError('Error al guardar el registro: ' + error.message);
+      }
     }
 
     function mostrarVistaPrevia() {

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Pinchazos y Cambios de Neumaticos</title>
+  <title>Control de Pinchazos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -31,7 +31,6 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: var(--color-text);
       padding: 20px;
-      min-height: 100vh;
     }
 
     .container {
@@ -253,22 +252,20 @@
       box-shadow: var(--box-shadow);
       overflow-x: auto;
       margin-bottom: 20px;
-      max-width: 100%;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 15px;
-      font-size: 0.8rem;
-      table-layout: fixed;
+      font-size: 0.85rem;
     }
 
     th, td {
-      padding: 8px 10px;
+      padding: 10px 12px;
       text-align: left;
       border-bottom: 1px solid #ddd;
-      word-wrap: break-word;
+      white-space: nowrap;
     }
 
     th {
@@ -277,7 +274,6 @@
       font-weight: 600;
       position: sticky;
       top: 0;
-      white-space: nowrap;
     }
 
     tr:hover {
@@ -286,12 +282,11 @@
 
     .badge {
       display: inline-block;
-      padding: 3px 8px;
+      padding: 5px 10px;
       border-radius: 20px;
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       font-weight: 600;
       text-align: center;
-      white-space: nowrap;
     }
 
     .badge-primary {
@@ -324,15 +319,13 @@
       background-color: #e3f2fd;
       border: 1px solid var(--color-primary);
       border-radius: 4px;
-      padding: 2px 6px;
-      font-size: 0.7rem;
-      white-space: nowrap;
+      padding: 3px 8px;
+      font-size: 0.8rem;
     }
 
     .action-buttons {
       display: flex;
       gap: 5px;
-      flex-wrap: wrap;
     }
 
     .pagination {
@@ -340,7 +333,6 @@
       justify-content: center;
       margin-top: 20px;
       gap: 5px;
-      flex-wrap: wrap;
     }
 
     .pagination button {
@@ -349,7 +341,6 @@
       background-color: white;
       cursor: pointer;
       border-radius: 4px;
-      font-size: 0.8rem;
     }
 
     .pagination button.active {
@@ -380,11 +371,9 @@
       margin: 2% auto;
       padding: 20px;
       width: 90%;
-      max-width: 900px;
+      max-width: 800px;
       border-radius: 8px;
       box-shadow: 0 0 20px rgba(0,0,0,0.5);
-      max-height: 90vh;
-      overflow-y: auto;
     }
 
     .modal-header {
@@ -409,55 +398,8 @@
       color: #6c757d;
     }
 
-    /* Selector de cantidad de ruedas */
-    .ruedas-selector {
-      margin-bottom: 15px;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border-radius: var(--border-radius);
-      border: 1px solid #ddd;
-    }
-
-    .ruedas-options {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 10px;
-    }
-
-    .rueda-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .rueda-img {
-      width: 60px;
-      height: 60px;
-      background-color: #eee;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 5px;
-      border: 2px solid transparent;
-      transition: all 0.3s;
-    }
-
-    .rueda-option.selected .rueda-img {
-      border-color: var(--color-primary);
-      background-color: #e3f2fd;
-    }
-
-    .rueda-label {
-      font-size: 0.9rem;
-      text-align: center;
-      font-weight: 600;
-    }
-
-    /* Selector de neumáticos */
-    .neumaticos-container {
+    /* Selector de neumáticos en modal de edición */
+    .neumaticos-edit-container {
       margin: 15px 0;
       padding: 15px;
       background-color: #f8f9fa;
@@ -465,48 +407,45 @@
       border: 1px solid #ddd;
     }
 
-    .neumaticos-title {
+    .neumaticos-edit-title {
       font-weight: 600;
       margin-bottom: 10px;
       color: var(--color-primary);
     }
 
-    .neumaticos-grid {
+    .neumaticos-edit-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 15px;
     }
 
-    .eje {
+    .eje-edit {
       border: 1px solid #ddd;
       border-radius: var(--border-radius);
       padding: 10px;
       background-color: white;
     }
 
-    .eje-title {
+    .eje-edit-title {
       font-weight: 600;
       text-align: center;
       margin-bottom: 10px;
       color: var(--color-text);
     }
 
-    .neumaticos-options {
+    .neumaticos-edit-options {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
+      justify-content: space-around;
     }
 
-    .neumatico-option {
+    .neumatico-edit-option {
       display: flex;
       flex-direction: column;
       align-items: center;
       cursor: pointer;
-      min-width: 80px;
     }
 
-    .neumatico-img {
+    .neumatico-edit-img {
       width: 50px;
       height: 50px;
       background-color: #eee;
@@ -519,136 +458,127 @@
       transition: all 0.3s;
     }
 
-    .neumatico-option.selected .neumatico-img {
+    .neumatico-edit-option.selected .neumatico-edit-img {
       border-color: var(--color-primary);
       background-color: #e3f2fd;
     }
 
-    .neumatico-label {
+    .neumatico-edit-label {
       font-size: 0.8rem;
       text-align: center;
     }
 
-    /* Estilo para selector de tipo de problema */
-    .tipo-problema-group {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-
-    .tipo-problema-option {
-      flex: 1;
-      text-align: center;
-      padding: 10px;
-      border: 1px solid #ddd;
+    .connection-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 15px;
       border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: all 0.3s;
+      font-weight: 500;
+      box-shadow: var(--box-shadow);
+      z-index: 100;
     }
 
-    .tipo-problema-option.selected {
-      border-color: var(--color-primary);
-      background-color: #e3f2fd;
+    .connection-success {
+      background-color: var(--color-success);
+      color: white;
     }
 
-    .tipo-problema-option input {
-      display: none;
+    .connection-error {
+      background-color: var(--color-error);
+      color: white;
     }
 
-    .radio-group {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .radio-group label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-weight: normal;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .radio-group input[type="radio"] {
-      width: auto;
-      margin: 0;
-    }
-
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .required-field::after {
-      content: " *";
-      color: var(--color-error);
-    }
-
-    /* Estilo para el tipo de problema */
-    .tipo-problema-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    .tipo-pinchadura {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-
-    .tipo-cambio {
-      background-color: #e3f2fd;
-      color: var(--color-primary);
-    }
-
-    .tipo-preventivo {
-      background-color: #d4edda;
-      color: #155724;
+    .connection-loading {
+      background-color: var(--color-primary);
+      color: white;
     }
 
     /* Estilos para impresión */
     @media print {
+      @page {
+        size: landscape;
+        margin: 0.5cm;
+      }
+      
       body {
         background: white;
         color: black;
         padding: 0;
+        font-size: 10pt;
       }
-
-      .header-container, .filters-container {
+      
+      .container {
+        max-width: 100%;
+        padding: 0;
+      }
+      
+      .header-container {
+        flex-direction: column;
+        text-align: center;
+        background-color: white !important;
+        color: black !important;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 10px 0;
+        margin-bottom: 10px;
+      }
+      
+      h1, h2 {
+        color: black !important;
+        border-bottom: 2px solid black;
+      }
+      
+      .logo {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+      }
+      
+      .btn-group, .filters-container, .pagination {
         display: none !important;
       }
-
+      
       .table-container {
         box-shadow: none;
-        border: none;
         padding: 0;
         margin: 0;
+        page-break-inside: avoid;
       }
-
+      
       table {
         width: 100%;
-        font-size: 10px;
+        font-size: 8pt;
       }
-
+      
       th, td {
         padding: 4px 6px;
       }
-
-      .btn-group, .pagination {
-        display: none !important;
+      
+      th {
+        background-color: #3f72af !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
-
-      .container {
-        max-width: 100%;
-        margin: 0;
-        padding: 0;
+      
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      
+      .badge {
+        padding: 2px 5px;
+        font-size: 7pt;
+      }
+      
+      .neumatico-badge {
+        padding: 1px 3px;
+        font-size: 7pt;
+      }
+      
+      /* Evitar que las filas se dividan entre páginas */
+      tr {
+        page-break-inside: avoid;
       }
     }
 
@@ -660,15 +590,14 @@
       
       .btn-group {
         justify-content: center;
-        flex-wrap: wrap;
       }
       
       table {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
       }
       
       th, td {
-        padding: 6px 8px;
+        padding: 8px 10px;
       }
       
       .modal-content {
@@ -676,46 +605,9 @@
         padding: 15px;
       }
       
-      .neumaticos-grid {
+      .neumaticos-edit-grid {
         grid-template-columns: 1fr;
       }
-
-      /* Columnas a ocultar en móviles */
-      .hide-on-mobile {
-        display: none;
-      }
-
-      /* Ajustar ancho de columnas en móviles */
-      td, th {
-        max-width: 120px;
-      }
-    }
-
-    /* Estilos para texto multilínea */
-    .multiline-text {
-      white-space: normal;
-      word-break: break-word;
-    }
-
-    /* Ajustar columnas específicas */
-    .col-fecha {
-      width: 90px;
-    }
-
-    .col-turno {
-      width: 50px;
-    }
-
-    .col-patente {
-      width: 80px;
-    }
-
-    .col-tipo {
-      width: 100px;
-    }
-
-    .col-acciones {
-      width: 120px;
     }
   </style>
 </head>
@@ -727,7 +619,7 @@
           <img src="img/logo.png" alt="Logo">
         </div>
         <div>
-          <h1>Pinchazos y Cambios de Neumaticos	</h1>
+          <h1>Control de Pinchazos</h1>
           <div class="subtitle">Lista de Registros</div>
         </div>
       </div>
@@ -738,15 +630,15 @@
         <button class="btn btn-info" onclick="window.location.href='estadisticas_pinchazos.html'">
           <i class="fas fa-chart-bar"></i> Estadísticas
         </button>
-        
-        <button class="btn btn-success" onclick="exportarLista()">
-          <i class="fas fa-file-export"></i> Exportar
+        <button class="btn btn-secondary" onclick="imprimirTabla()">
+          <i class="fas fa-print"></i> Imprimir
         </button>
       </div>
     </div>
 
     <div id="error-message" class="status-message error" style="display: none;"></div>
     <div id="success-message" class="status-message success" style="display: none;"></div>
+    <div id="connection-message" class="status-message info" style="display: none;"></div>
 
     <div class="filters-container">
       <h2>Filtrar Registros</h2>
@@ -783,7 +675,6 @@
             <option value="">Todos</option>
             <option value="PINCHADURA">Pinchadura</option>
             <option value="CAMBIO">Cambio de neumático</option>
-            <option value="PREVENTIVO_CORRECTIVO">Preventivo/Correctivo</option>
           </select>
         </div>
         <div class="col">
@@ -802,41 +693,37 @@
         <button type="button" class="btn btn-primary" onclick="loadRegistros()">
           <i class="fas fa-search"></i> Buscar
         </button>
-        <button type="button" class="btn btn-info" onclick="window.location.href='menu.html'">
-          <i class="fas fa-arrow-left"></i> Volver
-        </button>
       </div>
     </div>
 
     <div class="table-container">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h2>Registros de Pinchazos y Cambio de Neumaticos</h2>
-        <div id="total-registros" style="font-weight: 600;">Cargando...</div>
+        <h2>Registros de Pinchazos</h2>
+        <div id="total-registros" style="font-weight: 600;">Total: 0 registros</div>
       </div>
       
       <table id="registros-table">
         <thead>
           <tr>
-            <th class="col-fecha">Fecha</th>
-            <th class="col-turno">Turno</th>
-            <th class="hide-on-mobile">Kilometaje</th>
-            <th class="hide-on-mobile">Tipo Vehículo</th>
-            <th class="col-patente">Patente</th>
-            <th class="hide-on-mobile">Conductor</th>
-            <th class="hide-on-mobile">Problema</th>
-            <th class="hide-on-mobile">Acción</th>
+            <th>Fecha</th>
+            <th>Turno</th>
+            <th>Kilometaje</th>
+            <th>Tipo Vehículo</th>
+            <th>Patente</th>
+            <th>Conductor</th>
+            <th>Problema</th>
+            <th>Acción</th>
             <th>Neumático</th>
-            <th class="hide-on-mobile">Checklist</th>
-            <th class="hide-on-mobile">Torque</th>
-            <th class="hide-on-mobile">Verificación km/hrs</th>
-            <th class="hide-on-mobile">Responsable</th>
-            <th class="col-tipo">Tipo</th>
-            <th class="col-acciones">Acciones</th>
+            <th>Checklist</th>
+            <th>Torque</th>
+            <th>Verificación km/hrs</th>
+            <th>Responsable</th>
+            <th>Tipo</th>
           </tr>
         </thead>
         <tbody id="registros-body">
           <tr>
-            <td colspan="15" style="text-align: center;">Cargando registros...</td>
+            <td colspan="14" style="text-align: center;">No hay registros para mostrar</td>
           </tr>
         </tbody>
       </table>
@@ -862,11 +749,11 @@
           <div class="row">
             <div class="col">
               <label for="edit-fecha">Fecha:</label>
-              <input type="date" id="edit-fecha">
+              <input type="date" id="edit-fecha" required>
             </div>
             <div class="col">
               <label for="edit-turno">Turno:</label>
-              <select id="edit-turno">
+              <select id="edit-turno" required>
                 <option value="">Seleccione...</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -874,48 +761,35 @@
             </div>
             <div class="col">
               <label for="edit-kilometaje">Kilometaje:</label>
-              <input type="number" id="edit-kilometaje" min="0" step="1">
+              <input type="number" id="edit-kilometaje" min="0" step="1" required>
             </div>
           </div>
           
           <div class="row">
             <div class="col">
               <label for="edit-tipo-vehiculo">Tipo de Vehículo:</label>
-              <input type="text" id="edit-tipo-vehiculo">
+              <input type="text" id="edit-tipo-vehiculo" required>
             </div>
             <div class="col">
               <label for="edit-patente">Patente:</label>
-              <input type="text" id="edit-patente">
+              <input type="text" id="edit-patente" required>
             </div>
             <div class="col">
               <label for="edit-conductor">Conductor:</label>
-              <input type="text" id="edit-conductor">
+              <input type="text" id="edit-conductor" required>
             </div>
           </div>
 
           <div class="row">
             <div class="col">
-              <label for="edit-supervisor">Supervisor:</label>
-              <input type="text" id="edit-supervisor">
-            </div>
-          </div>
-
-          <div class="ruedas-selector">
-            <label>Cantidad de Ruedas:</label>
-            <div class="ruedas-options">
-              <div class="rueda-option selected" onclick="seleccionarRuedasEdit(4)">
-                <div class="rueda-img" id="edit-rueda-4">
-                  <i class="fas fa-truck-pickup" style="font-size: 24px;"></i>
-                </div>
-                <div class="rueda-label">4 Ruedas</div>
-                <input type="radio" name="edit-ruedas" id="edit-ruedas-4" value="4" checked style="display: none;">
-              </div>
-              <div class="rueda-option" onclick="seleccionarRuedasEdit(6)">
-                <div class="rueda-img" id="edit-rueda-6">
-                  <i class="fas fa-truck" style="font-size: 24px;"></i>
-                </div>
-                <div class="rueda-label">6 Ruedas</div>
-                <input type="radio" name="edit-ruedas" id="edit-ruedas-6" value="6" style="display: none;">
+              <label>Cantidad de Ruedas:</label>
+              <div class="ruedas-options">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                  <input type="radio" name="edit-ruedas" value="4" id="edit-ruedas-4" checked> 4 Ruedas
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px;">
+                  <input type="radio" name="edit-ruedas" value="6" id="edit-ruedas-6"> 6 Ruedas
+                </label>
               </div>
             </div>
           </div>
@@ -923,86 +797,74 @@
         
         <div class="form-section">
           <h3>Tipo de Problema</h3>
-          <div class="tipo-problema-group">
-            <div class="tipo-problema-option selected" onclick="seleccionarTipoProblemaEdit('PINCHADURA')">
-              <input type="radio" name="edit-tipo-problema" id="edit-tipo-pinchadura" value="PINCHADURA" checked>
-              <label for="edit-tipo-pinchadura">Pinchadura</label>
+          <div class="row">
+            <div class="col">
+              <label style="display: flex; align-items: center; gap: 10px;">
+                <input type="radio" name="edit-tipo-problema" value="PINCHADURA" id="edit-tipo-pinchadura" checked> Pinchadura
+              </label>
             </div>
-            <div class="tipo-problema-option" onclick="seleccionarTipoProblemaEdit('CAMBIO')">
-              <input type="radio" name="edit-tipo-problema" id="edit-tipo-cambio" value="CAMBIO">
-              <label for="edit-tipo-cambio">Cambio de Neumático</label>
-            </div>
-            <div class="tipo-problema-option" onclick="seleccionarTipoProblemaEdit('PREVENTIVO_CORRECTIVO')">
-              <input type="radio" name="edit-tipo-problema" id="edit-tipo-preventivo" value="PREVENTIVO_CORRECTIVO">
-              <label for="edit-tipo-preventivo">Preventivo/Correctivo</label>
+            <div class="col">
+              <label style="display: flex; align-items: center; gap: 10px;">
+                <input type="radio" name="edit-tipo-problema" value="CAMBIO" id="edit-tipo-cambio"> Cambio de Neumático
+              </label>
             </div>
           </div>
         </div>
         
         <div class="form-section">
-          <h3>Detalles del Pinchazo y Cambio de Neumaticos</h3>
+          <h3>Detalles del Pinchazo</h3>
           <div class="row">
             <div class="col">
               <label for="edit-problema">Detalle del Problema:</label>
-              <textarea id="edit-problema" rows="3"></textarea>
+              <textarea id="edit-problema" rows="3" required></textarea>
             </div>
             <div class="col">
               <label for="edit-accion">Acción Inmediata:</label>
-              <textarea id="edit-accion" rows="3"></textarea>
+              <textarea id="edit-accion" rows="3" required></textarea>
             </div>
           </div>
           
-          <div class="neumaticos-container">
-            <div class="neumaticos-title">Seleccione neumático(s) afectado(s):</div>
-            <div class="neumaticos-grid">
-              <div class="eje">
-                <div class="eje-title">Eje Delantero</div>
-                <div class="neumaticos-options">
-                  <div class="neumatico-option" onclick="seleccionarNeumaticoEdit('P1')">
-                    <div class="neumatico-img" id="edit-neumatico-P1">P1</div>
-                    <div class="neumatico-label" id="edit-label-P1">Izquierdo</div>
+          <div class="neumaticos-edit-container">
+            <div class="neumaticos-edit-title">Seleccione neumático(s) afectado(s):</div>
+            <div class="neumaticos-edit-grid">
+              <div class="eje-edit">
+                <div class="eje-edit-title">Eje Delantero</div>
+                <div class="neumaticos-edit-options">
+                  <div class="neumatico-edit-option" onclick="toggleEditNeumatico('P1')">
+                    <div class="neumatico-edit-img" id="edit-neumatico-P1">P1</div>
+                    <div class="neumatico-edit-label">Izquierdo</div>
                     <input type="checkbox" id="edit-check-P1" style="display: none;">
                   </div>
-                  <div class="neumatico-option" onclick="seleccionarNeumaticoEdit('P2')">
-                    <div class="neumatico-img" id="edit-neumatico-P2">P2</div>
-                    <div class="neumatico-label" id="edit-label-P2">Derecho</div>
+                  <div class="neumatico-edit-option" onclick="toggleEditNeumatico('P2')">
+                    <div class="neumatico-edit-img" id="edit-neumatico-P2">P2</div>
+                    <div class="neumatico-edit-label">Derecho</div>
                     <input type="checkbox" id="edit-check-P2" style="display: none;">
                   </div>
                 </div>
               </div>
               
-              <div class="eje">
-                <div class="eje-title">Eje Trasero</div>
-                <div class="neumaticos-options">
-                  <div class="neumatico-option" id="edit-neumatico-P3-container" onclick="seleccionarNeumaticoEdit('P3')">
-                    <div class="neumatico-img" id="edit-neumatico-P3">P3</div>
-                    <div class="neumatico-label" id="edit-label-P3">Izquierdo</div>
+              <div class="eje-edit">
+                <div class="eje-edit-title">Eje Trasero</div>
+                <div class="neumaticos-edit-options">
+                  <div class="neumatico-edit-option" onclick="toggleEditNeumatico('P3')">
+                    <div class="neumatico-edit-img" id="edit-neumatico-P3">P3</div>
+                    <div class="neumatico-edit-label">Izquierdo</div>
                     <input type="checkbox" id="edit-check-P3" style="display: none;">
                   </div>
-                  <div class="neumatico-option" id="edit-neumatico-P4-container" onclick="seleccionarNeumaticoEdit('P4')">
-                    <div class="neumatico-img" id="edit-neumatico-P4">P4</div>
-                    <div class="neumatico-label" id="edit-label-P4">Derecho</div>
+                  <div class="neumatico-edit-option" onclick="toggleEditNeumatico('P4')">
+                    <div class="neumatico-edit-img" id="edit-neumatico-P4">P4</div>
+                    <div class="neumatico-edit-label">Derecho</div>
                     <input type="checkbox" id="edit-check-P4" style="display: none;">
                   </div>
-                  <div class="neumatico-option" id="edit-neumatico-P3I-container" style="display: none;" onclick="seleccionarNeumaticoEdit('P3I')">
-                    <div class="neumatico-img" id="edit-neumatico-P3I">P3I</div>
-                    <div class="neumatico-label" id="edit-label-P3I">Interior</div>
-                    <input type="checkbox" id="edit-check-P3I" style="display: none;">
+                  <div class="neumatico-edit-option" id="edit-neumatico-P5-container" style="display: none;" onclick="toggleEditNeumatico('P5')">
+                    <div class="neumatico-edit-img" id="edit-neumatico-P5">P5</div>
+                    <div class="neumatico-edit-label">Extra Izq.</div>
+                    <input type="checkbox" id="edit-check-P5" style="display: none;">
                   </div>
-                  <div class="neumatico-option" id="edit-neumatico-P3E-container" style="display: none;" onclick="seleccionarNeumaticoEdit('P3E')">
-                    <div class="neumatico-img" id="edit-neumatico-P3E">P3E</div>
-                    <div class="neumatico-label" id="edit-label-P3E">Exterior</div>
-                    <input type="checkbox" id="edit-check-P3E" style="display: none;">
-                  </div>
-                  <div class="neumatico-option" id="edit-neumatico-P4I-container" style="display: none;" onclick="seleccionarNeumaticoEdit('P4I')">
-                    <div class="neumatico-img" id="edit-neumatico-P4I">P4I</div>
-                    <div class="neumatico-label" id="edit-label-P4I">Interior</div>
-                    <input type="checkbox" id="edit-check-P4I" style="display: none;">
-                  </div>
-                  <div class="neumatico-option" id="edit-neumatico-P4E-container" style="display: none;" onclick="seleccionarNeumaticoEdit('P4E')">
-                    <div class="neumatico-img" id="edit-neumatico-P4E">P4E</div>
-                    <div class="neumatico-label" id="edit-label-P4E">Exterior</div>
-                    <input type="checkbox" id="edit-check-P4E" style="display: none;">
+                  <div class="neumatico-edit-option" id="edit-neumatico-P6-container" style="display: none;" onclick="toggleEditNeumatico('P6')">
+                    <div class="neumatico-edit-img" id="edit-neumatico-P6">P6</div>
+                    <div class="neumatico-edit-label">Extra Der.</div>
+                    <input type="checkbox" id="edit-check-P6" style="display: none;">
                   </div>
                 </div>
               </div>
@@ -1015,22 +877,22 @@
           <div class="row">
             <div class="col">
               <label>Checklist de revisión:</label>
-              <div class="radio-group">
-                <label>
+              <div style="display: flex; gap: 15px;">
+                <label style="display: flex; align-items: center; gap: 5px;">
                   <input type="radio" name="edit-checklist" value="SI" id="edit-checklist-si"> Sí
                 </label>
-                <label>
+                <label style="display: flex; align-items: center; gap: 5px;">
                   <input type="radio" name="edit-checklist" value="NO" id="edit-checklist-no" checked> No
                 </label>
               </div>
             </div>
             <div class="col">
               <label>Torque de tuercas:</label>
-              <div class="radio-group">
-                <label>
+              <div style="display: flex; gap: 15px;">
+                <label style="display: flex; align-items: center; gap: 5px;">
                   <input type="radio" name="edit-torque" value="SI" id="edit-torque-si"> Sí
                 </label>
-                <label>
+                <label style="display: flex; align-items: center; gap: 5px;">
                   <input type="radio" name="edit-torque" value="NO" id="edit-torque-no" checked> No
                 </label>
               </div>
@@ -1040,11 +902,11 @@
           <div class="row">
             <div class="col">
               <label for="edit-revision-km">Verificación de Torque (km o hrs):</label>
-              <input type="number" id="edit-revision-km" min="0" step="1">
+              <input type="number" id="edit-revision-km" min="0" step="1" required>
             </div>
             <div class="col">
               <label for="edit-responsable">Responsable:</label>
-              <input type="text" id="edit-responsable">
+              <input type="text" id="edit-responsable" required>
             </div>
           </div>
         </div>
@@ -1052,9 +914,6 @@
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
             <i class="fas fa-times"></i> Cancelar
-          </button>
-          <button type="button" class="btn btn-info" onclick="imprimirRegistroDesdeModal()">
-            <i class="fas fa-print"></i> Imprimir
           </button>
           <button type="submit" class="btn btn-primary">
             <i class="fas fa-save"></i> Guardar Cambios
@@ -1064,13 +923,16 @@
     </div>
   </div>
 
+  <div id="connection-status" class="connection-status connection-loading" style="display: none;">
+    <i class="fas fa-circle-notch fa-spin"></i> Conectando a la base de datos...
+  </div>
+
   <script>
     // Variables globales
     let supabaseClient;
     let currentPage = 1;
     const itemsPerPage = 10;
     let totalRegistros = 0;
-    let currentEditingRecord = null;
     
     // Función para verificar si Supabase está cargado
     function verificarSupabaseCargado() {
@@ -1082,8 +944,13 @@
 
     // Función para inicializar Supabase con reintentos
     async function inicializarSupabase() {
+      const connectionStatus = document.getElementById('connection-status');
+      connectionStatus.style.display = 'block';
+      
       // Verificar si Supabase está cargado
       if (!verificarSupabaseCargado()) {
+        connectionStatus.className = 'connection-status connection-error';
+        connectionStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: Biblioteca Supabase no cargada';
         mostrarError('La biblioteca Supabase no se ha cargado correctamente. Recargue la página.');
         return false;
       }
@@ -1111,9 +978,24 @@
         
         if (error) throw error;
         
+        // Mostrar éxito en conexión
+        connectionStatus.className = 'connection-status connection-success';
+        connectionStatus.innerHTML = '<i class="fas fa-check-circle"></i> Conectado a la base de datos';
+        
+        // Ocultar después de 3 segundos
+        setTimeout(() => {
+          connectionStatus.style.display = 'none';
+        }, 3000);
+        
+        mostrarExito('Conexión con la base de datos establecida correctamente');
         return true;
       } catch (error) {
         console.error('Error al conectar con Supabase:', error);
+        
+        // Mostrar error en conexión
+        connectionStatus.className = 'connection-status connection-error';
+        connectionStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${error.message}`;
+        
         mostrarError(`Error al conectar con la base de datos: ${error.message}`);
         return false;
       }
@@ -1156,209 +1038,23 @@
       }, 3000);
     }
 
-    // Función para formatear fecha en zona horaria de Chile - CORREGIDA
-    function formatChileanDate(dateString) {
-      if (!dateString) return '';
+    // Función para imprimir la tabla
+    function imprimirTabla() {
+      // Ocultar elementos que no queremos imprimir
+      const elementosOcultar = document.querySelectorAll('.btn-group, .filters-container, .pagination');
+      elementosOcultar.forEach(el => el.style.display = 'none');
       
-      // Crear la fecha y ajustar a zona horaria de Chile
-      const date = new Date(dateString);
+      // Cambiar estilos para impresión
+      document.body.classList.add('print-mode');
       
-      // Ajustar la fecha sumando la diferencia horaria para evitar el problema del día anterior
-      const timezoneOffset = date.getTimezoneOffset() * 60000; // en milisegundos
-      const adjustedDate = new Date(date.getTime() + timezoneOffset);
+      // Imprimir
+      window.print();
       
-      // Opciones para el formato de fecha
-      const options = {
-        timeZone: 'America/Santiago',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      };
-      
-      return adjustedDate.toLocaleDateString('es-CL', options);
-    }
-
-    // Función para abrir la página de impresión con los datos del registro
-    function imprimirRegistro(registro) {
-      // Crear URL con parámetros
-      const params = new URLSearchParams();
-      params.append('id', registro.id);
-      params.append('fecha', registro.fecha);
-      params.append('turno', registro.turno);
-      params.append('kilometaje', registro.kilometaje);
-      params.append('tipo_vehiculo', registro.tipo_vehiculo);
-      params.append('patente', registro.patente);
-      params.append('conductor', registro.conductor || '');
-      params.append('supervisor', registro.supervisor || '');
-      params.append('problema', registro.problema || '');
-      params.append('accion', registro.accion || '');
-      params.append('neumatico', registro.neumatico || '');
-      params.append('checklist', registro.checklist || 'NO');
-      params.append('torque', registro.torque || 'NO');
-      params.append('revision_km', registro.revision_km || '');
-      params.append('responsable', registro.responsable || '');
-      params.append('tipo_problema', registro.tipo_problema || 'PINCHADURA');
-      
-      // Abrir la página de impresión
-      window.open(`Imprimirp.html?${params.toString()}`, '_blank');
-    }
-
-    // Función para imprimir desde el modal de edición
-    function imprimirRegistroDesdeModal() {
-      if (currentEditingRecord) {
-        imprimirRegistro(currentEditingRecord);
-      } else {
-        mostrarError('No hay registro cargado para imprimir');
-      }
-    }
-
-    // Función para exportar la lista completa
-    async function exportarLista() {
-      try {
-        // Obtener todos los registros sin paginación
-        const { data: registros, error } = await supabaseClient
-          .from('pinchazos')
-          .select('*')
-          .order('fecha', { ascending: false });
-        
-        if (error) throw error;
-        
-        if (registros.length === 0) {
-          mostrarError('No hay registros para exportar');
-          return;
-        }
-        
-        // Crear HTML para la exportación
-        let html = `
-          <!DOCTYPE html>
-          <html lang="es">
-          <head>
-            <meta charset="UTF-8">
-            <title>Lista Completa de Pinchazos y Cambio de Neumaticos</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-              .header { display: flex; align-items: center; margin-bottom: 20px; }
-              .logo { width: 80px; height: 80px; margin-right: 20px; }
-              .title { flex-grow: 1; }
-              h1 { margin: 0; color: #2c5282; text-align: center; }
-              .subtitle { margin: 0; color: #666; text-align: center; }
-              table { width: 100%; border-collapse: collapse; font-size: 10px; }
-              th, td { border: 1px solid #ddd; padding: 5px; text-align: left; }
-              th { background-color: #f2f2f2; }
-              .badge { padding: 3px 6px; border-radius: 10px; font-size: 0.8rem; }
-              .badge-success { background-color: #d4edda; color: #155724; }
-              .badge-danger { background-color: #f8d7da; color: #721c24; }
-              .tipo-pinchadura { background-color: #fff3cd; color: #856404; }
-              .tipo-cambio { background-color: #e3f2fd; color: #0d6efd; }
-              .tipo-preventivo { background-color: #d4edda; color: #155724; }
-              @page { size: landscape; margin: 10mm; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div class="logo">
-                <img src="img/logo.png" alt="Logo" style="width:100%; height:auto;">
-              </div>
-              <div class="title">
-                <h1>Lista Completa de Registros de Pinchazos y Cambio de Neumatico</h1>
-                <p class="subtitle">Generado el ${new Date().toLocaleDateString('es-CL')}</p>
-              </div>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Turno</th>
-                  <th>Kilometaje</th>
-                  <th>Tipo Vehículo</th>
-                  <th>Patente</th>
-                  <th>Conductor</th>
-                  <th>Supervisor</th>
-                  <th>Problema</th>
-                  <th>Acción</th>
-                  <th>Neumático</th>
-                  <th>Checklist</th>
-                  <th>Torque</th>
-                  <th>Verificación km/hrs</th>
-                  <th>Responsable</th>
-                  <th>Tipo</th>
-                </tr>
-              </thead>
-              <tbody>
-        `;
-        
-        registros.forEach(registro => {
-          const fechaFormateada = formatChileanDate(registro.fecha);
-          
-          // Manejar el caso cuando neumatico es null o undefined
-          const neumaticos = registro.neumatico ? registro.neumatico.split('-') : [];
-          
-          // Determinar clase CSS según el tipo de problema
-          let tipoClase = '';
-          let tipoTexto = '';
-          switch(registro.tipo_problema) {
-            case 'PINCHADURA':
-              tipoClase = 'tipo-pinchadura';
-              tipoTexto = 'Pinchadura';
-              break;
-            case 'CAMBIO':
-              tipoClase = 'tipo-cambio';
-              tipoTexto = 'Cambio';
-              break;
-            case 'PREVENTIVO_CORRECTIVO':
-              tipoClase = 'tipo-preventivo';
-              tipoTexto = 'Preventivo/Correctivo';
-              break;
-            default:
-              tipoClase = '';
-              tipoTexto = registro.tipo_problema || '';
-          }
-          
-          html += `
-            <tr>
-              <td>${fechaFormateada}</td>
-              <td>${registro.turno}</td>
-              <td>${registro.kilometaje}</td>
-              <td>${registro.tipo_vehiculo}</td>
-              <td>${registro.patente}</td>
-              <td>${registro.conductor || ''}</td>
-              <td>${registro.supervisor || ''}</td>
-              <td>${registro.problema ? (registro.problema.length > 30 ? registro.problema.substring(0, 30) + '...' : registro.problema) : ''}</td>
-              <td>${registro.accion ? (registro.accion.length > 30 ? registro.accion.substring(0, 30) + '...' : registro.accion) : ''}</td>
-              <td>${neumaticos.join(', ')}</td>
-              <td><span class="badge ${registro.checklist === 'SI' ? 'badge-success' : 'badge-danger'}">${registro.checklist === 'SI' ? 'Sí' : 'No'}</span></td>
-              <td><span class="badge ${registro.torque === 'SI' ? 'badge-success' : 'badge-danger'}">${registro.torque === 'SI' ? 'Sí' : 'No'}</span></td>
-              <td>${registro.revision_km || ''}</td>
-              <td>${registro.responsable || ''}</td>
-              <td><span class="badge ${tipoClase}">${tipoTexto}</span></td>
-            </tr>
-          `;
-        });
-        
-        html += `
-              </tbody>
-            </table>
-          </body>
-          </html>
-        `;
-        
-        // Abrir ventana de impresión
-        const printWindow = window.open('', '_blank');
-        printWindow.document.open();
-        printWindow.document.write(html);
-        printWindow.document.close();
-        
-        // Esperar a que se cargue el contenido antes de imprimir
-        printWindow.onload = function() {
-          setTimeout(() => {
-            printWindow.print();
-          }, 500);
-        };
-        
-      } catch (error) {
-        console.error('Error al exportar lista:', error);
-        mostrarError('Error al exportar la lista: ' + error.message);
-      }
+      // Restaurar estilos después de imprimir
+      setTimeout(() => {
+        elementosOcultar.forEach(el => el.style.display = '');
+        document.body.classList.remove('print-mode');
+      }, 1000);
     }
 
     // Cargar registros desde Supabase
@@ -1412,17 +1108,17 @@
       }
       
       try {
-        document.getElementById('registros-body').innerHTML = '<tr><td colspan="15" style="text-align: center;">Cargando registros...</td></tr>';
+        document.getElementById('registros-body').innerHTML = '<tr><td colspan="14" style="text-align: center;">Cargando registros...</td></tr>';
         
         const { data: registros, count, error } = await query;
         
         if (error) throw error;
         
         totalRegistros = count;
-        document.getElementById('total-registros').textContent = `Total: ${count} registros`;
+        document.getElementById('total-registros').textContent = `Total: ${count || 0} registros`;
         
-        if (registros.length === 0) {
-          document.getElementById('registros-body').innerHTML = '<tr><td colspan="15" style="text-align: center;">No se encontraron registros</td></tr>';
+        if (!registros || registros.length === 0) {
+          document.getElementById('registros-body').innerHTML = '<tr><td colspan="14" style="text-align: center;">No se encontraron registros</td></tr>';
           document.getElementById('pagination-container').innerHTML = '';
           return;
         }
@@ -1430,74 +1126,45 @@
         // Generar tabla con los registros
         let html = '';
         registros.forEach(registro => {
-          // Formatear fecha en zona horaria de Chile
-          const fechaFormateada = formatChileanDate(registro.fecha);
+          const fechaFormateada = new Date(registro.fecha).toLocaleDateString('es-ES');
           
           // Manejar el caso cuando neumatico es null o undefined
           const neumaticos = registro.neumatico ? registro.neumatico.split('-') : [];
-          
-          // Determinar clase CSS según el tipo de problema
-          let tipoClase = '';
-          let tipoTexto = '';
-          switch(registro.tipo_problema) {
-            case 'PINCHADURA':
-              tipoClase = 'tipo-pinchadura';
-              tipoTexto = 'Pinchadura';
-              break;
-            case 'CAMBIO':
-              tipoClase = 'tipo-cambio';
-              tipoTexto = 'Cambio';
-              break;
-            case 'PREVENTIVO_CORRECTIVO':
-              tipoClase = 'tipo-preventivo';
-              tipoTexto = 'Preventivo/Correctivo';
-              break;
-            default:
-              tipoClase = '';
-              tipoTexto = registro.tipo_problema || '';
-          }
+          const neumaticosHtml = neumaticos.length > 0 
+            ? neumaticos.map(n => `<span class="neumatico-badge">${n}</span>`).join('') 
+            : '<span class="badge badge-warning">No especificado</span>';
           
           html += `
             <tr>
-              <td class="col-fecha">${fechaFormateada}</td>
-              <td class="col-turno">${registro.turno}</td>
-              <td class="hide-on-mobile">${registro.kilometaje}</td>
-              <td class="hide-on-mobile">${registro.tipo_vehiculo}</td>
-              <td class="col-patente">${registro.patente}</td>
-              <td class="hide-on-mobile">${registro.conductor || ''}</td>
-              <td class="hide-on-mobile multiline-text">${registro.problema || ''}</td>
-              <td class="hide-on-mobile multiline-text">${registro.accion || ''}</td>
+              <td>${fechaFormateada}</td>
+              <td>${registro.turno}</td>
+              <td>${registro.kilometaje}</td>
+              <td>${registro.tipo_vehiculo}</td>
+              <td>${registro.patente}</td>
+              <td>${registro.conductor}</td>
+              <td>${registro.problema ? (registro.problema.length > 30 ? registro.problema.substring(0, 30) + '...' : registro.problema) : ''}</td>
+              <td>${registro.accion ? (registro.accion.length > 30 ? registro.accion.substring(0, 30) + '...' : registro.accion) : ''}</td>
               <td>
                 <div class="neumaticos-list">
-                  ${neumaticos.map(n => `<span class="neumatico-badge">${n}</span>`).join('')}
+                  ${neumaticosHtml}
                 </div>
               </td>
-              <td class="hide-on-mobile">
+              <td>
                 <span class="badge ${registro.checklist === 'SI' ? 'badge-success' : 'badge-danger'}">
                   ${registro.checklist === 'SI' ? 'Sí' : 'No'}
                 </span>
               </td>
-              <td class="hide-on-mobile">
+              <td>
                 <span class="badge ${registro.torque === 'SI' ? 'badge-success' : 'badge-danger'}">
                   ${registro.torque === 'SI' ? 'Sí' : 'No'}
                 </span>
               </td>
-              <td class="hide-on-mobile">${registro.revision_km || ''}</td>
-              <td class="hide-on-mobile">${registro.responsable || ''}</td>
-              <td class="col-tipo">
-                <span class="tipo-problema-badge ${tipoClase}">
-                  ${tipoTexto}
+              <td>${registro.revision_km || ''}</td>
+              <td>${registro.responsable || ''}</td>
+              <td>
+                <span class="badge ${registro.tipo_problema === 'PINCHADURA' ? 'badge-warning' : 'badge-primary'}">
+                  ${registro.tipo_problema === 'PINCHADURA' ? 'Pinchadura' : 'Cambio'}
                 </span>
-              </td>
-              <td class="col-acciones">
-                <div class="action-buttons">
-                  <button class="btn btn-info btn-sm" onclick="editarRegistro('${registro.id}')" title="Editar">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="btn btn-secondary btn-sm" onclick="imprimirRegistro(${JSON.stringify(registro).replace(/"/g, '&quot;')})" title="Imprimir">
-                    <i class="fas fa-print"></i>
-                  </button>
-                </div>
               </td>
             </tr>
           `;
@@ -1511,7 +1178,7 @@
       } catch (error) {
         console.error('Error al cargar registros:', error);
         mostrarError('Error al cargar los registros: ' + error.message);
-        document.getElementById('registros-body').innerHTML = '<tr><td colspan="15" style="text-align: center;">Error al cargar los registros</td></tr>';
+        document.getElementById('registros-body').innerHTML = '<tr><td colspan="14" style="text-align: center;">Error al cargar los registros</td></tr>';
       }
     }
 
@@ -1586,9 +1253,6 @@
         
         if (error) throw error;
         
-        // Guardar el registro actual para poder imprimirlo
-        currentEditingRecord = registro;
-        
         // Llenar el formulario de edición con los datos del registro
         document.getElementById('edit-id').value = registro.id;
         document.getElementById('edit-fecha').value = registro.fecha;
@@ -1596,14 +1260,14 @@
         document.getElementById('edit-kilometaje').value = registro.kilometaje;
         document.getElementById('edit-tipo-vehiculo').value = registro.tipo_vehiculo;
         document.getElementById('edit-patente').value = registro.patente;
-        document.getElementById('edit-conductor').value = registro.conductor || '';
-        document.getElementById('edit-supervisor').value = registro.supervisor || '';
+        document.getElementById('edit-conductor').value = registro.conductor;
         
         // Configurar cantidad de ruedas
-        seleccionarRuedasEdit(parseInt(registro.ruedas) || 4);
+        document.getElementById(`edit-ruedas-${registro.ruedas}`).checked = true;
+        toggleEditRuedas(registro.ruedas);
         
         // Configurar tipo de problema
-        seleccionarTipoProblemaEdit(registro.tipo_problema || 'PINCHADURA');
+        document.getElementById(`edit-tipo-${registro.tipo_problema.toLowerCase()}`).checked = true;
         
         // Configurar detalles del problema
         document.getElementById('edit-problema').value = registro.problema || '';
@@ -1611,31 +1275,16 @@
         
         // Configurar neumáticos seleccionados
         const neumaticos = registro.neumatico ? registro.neumatico.split('-') : [];
-        
-        // Deseleccionar todos los neumáticos primero
-        const allPositions = ['P1', 'P2', 'P3', 'P4', 'P3I', 'P3E', 'P4I', 'P4E'];
-        allPositions.forEach(pos => {
-          const checkbox = document.getElementById(`edit-check-${pos}`);
+        for (let i = 1; i <= 6; i++) {
+          const checkbox = document.getElementById(`edit-check-P${i}`);
           if (checkbox) {
-            checkbox.checked = false;
-            const neumaticoElement = document.getElementById(`edit-neumatico-${pos}`);
+            checkbox.checked = neumaticos.includes(`P${i}`);
+            const neumaticoElement = document.getElementById(`edit-neumatico-P${i}`);
             if (neumaticoElement) {
-              neumaticoElement.parentElement.classList.remove('selected');
+              neumaticoElement.parentElement.classList.toggle('selected', checkbox.checked);
             }
           }
-        });
-        
-        // Seleccionar los neumáticos del registro
-        neumaticos.forEach(pos => {
-          const checkbox = document.getElementById(`edit-check-${pos}`);
-          if (checkbox) {
-            checkbox.checked = true;
-            const neumaticoElement = document.getElementById(`edit-neumatico-${pos}`);
-            if (neumaticoElement) {
-              neumaticoElement.parentElement.classList.add('selected');
-            }
-          }
-        });
+        }
         
         // Configurar control de seguridad
         document.getElementById(`edit-checklist-${registro.checklist.toLowerCase()}`).checked = true;
@@ -1652,72 +1301,29 @@
       }
     }
 
-    // Función para seleccionar cantidad de ruedas en el modal de edición
-    function seleccionarRuedasEdit(cantidad) {
-      document.querySelectorAll('.rueda-option').forEach(option => {
-        option.classList.remove('selected');
-      });
+    // Toggle para mostrar/ocultar neumáticos extra según cantidad de ruedas
+    function toggleEditRuedas(cantidad) {
+      const mostrarExtras = cantidad === '6';
+      document.getElementById('edit-neumatico-P5-container').style.display = mostrarExtras ? 'flex' : 'none';
+      document.getElementById('edit-neumatico-P6-container').style.display = mostrarExtras ? 'flex' : 'none';
       
-      const selectedOption = document.querySelector(`.rueda-option input[value="${cantidad}"]`).parentElement;
-      selectedOption.classList.add('selected');
-      
-      // Mostrar/ocultar neumáticos según la cantidad de ruedas
-      if (cantidad === 6) {
-        // Ocultar neumáticos simples
-        document.getElementById('edit-neumatico-P3-container').style.display = 'none';
-        document.getElementById('edit-neumatico-P4-container').style.display = 'none';
-        
-        // Mostrar neumáticos dobles
-        document.getElementById('edit-neumatico-P3I-container').style.display = 'flex';
-        document.getElementById('edit-neumatico-P3E-container').style.display = 'flex';
-        document.getElementById('edit-neumatico-P4I-container').style.display = 'flex';
-        document.getElementById('edit-neumatico-P4E-container').style.display = 'flex';
-        
-        // Actualizar etiquetas
-        document.getElementById('edit-label-P3I').textContent = 'P3 Interior';
-        document.getElementById('edit-label-P3E').textContent = 'P3 Exterior';
-        document.getElementById('edit-label-P4I').textContent = 'P4 Interior';
-        document.getElementById('edit-label-P4E').textContent = 'P4 Exterior';
-      } else {
-        // Mostrar neumáticos simples
-        document.getElementById('edit-neumatico-P3-container').style.display = 'flex';
-        document.getElementById('edit-neumatico-P4-container').style.display = 'flex';
-        
-        // Ocultar neumáticos dobles
-        document.getElementById('edit-neumatico-P3I-container').style.display = 'none';
-        document.getElementById('edit-neumatico-P3E-container').style.display = 'none';
-        document.getElementById('edit-neumatico-P4I-container').style.display = 'none';
-        document.getElementById('edit-neumatico-P4E-container').style.display = 'none';
-        
-        // Actualizar etiquetas
-        document.getElementById('edit-label-P3').textContent = 'Izquierdo';
-        document.getElementById('edit-label-P4').textContent = 'Derecho';
+      // Si cambiamos a 4 ruedas, deseleccionar P5 y P6 si estaban seleccionados
+      if (cantidad === '4') {
+        document.getElementById('edit-check-P5').checked = false;
+        document.getElementById('edit-check-P6').checked = false;
+        document.getElementById('edit-neumatico-P5').parentElement.classList.remove('selected');
+        document.getElementById('edit-neumatico-P6').parentElement.classList.remove('selected');
       }
     }
 
-    // Función para seleccionar neumático en el modal de edición
-    function seleccionarNeumaticoEdit(posicion) {
+    // Toggle para seleccionar/deseleccionar neumáticos en el modal de edición
+    function toggleEditNeumatico(posicion) {
       const checkbox = document.getElementById(`edit-check-${posicion}`);
       const neumaticoImg = document.getElementById(`edit-neumatico-${posicion}`);
       const neumaticoOption = neumaticoImg.parentElement;
       
       checkbox.checked = !checkbox.checked;
-      
-      if (checkbox.checked) {
-        neumaticoOption.classList.add('selected');
-      } else {
-        neumaticoOption.classList.remove('selected');
-      }
-    }
-
-    // Función para seleccionar tipo de problema en el modal de edición
-    function seleccionarTipoProblemaEdit(tipo) {
-      document.querySelectorAll('.tipo-problema-option').forEach(option => {
-        option.classList.remove('selected');
-      });
-      
-      const selectedOption = document.querySelector(`.tipo-problema-option input[value="${tipo}"]`).parentElement;
-      selectedOption.classList.add('selected');
+      neumaticoOption.classList.toggle('selected', checkbox.checked);
     }
 
     // Cerrar modal de edición
@@ -1737,7 +1343,6 @@
         tipo_vehiculo: document.getElementById('edit-tipo-vehiculo').value,
         patente: document.getElementById('edit-patente').value,
         conductor: document.getElementById('edit-conductor').value,
-        supervisor: document.getElementById('edit-supervisor').value || null,
         problema: document.getElementById('edit-problema').value,
         accion: document.getElementById('edit-accion').value,
         checklist: document.querySelector('input[name="edit-checklist"]:checked').value,
@@ -1752,26 +1357,22 @@
       const neumaticosSeleccionados = [];
       const cantidadRuedas = parseInt(registro.ruedas);
       
-      if (cantidadRuedas === 6) {
-        // Para 6 ruedas, comprobar P1, P2, P3I, P3E, P4I, P4E
-        const posiciones = ['P1', 'P2', 'P3I', 'P3E', 'P4I', 'P4E'];
-        posiciones.forEach(pos => {
-          const checkbox = document.getElementById(`edit-check-${pos}`);
-          if (checkbox && checkbox.checked) {
-            neumaticosSeleccionados.push(pos);
-          }
-        });
-      } else {
-        // Para 4 ruedas, comprobar P1, P2, P3, P4
-        for (let i = 1; i <= 4; i++) {
-          const checkbox = document.getElementById(`edit-check-P${i}`);
-          if (checkbox && checkbox.checked) {
-            neumaticosSeleccionados.push(`P${i}`);
-          }
+      for (let i = 1; i <= cantidadRuedas; i++) {
+        const checkbox = document.getElementById(`edit-check-P${i}`);
+        if (checkbox && checkbox.checked) {
+          neumaticosSeleccionados.push(`P${i}`);
         }
       }
       
       registro.neumatico = neumaticosSeleccionados.join('-');
+      
+      // Validación básica
+      if (!registro.fecha || !registro.turno || !registro.kilometaje || !registro.tipo_vehiculo || 
+          !registro.patente || !registro.conductor || !registro.problema || !registro.accion || 
+          !registro.neumatico || !registro.revision_km || !registro.responsable) {
+        mostrarError('Todos los campos obligatorios deben estar completos');
+        return;
+      }
       
       try {
         const id = document.getElementById('edit-id').value;
@@ -1810,6 +1411,9 @@
 
     // Inicializar la aplicación cuando se cargue la página
     document.addEventListener('DOMContentLoaded', async function() {
+      // Mostrar tabla vacía inicialmente
+      document.getElementById('registros-body').innerHTML = '<tr><td colspan="14" style="text-align: center;">No hay registros para mostrar</td></tr>';
+      
       // Esperar a que se cargue Supabase
       const supabaseCargado = await esperarSupabase();
       
@@ -1823,6 +1427,13 @@
       
       // Configurar evento submit del formulario de edición
       document.getElementById('edit-form').addEventListener('submit', guardarEdicion);
+      
+      // Configurar evento change para cantidad de ruedas en edición
+      document.querySelectorAll('input[name="edit-ruedas"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          toggleEditRuedas(this.value);
+        });
+      });
       
       // Cargar registros
       loadRegistros(1);
