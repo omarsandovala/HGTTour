@@ -1263,19 +1263,60 @@
       }
     }
 
-    // Función para exportar la lista completa
+    // Función para exportar la lista filtrada actual
     async function exportarLista() {
       try {
-        // Obtener todos los registros sin paginación
-        const { data: registros, error } = await supabaseClient
+        // Obtener valores de los filtros actuales
+        const fechaDesde = document.getElementById('filter-fecha-desde').value;
+        const fechaHasta = document.getElementById('filter-fecha-hasta').value;
+        const turno = document.getElementById('filter-turno').value;
+        const patente = document.getElementById('filter-patente').value;
+        const conductor = document.getElementById('filter-conductor').value;
+        const tipoProblema = document.getElementById('filter-tipo-problema').value;
+        const torque = document.getElementById('filter-torque').value;
+
+        // Construir consulta con los mismos filtros que la tabla
+        let query = supabaseClient
           .from('pinchazos')
           .select('*')
-          .order('fecha', { ascending: false });
+          .order('fecha', { ascending: false })
+          .order('created_at', { ascending: false });
+
+        // Aplicar filtros (igual que en loadRegistros)
+        if (fechaDesde) {
+          query = query.gte('fecha', fechaDesde);
+        }
+
+        if (fechaHasta) {
+          query = query.lte('fecha', fechaHasta);
+        }
+
+        if (turno) {
+          query = query.eq('turno', turno);
+        }
+
+        if (patente) {
+          query = query.ilike('patente', `%${patente}%`);
+        }
+
+        if (conductor) {
+          query = query.ilike('conductor', `%${conductor}%`);
+        }
+
+        if (tipoProblema) {
+          query = query.eq('tipo_problema', tipoProblema);
+        }
+
+        if (torque) {
+          query = query.eq('torque', torque);
+        }
+
+        const { data: registros, error } = await query;
 
         if (error) throw error;
 
-        if (registros.length === 0) {
-          mostrarError('No hay registros para exportar');
+        if (!registros || registros.length === 0) {
+          mostrarError('No hay registros para exportar con los filtros actuales');
           return;
         }
 
@@ -1285,7 +1326,7 @@
           <html lang="es">
           <head>
             <meta charset="UTF-8">
-            <title>Lista Completa de Pinchazos y Cambio de Neumaticos</title>
+            <title>Lista Filtrada de Pinchazos y Cambio de Neumaticos</title>
             <style>
               body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
               .header { display: flex; align-items: center; margin-bottom: 20px; }
@@ -1293,6 +1334,9 @@
               .title { flex-grow: 1; }
               h1 { margin: 0; color: #2c5282; text-align: center; }
               .subtitle { margin: 0; color: #666; text-align: center; }
+              .filters { margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+              .filter-item { margin-bottom: 5px; }
+              .filter-label { font-weight: bold; }
               table { width: 100%; border-collapse: collapse; font-size: 10px; }
               th, td { border: 1px solid #ddd; padding: 5px; text-align: left; }
               th { background-color: #f2f2f2; }
@@ -1311,10 +1355,22 @@
                 <img src="img/logo.png" alt="Logo" style="width:100%; height:auto;">
               </div>
               <div class="title">
-                <h1>Lista Completa de Registros de Pinchazos y Cambio de Neumatico</h1>
+                <h1>Lista Filtrada de Registros de Pinchazos y Cambio de Neumatico</h1>
                 <p class="subtitle">Generado el ${new Date().toLocaleDateString('es-CL')}</p>
               </div>
             </div>
+
+            <div class="filters">
+              <h3>Filtros aplicados:</h3>
+              <div class="filter-item"><span class="filter-label">Fecha desde:</span> ${fechaDesde || 'No aplicado'}</div>
+              <div class="filter-item"><span class="filter-label">Fecha hasta:</span> ${fechaHasta || 'No aplicado'}</div>
+              <div class="filter-item"><span class="filter-label">Turno:</span> ${turno || 'Todos'}</div>
+              <div class="filter-item"><span class="filter-label">Patente:</span> ${patente || 'No aplicado'}</div>
+              <div class="filter-item"><span class="filter-label">Conductor:</span> ${conductor || 'No aplicado'}</div>
+              <div class="filter-item"><span class="filter-label">Tipo de problema:</span> ${tipoProblema || 'Todos'}</div>
+              <div class="filter-item"><span class="filter-label">Torque verificado:</span> ${torque || 'Todos'}</div>
+            </div>
+
             <table>
               <thead>
                 <tr>
@@ -1389,6 +1445,9 @@
         html += `
               </tbody>
             </table>
+            <div style="margin-top: 20px; text-align: right; font-size: 0.8rem;">
+              Total de registros: ${registros.length}
+            </div>
           </body>
           </html>
         `;
@@ -1884,3 +1943,4 @@
     });
   </script>
 </body>
+</html>
