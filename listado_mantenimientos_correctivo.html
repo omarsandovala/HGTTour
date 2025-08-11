@@ -768,7 +768,6 @@
           <th>Patente</th>
           <th>Fecha</th>
           <th>Kilometraje</th>
-          
           <th>Responsable</th>
           <th>Realizado</th>
           <th>Descripción</th>
@@ -811,7 +810,6 @@
               <div class="col">
                 <label for="edit-kilometraje">Kilometraje:</label>
                 <input type="number" id="edit-kilometraje" min="0">
-             
               </div>
               <div class="col">
                 <label for="edit-responsable">Responsable:</label>
@@ -1244,7 +1242,6 @@
       document.getElementById('edit-fecha-cierre').value = fechaCierre ? fechaCierre.toISOString().split('T')[0] : '';
       
       document.getElementById('edit-kilometraje').value = mantenimiento.kilometraje || '';
-     
       document.getElementById('edit-descripcion').value = mantenimiento.descripcion || '';
       document.getElementById('edit-hecho-por').value = mantenimiento.hecho_por || '';
 
@@ -1355,14 +1352,13 @@
             fecha: fecha,
             fecha_cierre: fechaCierre,
             kilometraje: kilometraje,
-            tipo_mantenimiento: tipo,
             responsable: responsable,
             realizado: realizado,
             descripcion: descripcion,
             hecho_por: hechoPor,
             autorizado_por: autorizadoPor,
             insumos: insumosEdit,
-            tipo: 'Correctivo'
+            tipo: 'Correctivo' // Aquí está la corrección - se define explícitamente el tipo
           })
           .eq('id', id)
           .select();
@@ -1432,7 +1428,6 @@
             <th>Patente</th>
             <th>Fecha</th>
             <th>Kilometraje</th>
-            
             <th>Responsable</th>
             <th>Realizado</th>
             <th>Descripción</th>
@@ -1452,7 +1447,6 @@
                 <td>${m.patente || ''}</td>
                 <td>${formatDate(m.fecha)}</td>
                 <td>${m.kilometraje ? m.kilometraje.toLocaleString() : '0'}</td>
-                <td>${m.tipo_mantenimiento || ''}</td>
                 <td>${m.responsable || ''}</td>
                 <td>${m.realizado ? 'Sí' : 'No'}</td>
                 <td>${descripcion.substring(0, 50)}${descripcion.length > 50 ? '...' : ''}</td>
