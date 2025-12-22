@@ -27,8 +27,8 @@
       box-sizing: border-box;
     }
 
-body {
-  background: linear-gradient(135deg, #3f72af, #dbe2ef);
+    body {
+      background: linear-gradient(135deg, #3f72af, #dbe2ef);
       font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       display: flex;
       justify-content: center;
@@ -558,8 +558,6 @@ body {
         <button class="btn btn-primary" onclick="guardarMantenimiento()">
           <i class="fas fa-save"></i> Guardar Mantenimiento
         </button>
-        
-        </button>
         <button class="btn btn-secondary" onclick="location.href='listado_mantenimientosKS.html'">
           <i class="fas fa-arrow-left"></i> Volver
         </button>
@@ -568,9 +566,12 @@ body {
   </div>
 
   <script>
+    // Configuración de Supabase - SOLO UNA DECLARACIÓN
     const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Inicializar cliente Supabase
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Variables para insumos
     let insumos = [];
@@ -655,7 +656,7 @@ body {
     // Cargar patentes de máquinas
     async function cargarPatentes() {
       const selectMaquina = document.getElementById('select-maquina');
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('maquinas')
         .select('id, patente')
         .order('patente', { ascending: true });
@@ -682,7 +683,7 @@ body {
     async function cargarMecanicos() {
       const selectResponsable = document.getElementById('responsable');
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('mecanicos')
         .select('nombre')
         .order('nombre', { ascending: true });
@@ -707,7 +708,7 @@ body {
     async function cargarSupervisores() {
       const selectAutorizado = document.getElementById('autorizado-por');
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('supervisores')
         .select('nombre')
         .order('nombre', { ascending: true });
@@ -730,6 +731,12 @@ body {
 
     // Agregar insumo a la tabla
     function agregarInsumo() {
+      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+      if (tipoUsuario === 'lectura') {
+        mostrarError('No tienes permisos para agregar insumos. Modo de solo lectura.');
+        return;
+      }
+
       const descripcion = document.getElementById('nuevo-insumo').value.trim();
       const cantidad = document.getElementById('cantidad-insumo').value;
 
@@ -794,17 +801,24 @@ body {
 
     // Eliminar insumo
     function eliminarInsumo(index) {
+      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+      if (tipoUsuario === 'lectura') {
+        mostrarError('No tienes permisos para eliminar insumos. Modo de solo lectura.');
+        return;
+      }
+      
       insumos.splice(index, 1);
       actualizarTablaInsumos();
     }
 
-    // Función para redirigir a la página de ver mantenimientos
-    function verMantenimientos() {
-      window.location.href = 'listado_mantenimientosKS.html';
-    }
-
     // Guardar mantenimiento
     async function guardarMantenimiento() {
+      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+      if (tipoUsuario === 'lectura') {
+        mostrarError('No tienes permisos para guardar mantenimientos. Modo de solo lectura.');
+        return;
+      }
+
       const maquinaId = document.getElementById('select-maquina').value;
       const fecha = document.getElementById('fecha').value || null;
       const hora = document.getElementById('hora').value || null;
@@ -825,7 +839,7 @@ body {
 
       try {
         // Buscar la patente correspondiente al ID seleccionado
-        const { data: maquinaData, error: maquinaError } = await supabase
+        const { data: maquinaData, error: maquinaError } = await supabaseClient
           .from('maquinas')
           .select('patente')
           .eq('id', maquinaId)
@@ -838,7 +852,7 @@ body {
         const patente = maquinaData.patente;
 
         // Insertar el mantenimiento en la tabla mantenimientos
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('mantenimientos')
           .insert([{
             tipo: 'Kilometraje SPRINTER',
@@ -926,8 +940,10 @@ body {
       // Configurar modo lectura si es necesario
       configurarModoLectura();
       
-      // Enfocar el primer campo
-      document.getElementById('select-maquina').focus();
+      // Enfocar el primer campo si no es modo lectura
+      if (sessionStorage.getItem('tipoUsuario') !== 'lectura') {
+        document.getElementById('select-maquina').focus();
+      }
     });
   </script>
 </body>
