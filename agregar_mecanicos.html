@@ -320,7 +320,9 @@
     // Configuración de Supabase
     const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Crear cliente de Supabase - usando un nombre diferente para evitar conflicto
+    let supabaseClient;
 
     // Variables de estado
     let currentTab = 'mecanicos';
@@ -364,8 +366,24 @@
       document.getElementById(`${tab}-tab`).classList.add('active');
     }
 
+    // Verificar permisos
+    function verificarPermisos() {
+      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+      return tipoUsuario !== 'lectura';
+    }
+
+    // Mostrar alerta de permisos
+    function mostrarAlertaPermisos() {
+      mostrarError('No tienes permisos para realizar esta acción. Modo de solo lectura.');
+    }
+
     // Guardar nuevo mecánico
     async function guardarMecanico() {
+      if (!verificarPermisos()) {
+        mostrarAlertaPermisos();
+        return;
+      }
+      
       const nombre = document.getElementById("nombre-mecanico").value.trim();
       
       if (!nombre) {
@@ -374,7 +392,7 @@
       }
 
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from("mecanicos")
           .insert([{ nombre: nombre }]);
 
@@ -391,6 +409,11 @@
 
     // Guardar nuevo supervisor
     async function guardarSupervisor() {
+      if (!verificarPermisos()) {
+        mostrarAlertaPermisos();
+        return;
+      }
+      
       const nombre = document.getElementById("nombre-supervisor").value.trim();
       
       if (!nombre) {
@@ -399,7 +422,7 @@
       }
 
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from("supervisores")
           .insert([{ nombre: nombre }]);
 
@@ -416,6 +439,11 @@
 
     // Guardar nuevo conductor
     async function guardarConductor() {
+      if (!verificarPermisos()) {
+        mostrarAlertaPermisos();
+        return;
+      }
+      
       const nombre = document.getElementById("nombre-conductor").value.trim();
       
       if (!nombre) {
@@ -424,7 +452,7 @@
       }
 
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from("conductores")
           .insert([{ nombre: nombre }]);
 
@@ -445,7 +473,7 @@
       lista.innerHTML = "<p>Cargando mecánicos...</p>";
 
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from("mecanicos")
           .select("*")
           .order("nombre", { ascending: true });
@@ -499,7 +527,7 @@
       lista.innerHTML = "<p>Cargando supervisores...</p>";
 
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from("supervisores")
           .select("*")
           .order("nombre", { ascending: true });
@@ -553,7 +581,7 @@
       lista.innerHTML = "<p>Cargando conductores...</p>";
 
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from("conductores")
           .select("*")
           .order("nombre", { ascending: true });
@@ -603,11 +631,16 @@
 
     // Editar persona (mecánico, supervisor o conductor)
     async function editarPersona(tabla, persona) {
+      if (!verificarPermisos()) {
+        mostrarAlertaPermisos();
+        return;
+      }
+      
       const nuevoNombre = prompt("Editar nombre:", persona.nombre);
       
       if (nuevoNombre && nuevoNombre.trim() !== persona.nombre) {
         try {
-          const { error } = await supabase
+          const { error } = await supabaseClient
             .from(tabla)
             .update({ nombre: nuevoNombre.trim() })
             .eq("id", persona.id);
@@ -632,12 +665,17 @@
 
     // Eliminar persona (mecánico, supervisor o conductor)
     async function eliminarPersona(tabla, id) {
+      if (!verificarPermisos()) {
+        mostrarAlertaPermisos();
+        return;
+      }
+      
       if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) {
         return;
       }
 
       try {
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from(tabla)
           .delete()
           .eq("id", id);
@@ -659,113 +697,68 @@
       }
     }
 
-    // Cargar datos al iniciar
-    document.addEventListener('DOMContentLoaded', () => {
-      cargarMecanicos();
-      cargarSupervisores();
-      cargarConductores();
-    });
-  </script>
-  <script>
-    // Verificar permisos al cargar la página
-    document.addEventListener('DOMContentLoaded', function() {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+    // Aplicar restricciones de solo lectura
+    function aplicarRestriccionesLectura() {
+      // 1. Modificar el título para indicar modo lectura
+      const titulo = document.querySelector('h1');
+      titulo.textContent += ' (Modo Lectura)';
       
-      if (tipoUsuario === 'lectura') {
-        // 1. Modificar el título para indicar modo lectura
-        const titulo = document.querySelector('h1');
-        titulo.textContent += ' (Modo Lectura)';
-        
-        // 2. Deshabilitar botones de guardar
-        document.querySelectorAll('.btn-primary').forEach(boton => {
-          if (boton.textContent.includes('Guardar')) {
-            boton.disabled = true;
-            boton.style.opacity = '0.6';
-            boton.style.cursor = 'not-allowed';
-            boton.style.background = '#cccccc';
-            boton.style.color = '#666666';
-            boton.title = 'No tienes permisos para realizar esta acción';
-          }
-        });
-
-        // 3. Deshabilitar botones de edición y eliminación
-        document.querySelectorAll('.btn-success, .btn-danger').forEach(boton => {
+      // 2. Deshabilitar botones de guardar
+      document.querySelectorAll('.btn-primary').forEach(boton => {
+        if (boton.textContent.includes('Guardar')) {
           boton.disabled = true;
           boton.style.opacity = '0.6';
           boton.style.cursor = 'not-allowed';
           boton.style.background = '#cccccc';
           boton.style.color = '#666666';
           boton.title = 'No tienes permisos para realizar esta acción';
-          boton.onclick = null;
-        });
+        }
+      });
 
-        // 4. Deshabilitar campos de entrada
-        document.querySelectorAll('input[type="text"]').forEach(input => {
-          input.disabled = true;
-          input.style.backgroundColor = '#f5f5f5';
-        });
+      // 3. Deshabilitar botones de edición y eliminación
+      document.querySelectorAll('.btn-success, .btn-danger').forEach(boton => {
+        boton.disabled = true;
+        boton.style.opacity = '0.6';
+        boton.style.cursor = 'not-allowed';
+        boton.style.background = '#cccccc';
+        boton.style.color = '#666666';
+        boton.title = 'No tienes permisos para realizar esta acción';
+        boton.onclick = null;
+      });
 
-        // 5. Mostrar mensaje informativo
-        const mensajeInfo = document.createElement('div');
-        mensajeInfo.className = 'status-message';
-        mensajeInfo.style.backgroundColor = '#e3f2fd';
-        mensajeInfo.style.color = '#1976d2';
-        mensajeInfo.style.borderLeft = '4px solid #1976d2';
-        mensajeInfo.textContent = 'Estás en modo de solo lectura. No puedes realizar modificaciones.';
-        document.querySelector('.container').insertBefore(mensajeInfo, document.querySelector('.tabs'));
+      // 4. Deshabilitar campos de entrada
+      document.querySelectorAll('input[type="text"]').forEach(input => {
+        input.disabled = true;
+        input.style.backgroundColor = '#f5f5f5';
+      });
+
+      // 5. Mostrar mensaje informativo
+      const mensajeInfo = document.createElement('div');
+      mensajeInfo.className = 'status-message';
+      mensajeInfo.style.backgroundColor = '#e3f2fd';
+      mensajeInfo.style.color = '#1976d2';
+      mensajeInfo.style.borderLeft = '4px solid #1976d2';
+      mensajeInfo.textContent = 'Estás en modo de solo lectura. No puedes realizar modificaciones.';
+      document.querySelector('.container').insertBefore(mensajeInfo, document.querySelector('.tabs'));
+    }
+
+    // Cargar datos al iniciar
+    document.addEventListener('DOMContentLoaded', () => {
+      // Inicializar cliente de Supabase
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      
+      // Verificar permisos
+      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+      
+      if (tipoUsuario === 'lectura') {
+        aplicarRestriccionesLectura();
       }
+      
+      // Cargar datos
+      cargarMecanicos();
+      cargarSupervisores();
+      cargarConductores();
     });
-
-    // Sobrescribir funciones para usuarios de solo lectura
-    const originalGuardarMecanico = window.guardarMecanico;
-    window.guardarMecanico = async function() {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para guardar mecánicos. Modo de solo lectura.');
-        return;
-      }
-      return originalGuardarMecanico();
-    };
-
-    const originalGuardarSupervisor = window.guardarSupervisor;
-    window.guardarSupervisor = async function() {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para guardar supervisores. Modo de solo lectura.');
-        return;
-      }
-      return originalGuardarSupervisor();
-    };
-
-    const originalGuardarConductor = window.guardarConductor;
-    window.guardarConductor = async function() {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para guardar conductores. Modo de solo lectura.');
-        return;
-      }
-      return originalGuardarConductor();
-    };
-
-    const originalEditarPersona = window.editarPersona;
-    window.editarPersona = async function(tabla, persona) {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para editar. Modo de solo lectura.');
-        return;
-      }
-      return originalEditarPersona(tabla, persona);
-    };
-
-    const originalEliminarPersona = window.eliminarPersona;
-    window.eliminarPersona = async function(tabla, id) {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para eliminar. Modo de solo lectura.');
-        return;
-      }
-      return originalEliminarPersona(tabla, id);
-    };
   </script>
 </body>
 </html>
