@@ -498,7 +498,8 @@
     const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
     
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Crear cliente de Supabase
+    let supabaseClient;
     
     // Variables globales
     let currentView = 'listado';
@@ -553,7 +554,7 @@
     // Función para cargar máquinas desde Supabase
     async function cargarMaquinas() {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('maquinas')
                 .select('*')
                 .order('id', { ascending: false });
@@ -609,7 +610,7 @@
     // Función para agregar una máquina
     async function agregarMaquina(maquinaData) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('maquinas')
                 .insert([maquinaData]);
             
@@ -634,7 +635,7 @@
     // Función para cargar datos de una máquina para editar
     async function cargarMaquinaParaEditar(id) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('maquinas')
                 .select('*')
                 .eq('id', id)
@@ -674,7 +675,7 @@
         const id = maquinaData.id;
         
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('maquinas')
                 .update(maquinaData)
                 .eq('id', id);
@@ -703,7 +704,7 @@
         }
         
         try {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('maquinas')
                 .delete()
                 .eq('id', id);
@@ -767,6 +768,9 @@
     
     // Inicialización
     document.addEventListener('DOMContentLoaded', async function() {
+        // Inicializar cliente de Supabase
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
         // Verificar permisos de usuario
         const tipoUsuario = sessionStorage.getItem('tipoUsuario');
         
