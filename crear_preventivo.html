@@ -27,8 +27,8 @@
       box-sizing: border-box;
     }
 
-   body {
-  background: linear-gradient(135deg, #3f72af, #dbe2ef);
+    body {
+      background: linear-gradient(135deg, #3f72af, #dbe2ef);
       font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       display: flex;
       justify-content: center;
@@ -554,9 +554,12 @@
   </div>
 
   <script>
+    // Configurar Supabase (solo una vez)
     const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Solo crear el cliente una vez
+    window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Variables para insumos
     let insumos = [];
@@ -608,7 +611,7 @@
     // Cargar patentes de máquinas
     async function cargarPatentes() {
       const selectMaquina = document.getElementById('select-maquina');
-      const { data, error } = await supabase
+      const { data, error } = await window.supabase
         .from('maquinas')
         .select('id, patente')
         .order('patente', { ascending: true });
@@ -635,7 +638,7 @@
     async function cargarMecanicos() {
       const selectResponsable = document.getElementById('responsable');
 
-      const { data, error } = await supabase
+      const { data, error } = await window.supabase
         .from('mecanicos')
         .select('nombre')
         .order('nombre', { ascending: true });
@@ -660,7 +663,7 @@
     async function cargarSupervisores() {
       const selectAutorizado = document.getElementById('autorizado-por');
 
-      const { data, error } = await supabase
+      const { data, error } = await window.supabase
         .from('supervisores')
         .select('nombre')
         .order('nombre', { ascending: true });
@@ -795,7 +798,7 @@
 
       try {
         // Buscar la patente correspondiente al ID seleccionado
-        const { data: maquinaData, error: maquinaError } = await supabase
+        const { data: maquinaData, error: maquinaError } = await window.supabase
           .from('maquinas')
           .select('patente')
           .eq('id', maquinaId)
@@ -808,7 +811,7 @@
         const patente = maquinaData.patente;
 
         // Insertar el mantenimiento en la tabla mantenimientos
-        const { data, error } = await supabase
+        const { data, error } = await window.supabase
           .from('mantenimientos')
           .insert([{
             tipo: 'Preventivo',
@@ -862,8 +865,6 @@
         mensajeInfo.style.borderLeft = '4px solid #1976d2';
         mensajeInfo.textContent = 'Estás en modo de solo lectura. No puedes realizar modificaciones.';
         document.querySelector('.form-container').insertBefore(mensajeInfo, document.querySelector('.form-container h2').nextSibling);
-        
-       
       }
     }
 
