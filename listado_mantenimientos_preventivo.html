@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mantenimientos Preventivo</title>
+  <title>Mantenimientos Preventivos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,7 +20,7 @@
       --color-warning: #f39c12;
       --border-radius: 8px;
       --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      --header-bg-color: #2c5282;
+      --header-bg-color: #2c5282; /* Nuevo color para el encabezado */
     }
 
     * {
@@ -41,6 +41,7 @@
       margin: 0 auto;
     }
 
+    /* Nuevos estilos para el header-container */
     .header-container {
       display: flex;
       justify-content: space-between;
@@ -52,12 +53,12 @@
       padding: 20px;
       border-radius: var(--border-radius);
       box-shadow: var(--box-shadow);
-      color: white;
+      color: white; /* Texto en blanco para mejor contraste */
     }
 
     h1 {
       text-align: center;
-      color: white;
+      color: white; /* Cambiado a blanco para mejor contraste */
       margin-bottom: 25px;
       padding-bottom: 15px;
       border-bottom: 2px solid var(--color-secondary);
@@ -77,7 +78,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background-color: white;
+      background-color: white; /* Fondo blanco para el logo */
       padding: 5px;
     }
 
@@ -93,11 +94,12 @@
 
     .subtitle {
       text-align: center;
-      color: #dbe2ef;
+      color: #dbe2ef; /* Color más claro para el subtítulo */
       margin-top: -10px;
       font-size: 1.1rem;
     }
 
+    /* Resto del CSS permanece igual */
     .btn {
       padding: 10px 20px;
       border: none;
@@ -240,6 +242,7 @@
       white-space: nowrap;
     }
 
+    /* Modal de edición */
     .modal {
       display: none;
       position: fixed;
@@ -254,13 +257,13 @@
 
     .modal-content {
       background-color: #fefefe;
-      margin: 2% auto;
+      margin: 5% auto;
       padding: 30px;
       border-radius: var(--border-radius);
       box-shadow: var(--box-shadow);
-      width: 90%;
-      max-width: 1000px;
-      max-height: 90vh;
+      width: 80%;
+      max-width: 900px;
+      max-height: 80vh;
       overflow-y: auto;
       animation: modalopen 0.4s;
     }
@@ -283,6 +286,7 @@
       color: var(--color-primary);
     }
 
+    /* Formulario de edición */
     .form-group {
       margin-bottom: 15px;
     }
@@ -358,6 +362,7 @@
       color: var(--color-text);
     }
     
+    /* Nuevos estilos para el gráfico */
     .chart-container {
       display: flex;
       flex-wrap: wrap;
@@ -423,6 +428,7 @@
       color: var(--color-primary);
     }
 
+    /* Filtros */
     .filters-container {
       background: white;
       padding: 15px;
@@ -447,231 +453,34 @@
 
     /* Estilos para impresión */
     @media print {
-      body {
-        background: white !important;
-        color: black !important;
-        padding: 0 !important;
+      body * {
+        visibility: hidden;
       }
-      
+      #print-section, #print-section * {
+        visibility: visible;
+      }
+      #print-section {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
       .no-print {
         display: none !important;
       }
-      
-      .header-container {
-        background-color: white !important;
-        color: black !important;
-        box-shadow: none !important;
-        padding: 10px 0 !important;
-        margin-bottom: 10px !important;
-      }
-      
-      h1 {
-        color: black !important;
-        border-bottom: 1px solid #ccc !important;
-      }
-      
-      .stats-container, .chart-wrapper {
-        box-shadow: none !important;
-        border: 1px solid #ddd !important;
-        page-break-inside: avoid;
-      }
-      
       table {
-        box-shadow: none !important;
-        border: 1px solid #ddd !important;
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
       }
-      
+      th, td {
+        padding: 8px;
+        border: 1px solid #ddd;
+      }
       th {
         background-color: #f2f2f2 !important;
         color: black !important;
       }
-      
-      .container {
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      
-      .chart-container {
-        display: none !important;
-      }
-    }
-
-    /* Estilos para el modal de vista previa de impresión */
-    .print-preview {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      z-index: 2000;
-      overflow: auto;
-      padding: 20px;
-    }
-    
-    .print-preview-content {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      padding: 20px;
-    }
-    
-    .print-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .print-logo {
-      width: 80px;
-      height: 80px;
-      margin-right: 20px;
-    }
-    
-    .print-title {
-      flex: 1;
-      text-align: center;
-    }
-    
-    .print-title h2 {
-      color: var(--color-primary);
-      margin: 0;
-    }
-    
-    .print-title p {
-      color: #666;
-      margin: 5px 0 0;
-    }
-    
-    .print-stats {
-      display: flex;
-      justify-content: space-around;
-      margin: 20px 0;
-      padding: 15px;
-      background-color: #f5f5f5;
-      border-radius: var(--border-radius);
-    }
-    
-    .print-stat {
-      text-align: center;
-    }
-    
-    .print-stat-value {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--color-primary);
-    }
-    
-    .print-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-    }
-    
-    .print-table th, .print-table td {
-      padding: 8px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    
-    .print-table th {
-      background-color: #f2f2f2;
-      font-weight: bold;
-    }
-    
-    .print-footer {
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid #ddd;
-      text-align: right;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    
-    .print-actions {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      gap: 10px;
-      background: white;
-      padding: 10px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      z-index: 2001;
-    }
-
-    /* Mejoras específicas para el modal de edición */
-    .modal-section {
-      margin-bottom: 20px;
-      padding: 15px;
-      background-color: #f8f9fa;
-      border-radius: var(--border-radius);
-    }
-
-    .modal-section h3 {
-      margin-top: 0;
-      color: var(--color-primary);
-      padding-bottom: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .insumos-container {
-      max-height: 200px;
-      overflow-y: auto;
-      margin-bottom: 15px;
-      border: 1px solid #ddd;
-      border-radius: var(--border-radius);
-    }
-
-    .insumos-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .insumos-table th {
-      background-color: #e9ecef;
-      position: sticky;
-      top: 0;
-    }
-
-    .insumos-table th, 
-    .insumos-table td {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-    }
-
-    .insumos-table tr:nth-child(even) {
-      background-color: #f8f9fa;
-    }
-
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .radio-group {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .radio-group label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-weight: normal;
-      cursor: pointer;
-    }
-
-    .radio-group input[type="radio"] {
-      width: auto;
-      margin: 0;
     }
   </style>
 </head>
@@ -683,8 +492,8 @@
           <img src="img/logo.png" alt="Logo">
         </div>
         <div>
-          <h1>Mantenimientos Preventivo</h1>
-          <div class="subtitle">Sistema de Gestión de Mantenimientos Preventivo</div>
+          <h1>Mantenimientos Preventivos</h1>
+          <div class="subtitle">Sistema de Gestión de Mantenimientos Preventivos</div>
         </div>
       </div>
       <div class="btn-group">
@@ -694,8 +503,8 @@
         <button class="btn btn-secondary no-print" onclick="window.location.href='mantenimientos.html'">
           <i class="fas fa-arrow-left"></i> Volver
         </button>
-        <button class="btn btn-info no-print" onclick="prepararImpresion()">
-          <i class="fas fa-print"></i> Imprimir Todo
+        <button class="btn btn-info no-print" onclick="imprimirTodoComoPDF()">
+          <i class="fas fa-file-pdf"></i> Imprimir PDF
         </button>
       </div>
     </div>
@@ -768,6 +577,7 @@
           <th>Patente</th>
           <th>Fecha</th>
           <th>Kilometraje</th>
+          <th>Tipo</th>
           <th>Responsable</th>
           <th>Realizado</th>
           <th>Descripción</th>
@@ -784,132 +594,115 @@
     <div id="editModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="cerrarModal()">&times;</span>
-        <h2>Editar Mantenimiento Preventivo</h2>
+        <h2>Editar Mantenimiento Preventivo SPRINTER</h2>
         
         <form id="edit-form">
           <input type="hidden" id="edit-id">
           
-          <div class="modal-section">
-            <h3>Información General</h3>
-            <div class="row">
-              <div class="col">
-                <label for="edit-patente" class="required-field">Patente:</label>
-                <select id="edit-patente" required></select>
-              </div>
-              <div class="col">
-                <label for="edit-fecha">Fecha:</label>
-                <input type="date" id="edit-fecha">
-              </div>
-              <div class="col">
-                <label for="edit-fecha-cierre">Fecha cierre entrega:</label>
-                <input type="date" id="edit-fecha-cierre">
-              </div>
+          <div class="row">
+            <div class="col">
+              <label for="edit-patente" class="required-field">Patente:</label>
+              <select id="edit-patente" required></select>
             </div>
-            
-            <div class="row">
-              <div class="col">
-                <label for="edit-kilometraje">Kilometraje:</label>
-                <input type="number" id="edit-kilometraje" min="0">
-              </div>
-              <div class="col">
-                <label for="edit-responsable">Responsable:</label>
-                <select id="edit-responsable"></select>
+            <div class="col">
+              <label for="edit-fecha">Fecha:</label>
+              <input type="date" id="edit-fecha">
+            </div>
+            <div class="col">
+              <label for="edit-fecha-cierre">Fecha cierre entrega:</label>
+              <input type="date" id="edit-fecha-cierre">
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col">
+              <label for="edit-kilometraje">Kilometraje:</label>
+              <input type="number" id="edit-kilometraje" min="0">
+            </div>
+            <div class="col">
+              <label for="edit-tipo">Tipo de Mantenimiento:</label>
+              <select id="edit-tipo">
+                <option value="">Seleccione...</option>
+                <option value="SM1">SM1</option>
+                <option value="SM2">SM2</option>
+                <option value="SM3">SM3</option>
+                <option value="SM4">SM4</option>
+              </select>
+            </div>
+            <div class="col">
+              <label for="edit-responsable">Responsable:</label>
+              <select id="edit-responsable"></select>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col">
+              <label>Realizado</label>
+              <div style="display: flex; gap: 15px; margin-top: 5px;">
+                <label><input type="radio" name="edit-realizado" value="true"> Sí</label>
+                <label><input type="radio" name="edit-realizado" value="false"> No</label>
               </div>
             </div>
           </div>
           
-          <div class="modal-section">
-            <h3>Estado del Mantenimiento</h3>
-            <div class="row">
-              <div class="col">
-                <label>Realizado:</label>
-                <div class="radio-group">
-                  <label><input type="radio" name="edit-realizado" value="true"> Sí</label>
-                  <label><input type="radio" name="edit-realizado" value="false"> No</label>
-                </div>
-              </div>
-              <div class="col">
-                <label for="edit-hecho-por">Hecho por:</label>
-                <input type="text" id="edit-hecho-por">
-              </div>
-              <div class="col">
-                <label for="edit-autorizado-por">Autorizado por:</label>
-                <select id="edit-autorizado-por"></select>
-              </div>
-            </div>
+          <div class="form-group">
+            <label for="edit-descripcion">Descripción:</label>
+            <textarea id="edit-descripcion" rows="4"></textarea>
           </div>
           
-          <div class="modal-section">
-            <h3>Descripción del Trabajo</h3>
-            <div class="form-group">
-              <label for="edit-descripcion">Descripción:</label>
-              <textarea id="edit-descripcion" rows="6"></textarea>
-            </div>
+          <div class="form-group">
+            <label for="edit-hecho-por">Hecho por:</label>
+            <input type="text" id="edit-hecho-por">
           </div>
           
-          <div class="modal-section">
-            <h3>Insumos/Materiales Utilizados</h3>
-            <div class="insumos-container">
-              <table class="insumos-table">
-                <thead>
-                  <tr>
-                    <th>Descripción</th>
-                    <th>Cantidad</th>
-                    <th class="no-print">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="edit-insumos-body"></tbody>
-              </table>
-            </div>
-            
-            <div class="row no-print">
-              <div class="col">
-                <input type="text" id="nuevo-insumo-edit" placeholder="Descripción del insumo">
-              </div>
-              <div class="col" style="flex: 0 0 150px;">
-                <input type="number" id="cantidad-insumo-edit" placeholder="Cantidad" min="1" value="1">
-              </div>
-              <div class="col" style="flex: 0 0 auto;">
-                <button type="button" class="btn btn-success" onclick="agregarInsumoEdit()">
-                  <i class="fas fa-plus"></i> Agregar
-                </button>
-              </div>
-            </div>
+          <div class="form-group">
+            <label for="edit-autorizado-por">Autorizado por:</label>
+            <select id="edit-autorizado-por"></select>
           </div>
           
-          <div class="form-actions no-print">
-            <button type="button" class="btn btn-secondary" onclick="cerrarModal()">
-              <i class="fas fa-times"></i> Cancelar
+          <h3>Insumos/Materiales</h3>
+          <table class="orden-table" id="edit-insumos-table">
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="edit-insumos-body"></tbody>
+          </table>
+          
+          <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <input type="text" id="nuevo-insumo-edit" placeholder="Descripción del insumo" style="flex: 1;">
+            <input type="number" id="cantidad-insumo-edit" placeholder="Cantidad" min="1" value="1" style="width: 100px;">
+            <button type="button" class="btn btn-success btn-sm" onclick="agregarInsumoEdit()">
+              <i class="fas fa-plus"></i> Agregar
             </button>
+          </div>
+          
+          <div class="btn-group" style="margin-top: 20px;">
             <button type="button" class="btn btn-primary" onclick="guardarEdicion()">
               <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="cerrarModal()">
+              <i class="fas fa-times"></i> Cancelar
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Vista previa de impresión (oculta inicialmente) -->
-    <div id="print-preview" class="print-preview" style="display: none;">
-      <div class="print-preview-content" id="print-content">
-        <!-- Contenido generado dinámicamente -->
-      </div>
-      <div class="print-actions no-print">
-        <button class="btn btn-primary" onclick="imprimirContenido()">
-          <i class="fas fa-print"></i> Imprimir
-        </button>
-        <button class="btn btn-danger" onclick="cerrarPreview()">
-          <i class="fas fa-times"></i> Cerrar
-        </button>
-      </div>
-    </div>
+    <!-- Sección oculta para imprimir -->
+    <div id="print-section" style="display: none;"></div>
   </div>
 
   <script>
     const { jsPDF } = window.jspdf;
     const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Usar un nombre diferente para evitar conflicto con la variable global de Supabase
+    let supabaseClient;
 
     let mantenimientos = [];
     let mantenimientosFiltrados = [];
@@ -919,16 +712,19 @@
     let insumosEdit = [];
     let statsChart = null;
 
+    // Ajustar fecha a la zona horaria de Chile (UTC-4 o UTC-3 dependiendo del horario de verano)
     function ajustarFechaChile(dateString) {
       if (!dateString) return '';
       
       const date = new Date(dateString);
-      const offset = date.getTimezoneOffset() + 240;
+      // Ajustar a UTC-4 (horario estándar de Chile continental)
+      const offset = date.getTimezoneOffset() + 240; // 240 minutos = 4 horas
       const adjustedDate = new Date(date.getTime() + offset * 60000);
       
       return adjustedDate;
     }
 
+    // Formatear fecha a DD-MM-YYYY para Chile
     function formatDate(dateString) {
       if (!dateString) return '';
       
@@ -940,6 +736,7 @@
       return `${day}-${month}-${year}`;
     }
 
+    // Formatear fecha completa para Chile
     function formatDateTime(dateString) {
       if (!dateString) return '';
       
@@ -953,6 +750,7 @@
       return `${day}-${month}-${year} ${hours}:${minutes}`;
     }
 
+    // Mostrar mensaje de error
     function mostrarError(mensaje) {
       const errorElement = document.getElementById('error-message');
       errorElement.textContent = mensaje;
@@ -963,6 +761,7 @@
       }, 5000);
     }
 
+    // Mostrar mensaje de éxito
     function mostrarExito(mensaje) {
       const successElement = document.getElementById('success-message');
       successElement.textContent = mensaje;
@@ -973,14 +772,14 @@
       }, 3000);
     }
 
-    // Cargar mantenimientos Preventivo desde Supabase
+    // Cargar mantenimientos Preventivos desde Supabase
     async function cargarMantenimientos() {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('mantenimientos')
           .select('*')
-          .ilike('tipo', '%Preventivo%')
-          .order('id', { ascending: false });
+          .ilike('tipo', '%Preventivo%')  // Filtrar por tipo que contenga "Preventivo"
+          .order('id', { ascending: false });  // Ordenar por ID descendente
 
         if (error) throw error;
 
@@ -990,16 +789,19 @@
         actualizarEstadisticas();
         cargarFiltrosPatentes();
       } catch (error) {
-        console.error('Error al cargar mantenimientos Preventivo:', error);
-        mostrarError('Error al cargar los mantenimientos Preventivo ' + error.message);
+        console.error('Error al cargar mantenimientos preventivos:', error);
+        mostrarError('Error al cargar los mantenimientos preventivos: ' + error.message);
       }
     }
 
+    // Cargar opciones de patentes para el filtro
     function cargarFiltrosPatentes() {
       const selectPatente = document.getElementById('filter-patente');
       
+      // Obtener patentes únicas
       const patentesUnicas = [...new Set(mantenimientos.map(m => m.patente))].sort();
       
+      // Limpiar y agregar opciones
       selectPatente.innerHTML = '<option value="">Todas las patentes</option>';
       patentesUnicas.forEach(patente => {
         const option = document.createElement('option');
@@ -1009,13 +811,18 @@
       });
     }
 
+    // Aplicar filtros
     function aplicarFiltros() {
       const patente = document.getElementById('filter-patente').value;
       const estado = document.getElementById('filter-estado').value;
       
       mantenimientosFiltrados = mantenimientos.filter(m => {
+        // Filtro por patente
         if (patente && m.patente !== patente) return false;
+        
+        // Filtro por estado
         if (estado !== '' && m.realizado !== (estado === 'true')) return false;
+        
         return true;
       });
       
@@ -1023,6 +830,7 @@
       actualizarEstadisticas();
     }
 
+    // Limpiar filtros
     function limpiarFiltros() {
       document.getElementById('filter-patente').value = '';
       document.getElementById('filter-estado').value = '';
@@ -1031,6 +839,7 @@
       actualizarEstadisticas();
     }
 
+    // Actualizar estadísticas y gráfico
     function actualizarEstadisticas() {
       const total = mantenimientosFiltrados.length;
       const completados = mantenimientosFiltrados.filter(m => m.realizado).length;
@@ -1040,22 +849,27 @@
       document.getElementById('completed-count').textContent = completados;
       document.getElementById('pending-count').textContent = pendientes;
       
+      // Calcular porcentajes
       const completadosPercent = total > 0 ? Math.round((completados / total) * 100) : 0;
       const pendientesPercent = total > 0 ? Math.round((pendientes / total) * 100) : 0;
       
       document.getElementById('completed-percent').textContent = `${completadosPercent}%`;
       document.getElementById('pending-percent').textContent = `${pendientesPercent}%`;
       
+      // Actualizar o crear el gráfico circular
       actualizarGrafico(completados, pendientes, total);
     }
 
+    // Actualizar el gráfico circular
     function actualizarGrafico(completados, pendientes, total) {
       const ctx = document.getElementById('stats-chart').getContext('2d');
       
+      // Destruir el gráfico anterior si existe
       if (statsChart) {
         statsChart.destroy();
       }
       
+      // Crear nuevo gráfico
       statsChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -1063,8 +877,8 @@
           datasets: [{
             data: [completados, pendientes],
             backgroundColor: [
-              'rgba(46, 204, 113, 0.8)',
-              'rgba(231, 76, 60, 0.8)'
+              'rgba(46, 204, 113, 0.8)', // Verde para completados
+              'rgba(231, 76, 60, 0.8)'   // Rojo para pendientes
             ],
             borderColor: [
               'rgba(46, 204, 113, 1)',
@@ -1095,6 +909,7 @@
         }
       });
       
+      // Actualizar leyenda
       const legendHtml = `
         <div class="legend-item">
           <div class="legend-color" style="background-color: rgba(46, 204, 113, 0.8);"></div>
@@ -1108,12 +923,13 @@
       document.getElementById('chart-legend').innerHTML = legendHtml;
     }
 
+    // Mostrar mantenimientos en la tabla
     function mostrarMantenimientos() {
       const tbody = document.getElementById('mantenimientos-body');
       tbody.innerHTML = '';
 
       if (mantenimientosFiltrados.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No hay mantenimientos Preventivo que coincidan con los filtros</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No hay mantenimientos preventivos que coincidan con los filtros</td></tr>';
         return;
       }
 
@@ -1129,6 +945,7 @@
           <td>${mantenimiento.patente || ''}</td>
           <td>${formatDate(mantenimiento.fecha)}</td>
           <td>${mantenimiento.kilometraje ? mantenimiento.kilometraje.toLocaleString() : '0'}</td>
+          <td>${mantenimiento.tipo_mantenimiento || ''}</td>
           <td>${mantenimiento.responsable || ''}</td>
           <td>${mantenimiento.realizado ? 'Sí' : 'No'}</td>
           <td class="descripcion-cell" title="${descripcion}">${descripcion.substring(0, 30)}${descripcion.length > 30 ? '...' : ''}</td>
@@ -1146,9 +963,11 @@
       });
     }
 
+    // Cargar datos necesarios para edición
     async function cargarDatosParaEdicion() {
       try {
-        const { data: maquinas, error: errorMaquinas } = await supabase
+        // Cargar máquinas (patentes)
+        const { data: maquinas, error: errorMaquinas } = await supabaseClient
           .from('maquinas')
           .select('id, patente, modelo, marca, fabricante')
           .order('patente', { ascending: true });
@@ -1156,7 +975,8 @@
         if (errorMaquinas) throw errorMaquinas;
         maquinasData = maquinas;
 
-        const { data: mecanicos, error: errorMecanicos } = await supabase
+        // Cargar mecánicos (responsables)
+        const { data: mecanicos, error: errorMecanicos } = await supabaseClient
           .from('mecanicos')
           .select('nombre')
           .order('nombre', { ascending: true });
@@ -1164,7 +984,8 @@
         if (errorMecanicos) throw errorMecanicos;
         mecanicosData = mecanicos;
 
-        const { data: supervisores, error: errorSupervisores } = await supabase
+        // Cargar supervisores (autorizados por)
+        const { data: supervisores, error: errorSupervisores } = await supabaseClient
           .from('supervisores')
           .select('nombre')
           .order('nombre', { ascending: true });
@@ -1180,6 +1001,7 @@
       }
     }
 
+    // Abrir modal para editar mantenimiento
     async function editarMantenimiento(id) {
       const cargado = await cargarDatosParaEdicion();
       if (!cargado) return;
@@ -1190,17 +1012,20 @@
         return;
       }
 
-      // Llenar datos de la máquina (patente)
+      // Llenar selects
       const selectPatente = document.getElementById('edit-patente');
       selectPatente.innerHTML = '<option value="">Seleccione una patente</option>';
       
+      // Agregar la patente actual como primera opción
       const optActual = document.createElement('option');
       optActual.value = mantenimiento.patente;
       optActual.textContent = mantenimiento.patente;
       optActual.selected = true;
       selectPatente.appendChild(optActual);
       
+      // Agregar el resto de las patentes disponibles
       maquinasData.forEach(maquina => {
+        // Solo agregar si no es la patente actual
         if (maquina.patente !== mantenimiento.patente) {
           const opt = document.createElement('option');
           opt.value = maquina.patente;
@@ -1209,7 +1034,6 @@
         }
       });
 
-      // Llenar datos de responsables (mecánicos)
       const selectResponsable = document.getElementById('edit-responsable');
       selectResponsable.innerHTML = '<option value="">Seleccione</option>';
       mecanicosData.forEach(mecanico => {
@@ -1220,7 +1044,6 @@
         selectResponsable.appendChild(opt);
       });
 
-      // Llenar datos de supervisores (autorizado por)
       const selectAutorizado = document.getElementById('edit-autorizado-por');
       selectAutorizado.innerHTML = '<option value="">Seleccione</option>';
       supervisoresData.forEach(supervisor => {
@@ -1231,22 +1054,16 @@
         selectAutorizado.appendChild(opt);
       });
 
-      // Llenar el resto de los campos
+      // Llenar otros campos
       document.getElementById('edit-id').value = mantenimiento.id;
-      
-      // Formatear fechas para el input type="date"
-      const fecha = mantenimiento.fecha ? new Date(mantenimiento.fecha) : null;
-      const fechaCierre = mantenimiento.fecha_cierre ? new Date(mantenimiento.fecha_cierre) : null;
-      
-      document.getElementById('edit-fecha').value = fecha ? fecha.toISOString().split('T')[0] : '';
-      document.getElementById('edit-fecha-cierre').value = fechaCierre ? fechaCierre.toISOString().split('T')[0] : '';
-      
-      document.getElementById('edit-kilometraje').value = mantenimiento.kilometraje || '';
-     
+      document.getElementById('edit-fecha').value = mantenimiento.fecha ? formatDate(mantenimiento.fecha, 'YYYY-MM-DD') : '';
+      document.getElementById('edit-fecha-cierre').value = mantenimiento.fecha_cierre ? formatDate(mantenimiento.fecha_cierre, 'YYYY-MM-DD') : '';
+      document.getElementById('edit-kilometraje').value = mantenimiento.kilometraje || 0;
+      document.getElementById('edit-tipo').value = mantenimiento.tipo_mantenimiento || '';
       document.getElementById('edit-descripcion').value = mantenimiento.descripcion || '';
       document.getElementById('edit-hecho-por').value = mantenimiento.hecho_por || '';
 
-      // Establecer el estado de realizado
+      // Radio button de realizado
       const realizadoSi = document.querySelector('input[name="edit-realizado"][value="true"]');
       const realizadoNo = document.querySelector('input[name="edit-realizado"][value="false"]');
       if (mantenimiento.realizado) {
@@ -1255,18 +1072,20 @@
         realizadoNo.checked = true;
       }
 
-      // Cargar insumos
+      // Llenar insumos
       insumosEdit = mantenimiento.insumos || [];
       actualizarTablaInsumosEdit();
 
-      // Mostrar el modal
+      // Mostrar modal
       document.getElementById('editModal').style.display = 'block';
     }
 
+    // Cerrar modal de edición
     function cerrarModal() {
       document.getElementById('editModal').style.display = 'none';
     }
 
+    // Actualizar tabla de insumos en el modal de edición
     function actualizarTablaInsumosEdit() {
       const tbody = document.getElementById('edit-insumos-body');
       tbody.innerHTML = '';
@@ -1281,7 +1100,7 @@
         tr.innerHTML = `
           <td>${insumo.descripcion}</td>
           <td>${insumo.cantidad}</td>
-          <td class="no-print">
+          <td>
             <button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumoEdit(${index})">
               <i class="fas fa-trash-alt"></i> Eliminar
             </button>
@@ -1291,6 +1110,7 @@
       });
     }
 
+    // Agregar insumo en el modal de edición
     function agregarInsumoEdit() {
       const descripcion = document.getElementById('nuevo-insumo-edit').value.trim();
       const cantidad = document.getElementById('cantidad-insumo-edit').value;
@@ -1315,18 +1135,20 @@
       document.getElementById('cantidad-insumo-edit').value = '1';
     }
 
+    // Eliminar insumo en el modal de edición
     function eliminarInsumoEdit(index) {
       insumosEdit.splice(index, 1);
       actualizarTablaInsumosEdit();
     }
 
+    // Guardar cambios después de editar
     async function guardarEdicion() {
       const id = document.getElementById('edit-id').value;
       const patente = document.getElementById('edit-patente').value;
       const fecha = document.getElementById('edit-fecha').value || null;
       const fechaCierre = document.getElementById('edit-fecha-cierre').value || null;
       const kilometraje = document.getElementById('edit-kilometraje').value || 0;
-      
+      const tipo = document.getElementById('edit-tipo').value || null;
       const responsable = document.getElementById('edit-responsable').value || null;
       const realizado = document.querySelector('input[name="edit-realizado"]:checked')?.value === 'true';
       const descripcion = document.getElementById('edit-descripcion').value || null;
@@ -1339,13 +1161,14 @@
       }
 
       try {
+        // Buscar el ID de la máquina correspondiente a la patente seleccionada
         let maquinaId = null;
         if (maquinasData.length > 0) {
           const maquina = maquinasData.find(m => m.patente === patente);
           maquinaId = maquina ? maquina.id : null;
         }
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('mantenimientos')
           .update({
             maquina_id: maquinaId,
@@ -1353,13 +1176,14 @@
             fecha: fecha,
             fecha_cierre: fechaCierre,
             kilometraje: kilometraje,
+            tipo_mantenimiento: tipo,
             responsable: responsable,
             realizado: realizado,
             descripcion: descripcion,
             hecho_por: hechoPor,
             autorizado_por: autorizadoPor,
             insumos: insumosEdit,
-            tipo: 'Preventivo' // Se agregó el tipo fijo como 'Preventivo'
+            tipo: 'Preventivo'  // Asegurar que sigue siendo Preventivo
           })
           .eq('id', id)
           .select();
@@ -1375,131 +1199,144 @@
       }
     }
 
+    // Función para imprimir orden individual
     async function imprimirOrden(id) {
       window.location.href = `imprimirKS.html?id=${id}`;
     }
 
-    // Funciones para la impresión
-    function prepararImpresion() {
-      const total = mantenimientosFiltrados.length;
-      const completados = mantenimientosFiltrados.filter(m => m.realizado).length;
-      const pendientes = total - completados;
-      
-      const printContent = document.getElementById('print-content');
-      printContent.innerHTML = '';
-      
-      // Crear encabezado
-      const header = document.createElement('div');
-      header.className = 'print-header';
-      header.innerHTML = `
-        <img src="img/logo.png" alt="Logo" class="print-logo">
-        <div class="print-title">
-          <h2>Reporte de Mantenimiento Preventivo</h2>
-          <p>Generado el ${formatDate(new Date().toISOString())}</p>
-        </div>
-      `;
-      printContent.appendChild(header);
-      
-      // Crear estadísticas
-      const stats = document.createElement('div');
-      stats.className = 'print-stats';
-      stats.innerHTML = `
-        <div class="print-stat">
-          <div class="stat-label">Total</div>
-          <div class="print-stat-value">${total}</div>
-        </div>
-        <div class="print-stat">
-          <div class="stat-label">Realizados</div>
-          <div class="print-stat-value">${completados}</div>
-        </div>
-        <div class="print-stat">
-          <div class="stat-label">Pendientes</div>
-          <div class="print-stat-value">${pendientes}</div>
-        </div>
-      `;
-      printContent.appendChild(stats);
-      
-      // Crear tabla de mantenimientos
-      const table = document.createElement('table');
-      table.className = 'print-table';
-      table.innerHTML = `
-        <thead>
-          <tr>
-            <th>OT</th>
-            <th>Patente</th>
-            <th>Fecha</th>
-            <th>Kilometraje</th>
-            <th>Responsable</th>
-            <th>Realizado</th>
-            <th>Descripción</th>
-            <th>Insumos</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${mantenimientosFiltrados.map(m => {
-            const descripcion = m.descripcion || 'Sin descripción';
-            const insumos = m.insumos ? 
-              m.insumos.map(i => `${i.descripcion} (${i.cantidad})`).join(', ') : 
-              'Sin insumos';
-              
-            return `
-              <tr>
-                <td>${m.id}</td>
-                <td>${m.patente || ''}</td>
-                <td>${formatDate(m.fecha)}</td>
-                <td>${m.kilometraje ? m.kilometraje.toLocaleString() : '0'}</td>
-                <td>${m.responsable || ''}</td>
-                <td>${m.realizado ? 'Sí' : 'No'}</td>
-                <td>${descripcion.substring(0, 50)}${descripcion.length > 50 ? '...' : ''}</td>
-                <td>${insumos.substring(0, 30)}${insumos.length > 30 ? '...' : ''}</td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      `;
-      printContent.appendChild(table);
-      
-      // Crear pie de página
-      const footer = document.createElement('div');
-      footer.className = 'print-footer';
-      footer.innerHTML = `
-        <p>Sistema de Gestión de Mantenimientos - ${new Date().getFullYear()}</p>
-      `;
-      printContent.appendChild(footer);
-      
-      // Mostrar vista previa
-      document.getElementById('print-preview').style.display = 'block';
+    // Función para imprimir todo como PDF - VERSIÓN CORREGIDA
+    async function imprimirTodoComoPDF() {
+      try {
+        // Obtener estadísticas actuales
+        const total = mantenimientosFiltrados.length;
+        const completados = mantenimientosFiltrados.filter(m => m.realizado).length;
+        const pendientes = total - completados;
+
+        // Crear URL con los parámetros necesarios
+        const url = new URL('Imprimir_Reporte.html', window.location.href);
+        
+        // Agregar parámetros a la URL
+        url.searchParams.append('title', 'Reporte de Mantenimientos Preventivos');
+        url.searchParams.append('data', encodeURIComponent(JSON.stringify(mantenimientosFiltrados)));
+        url.searchParams.append('total', total);
+        url.searchParams.append('completados', completados);
+        url.searchParams.append('pendientes', pendientes);
+
+        // Abrir la página de impresión en una nueva pestaña
+        window.open(url.href, '_blank');
+        
+      } catch (error) {
+        console.error('Error al generar reporte:', error);
+        mostrarError('Error al generar el reporte: ' + error.message);
+      }
     }
 
-    function cerrarPreview() {
-      document.getElementById('print-preview').style.display = 'none';
+    // Función para aplicar restricciones de solo lectura
+    function aplicarRestriccionesLectura() {
+      // 1. Modificar el título para indicar que es modo lectura
+      const titulo = document.querySelector('h1');
+      titulo.textContent += ' (Modo Lectura)';
+      
+      // 2. Ocultar botón "Nueva OT"
+      const botonNuevo = document.querySelector('.btn-primary');
+      if (botonNuevo && botonNuevo.textContent.includes('Nueva OT')) {
+        botonNuevo.style.display = 'none';
+      }
+      
+      // 3. Deshabilitar botones de edición en la tabla
+      document.querySelectorAll('.btn-info').forEach(boton => {
+        if (boton.innerHTML.includes('fa-edit')) {
+          boton.disabled = true;
+          boton.style.opacity = '0.6';
+          boton.style.cursor = 'not-allowed';
+          boton.title = 'No tienes permisos para editar';
+          
+          // Cambiar estilo para que parezca deshabilitado
+          boton.style.background = '#cccccc';
+          boton.style.color = '#666666';
+          boton.style.boxShadow = 'none';
+          
+          // Remover el evento onclick
+          boton.onclick = null;
+        }
+      });
+      
+      // 4. Deshabilitar la capacidad de agregar insumos en el modal
+      document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'editModal') {
+          // Deshabilitar todos los inputs dentro del modal
+          const modal = document.getElementById('editModal');
+          const inputs = modal.querySelectorAll('input, select, textarea, button');
+          inputs.forEach(input => {
+            input.disabled = true;
+            input.style.opacity = '0.6';
+            input.style.cursor = 'not-allowed';
+          });
+          
+          // Ocultar botones de acción
+          const botonesAccion = modal.querySelectorAll('.btn-group button');
+          botonesAccion.forEach(boton => {
+            boton.style.display = 'none';
+          });
+        }
+      });
+      
+      // 5. Mostrar mensaje informativo
+      const mensajeInfo = document.createElement('div');
+      mensajeInfo.className = 'status-message';
+      mensajeInfo.style.backgroundColor = '#e3f2fd';
+      mensajeInfo.style.color = '#1976d2';
+      mensajeInfo.style.borderLeft = '4px solid #1976d2';
+      mensajeInfo.textContent = 'Estás en modo de solo lectura. No puedes realizar modificaciones.';
+      document.querySelector('.container').insertBefore(mensajeInfo, document.querySelector('.filters-container'));
     }
 
-    function imprimirContenido() {
-      // Guardar el estado actual del body
-      const originalBody = document.body.innerHTML;
-      
-      // Reemplazar el body con el contenido a imprimir
-      document.body.innerHTML = document.getElementById('print-content').innerHTML;
-      
-      // Aplicar estilos de impresión
-      document.body.style.background = 'white';
-      document.body.style.color = 'black';
-      document.body.style.padding = '20px';
-      
-      // Imprimir
-      window.print();
-      
-      // Restaurar el body original
-      document.body.innerHTML = originalBody;
-      
-      // Volver a cargar los eventos y elementos necesarios
-      cargarMantenimientos();
+    // Verificar permisos
+    function verificarPermisos() {
+      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+      return tipoUsuario !== 'lectura';
     }
 
+    // Mostrar alerta de permisos
+    function mostrarAlertaPermisos() {
+      mostrarError('No tienes permisos para realizar esta acción. Modo de solo lectura.');
+    }
+
+    // Sobrescribir función de edición para usuarios de solo lectura
+    const originalEditarMantenimiento = window.editarMantenimiento;
+    window.editarMantenimiento = async function(id) {
+      if (!verificarPermisos()) {
+        mostrarAlertaPermisos();
+        return;
+      }
+      return originalEditarMantenimiento(id);
+    };
+
+    // Sobrescribir función de guardar edición
+    const originalGuardarEdicion = window.guardarEdicion;
+    window.guardarEdicion = async function() {
+      if (!verificarPermisos()) {
+        mostrarAlertaPermisos();
+        return;
+      }
+      return originalGuardarEdicion();
+    };
+
+    // Inicializar la página
     document.addEventListener('DOMContentLoaded', () => {
+      // Inicializar cliente de Supabase
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      
+      // Verificar permisos
+      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+      if (tipoUsuario === 'lectura') {
+        aplicarRestriccionesLectura();
+      }
+      
+      // Cargar mantenimientos
       cargarMantenimientos();
       
+      // Crear un gráfico vacío inicialmente
       const ctx = document.getElementById('stats-chart').getContext('2d');
       statsChart = new Chart(ctx, {
         type: 'doughnut',
@@ -1530,88 +1367,6 @@
         }
       });
     });
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      
-      if (tipoUsuario === 'lectura') {
-        const titulo = document.querySelector('h1');
-        titulo.textContent += ' (Modo Lectura)';
-        
-        const botonNuevo = document.querySelector('.btn-primary');
-        if (botonNuevo && botonNuevo.textContent.includes('Nuevo Mantenimiento')) {
-          botonNuevo.style.display = 'none';
-        }
-        
-        document.querySelectorAll('.btn-info').forEach(boton => {
-          if (boton.innerHTML.includes('fa-edit')) {
-            boton.disabled = true;
-            boton.style.opacity = '0.6';
-            boton.style.cursor = 'not-allowed';
-            boton.title = 'No tienes permisos para editar';
-            
-            boton.style.background = '#cccccc';
-            boton.style.color = '#666666';
-            boton.style.boxShadow = 'none';
-            
-            boton.onclick = null;
-          }
-        });
-        
-        const botonesFiltro = document.querySelectorAll('.filter-actions button');
-        botonesFiltro.forEach(boton => {
-          if (boton.textContent.includes('Limpiar') || boton.textContent.includes('Filtrar')) {
-            boton.style.opacity = '1';
-            boton.disabled = false;
-          }
-        });
-        
-        document.addEventListener('click', function(e) {
-          if (e.target && e.target.id === 'editModal') {
-            const modal = document.getElementById('editModal');
-            const inputs = modal.querySelectorAll('input, select, textarea, button');
-            inputs.forEach(input => {
-              input.disabled = true;
-              input.style.opacity = '0.6';
-              input.style.cursor = 'not-allowed';
-            });
-            
-            const botonesAccion = modal.querySelectorAll('.btn-group button');
-            botonesAccion.forEach(boton => {
-              boton.style.display = 'none';
-            });
-          }
-        });
-        
-        const mensajeInfo = document.createElement('div');
-        mensajeInfo.className = 'status-message';
-        mensajeInfo.style.backgroundColor = '#e3f2fd';
-        mensajeInfo.style.color = '#1976d2';
-        mensajeInfo.style.borderLeft = '4px solid #1976d2';
-        mensajeInfo.textContent = 'Estás en modo de solo lectura. No puedes realizar modificaciones.';
-        document.querySelector('.container').insertBefore(mensajeInfo, document.querySelector('.filters-container'));
-      }
-    });
-
-    const originalEditarMantenimiento = window.editarMantenimiento;
-    window.editarMantenimiento = async function(id) {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para editar mantenimientos. Modo de solo lectura.');
-        return;
-      }
-      return originalEditarMantenimiento(id);
-    };
-
-    const originalGuardarEdicion = window.guardarEdicion;
-    window.guardarEdicion = async function() {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para guardar cambios. Modo de solo lectura.');
-        return;
-      }
-      return originalGuardarEdicion();
-    };
   </script>
 </body>
 </html>
