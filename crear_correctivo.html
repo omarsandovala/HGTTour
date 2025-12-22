@@ -27,8 +27,8 @@
       box-sizing: border-box;
     }
 
-   body {
-  background: linear-gradient(135deg, #3f72af, #dbe2ef);
+    body {
+      background: linear-gradient(135deg, #3f72af, #dbe2ef);
       font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       display: flex;
       justify-content: center;
@@ -545,7 +545,7 @@
         <button class="btn btn-primary" onclick="guardarMantenimiento()">
           <i class="fas fa-save"></i> Guardar Mantenimiento
         </button>
-                <button class="btn btn-secondary" onclick="location.href='listado_mantenimientos_correctivo.html'">
+        <button class="btn btn-secondary" onclick="location.href='listado_mantenimientos_correctivo.html'">
           <i class="fas fa-arrow-left"></i> Volver
         </button>
       </div>
@@ -553,9 +553,12 @@
   </div>
 
   <script>
+    // Configuración de Supabase - SOLO UNA DECLARACIÓN
     const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Inicializar cliente Supabase
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Variables para insumos
     let insumos = [];
@@ -607,7 +610,7 @@
     // Cargar patentes de máquinas
     async function cargarPatentes() {
       const selectMaquina = document.getElementById('select-maquina');
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('maquinas')
         .select('id, patente')
         .order('patente', { ascending: true });
@@ -634,7 +637,7 @@
     async function cargarMecanicos() {
       const selectResponsable = document.getElementById('responsable');
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('mecanicos')
         .select('nombre')
         .order('nombre', { ascending: true });
@@ -659,7 +662,7 @@
     async function cargarSupervisores() {
       const selectAutorizado = document.getElementById('autorizado-por');
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('supervisores')
         .select('nombre')
         .order('nombre', { ascending: true });
@@ -762,11 +765,6 @@
       actualizarTablaInsumos();
     }
 
-    // Función para redirigir a la página de ver mantenimientos
-    function verMantenimientos() {
-      window.location.href = 'listado_mantenimientos_correctivo.html';
-    }
-
     // Guardar mantenimiento
     async function guardarMantenimiento() {
       const tipoUsuario = sessionStorage.getItem('tipoUsuario');
@@ -794,7 +792,7 @@
 
       try {
         // Buscar la patente correspondiente al ID seleccionado
-        const { data: maquinaData, error: maquinaError } = await supabase
+        const { data: maquinaData, error: maquinaError } = await supabaseClient
           .from('maquinas')
           .select('patente')
           .eq('id', maquinaId)
@@ -807,7 +805,7 @@
         const patente = maquinaData.patente;
 
         // Insertar el mantenimiento en la tabla mantenimientos
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from('mantenimientos')
           .insert([{
             tipo: 'Correctivo',
