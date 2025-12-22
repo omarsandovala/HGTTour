@@ -816,12 +816,10 @@
                 <label for="edit-tipo">Tipo de Mantenimiento:</label>
                 <select id="edit-tipo">
                    <option value="">Seleccione...</option>
-            <option value="SM1">SM1</option>
-            <option value="SM2">SM2</option>
-            <option value="SM3">SM3</option>
-            <option value="SM4">SM4</option>
-            
-
+                   <option value="SM1">SM1</option>
+                   <option value="SM2">SM2</option>
+                   <option value="SM3">SM3</option>
+                   <option value="SM4">SM4</option>
                 </select>
               </div>
               <div class="col">
@@ -919,716 +917,757 @@
   </div>
 
   <script>
-    const { jsPDF } = window.jspdf;
-    const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let mantenimientos = [];
-    let mantenimientosFiltrados = [];
-    let maquinasData = [];
-    let mecanicosData = [];
-    let supervisoresData = [];
-    let insumosEdit = [];
-    let statsChart = null;
-
-    function ajustarFechaChile(dateString) {
-      if (!dateString) return '';
+    (function() {
+      // Variables globales dentro del IIFE para evitar conflictos
+      const { jsPDF } = window.jspdf;
+      const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
       
-      const date = new Date(dateString);
-      const offset = date.getTimezoneOffset() + 240;
-      const adjustedDate = new Date(date.getTime() + offset * 60000);
-      
-      return adjustedDate;
-    }
-
-    function formatDate(dateString) {
-      if (!dateString) return '';
-      
-      const date = ajustarFechaChile(dateString);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      
-      return `${day}-${month}-${year}`;
-    }
-
-    function formatDateTime(dateString) {
-      if (!dateString) return '';
-      
-      const date = ajustarFechaChile(dateString);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      
-      return `${day}-${month}-${year} ${hours}:${minutes}`;
-    }
-
-    function mostrarError(mensaje) {
-      const errorElement = document.getElementById('error-message');
-      errorElement.textContent = mensaje;
-      errorElement.style.display = 'block';
-      
-      setTimeout(() => {
-        errorElement.style.display = 'none';
-      }, 5000);
-    }
-
-    function mostrarExito(mensaje) {
-      const successElement = document.getElementById('success-message');
-      successElement.textContent = mensaje;
-      successElement.style.display = 'block';
-      
-      setTimeout(() => {
-        successElement.style.display = 'none';
-      }, 3000);
-    }
-
-    // Cargar mantenimientos Kilometraje SPRINTER desde Supabase
-    async function cargarMantenimientos() {
+      // Inicializar Supabase con un nombre diferente para evitar conflictos
+      let supabaseClient;
       try {
-        const { data, error } = await supabase
-          .from('mantenimientos')
-          .select('*')
-          .ilike('tipo', '%Kilometraje SPRINTER%')
-          .order('id', { ascending: false });
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      } catch (error) {
+        console.error('Error al inicializar Supabase:', error);
+        return;
+      }
 
-        if (error) throw error;
+      let mantenimientos = [];
+      let mantenimientosFiltrados = [];
+      let maquinasData = [];
+      let mecanicosData = [];
+      let supervisoresData = [];
+      let insumosEdit = [];
+      let statsChart = null;
 
-        mantenimientos = data;
+      function ajustarFechaChile(dateString) {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        const offset = date.getTimezoneOffset() + 240;
+        const adjustedDate = new Date(date.getTime() + offset * 60000);
+        
+        return adjustedDate;
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return '';
+        
+        const date = ajustarFechaChile(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}-${month}-${year}`;
+      }
+
+      function formatDateTime(dateString) {
+        if (!dateString) return '';
+        
+        const date = ajustarFechaChile(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        return `${day}-${month}-${year} ${hours}:${minutes}`;
+      }
+
+      function mostrarError(mensaje) {
+        const errorElement = document.getElementById('error-message');
+        errorElement.textContent = mensaje;
+        errorElement.style.display = 'block';
+        
+        setTimeout(() => {
+          errorElement.style.display = 'none';
+        }, 5000);
+      }
+
+      function mostrarExito(mensaje) {
+        const successElement = document.getElementById('success-message');
+        successElement.textContent = mensaje;
+        successElement.style.display = 'block';
+        
+        setTimeout(() => {
+          successElement.style.display = 'none';
+        }, 3000);
+      }
+
+      // Cargar mantenimientos Kilometraje SPRINTER desde Supabase
+      async function cargarMantenimientos() {
+        try {
+          if (!supabaseClient) {
+            throw new Error('Supabase no está inicializado');
+          }
+          
+          const { data, error } = await supabaseClient
+            .from('mantenimientos')
+            .select('*')
+            .ilike('tipo', '%Kilometraje SPRINTER%')
+            .order('id', { ascending: false });
+
+          if (error) throw error;
+
+          mantenimientos = data;
+          mantenimientosFiltrados = [...mantenimientos];
+          mostrarMantenimientos();
+          actualizarEstadisticas();
+          cargarFiltrosPatentes();
+        } catch (error) {
+          console.error('Error al cargar mantenimientos Kilometraje SPRINTER:', error);
+          mostrarError('Error al cargar los mantenimientos Kilometraje SPRINTER: ' + error.message);
+        }
+      }
+
+      function cargarFiltrosPatentes() {
+        const selectPatente = document.getElementById('filter-patente');
+        
+        const patentesUnicas = [...new Set(mantenimientos.map(m => m.patente))].sort();
+        
+        selectPatente.innerHTML = '<option value="">Todas las patentes</option>';
+        patentesUnicas.forEach(patente => {
+          const option = document.createElement('option');
+          option.value = patente;
+          option.textContent = patente;
+          selectPatente.appendChild(option);
+        });
+      }
+
+      function aplicarFiltros() {
+        const patente = document.getElementById('filter-patente').value;
+        const estado = document.getElementById('filter-estado').value;
+        
+        mantenimientosFiltrados = mantenimientos.filter(m => {
+          if (patente && m.patente !== patente) return false;
+          if (estado !== '' && m.realizado !== (estado === 'true')) return false;
+          return true;
+        });
+        
+        mostrarMantenimientos();
+        actualizarEstadisticas();
+      }
+
+      function limpiarFiltros() {
+        document.getElementById('filter-patente').value = '';
+        document.getElementById('filter-estado').value = '';
         mantenimientosFiltrados = [...mantenimientos];
         mostrarMantenimientos();
         actualizarEstadisticas();
-        cargarFiltrosPatentes();
-      } catch (error) {
-        console.error('Error al cargar mantenimientos Kilometraje SPRINTER:', error);
-        mostrarError('Error al cargar los mantenimientos Kilometraje SPRINTER: ' + error.message);
       }
-    }
 
-    function cargarFiltrosPatentes() {
-      const selectPatente = document.getElementById('filter-patente');
-      
-      const patentesUnicas = [...new Set(mantenimientos.map(m => m.patente))].sort();
-      
-      selectPatente.innerHTML = '<option value="">Todas las patentes</option>';
-      patentesUnicas.forEach(patente => {
-        const option = document.createElement('option');
-        option.value = patente;
-        option.textContent = patente;
-        selectPatente.appendChild(option);
-      });
-    }
-
-    function aplicarFiltros() {
-      const patente = document.getElementById('filter-patente').value;
-      const estado = document.getElementById('filter-estado').value;
-      
-      mantenimientosFiltrados = mantenimientos.filter(m => {
-        if (patente && m.patente !== patente) return false;
-        if (estado !== '' && m.realizado !== (estado === 'true')) return false;
-        return true;
-      });
-      
-      mostrarMantenimientos();
-      actualizarEstadisticas();
-    }
-
-    function limpiarFiltros() {
-      document.getElementById('filter-patente').value = '';
-      document.getElementById('filter-estado').value = '';
-      mantenimientosFiltrados = [...mantenimientos];
-      mostrarMantenimientos();
-      actualizarEstadisticas();
-    }
-
-    function actualizarEstadisticas() {
-      const total = mantenimientosFiltrados.length;
-      const completados = mantenimientosFiltrados.filter(m => m.realizado).length;
-      const pendientes = total - completados;
-      
-      document.getElementById('total-count').textContent = total;
-      document.getElementById('completed-count').textContent = completados;
-      document.getElementById('pending-count').textContent = pendientes;
-      
-      const completadosPercent = total > 0 ? Math.round((completados / total) * 100) : 0;
-      const pendientesPercent = total > 0 ? Math.round((pendientes / total) * 100) : 0;
-      
-      document.getElementById('completed-percent').textContent = `${completadosPercent}%`;
-      document.getElementById('pending-percent').textContent = `${pendientesPercent}%`;
-      
-      actualizarGrafico(completados, pendientes, total);
-    }
-
-    function actualizarGrafico(completados, pendientes, total) {
-      const ctx = document.getElementById('stats-chart').getContext('2d');
-      
-      if (statsChart) {
-        statsChart.destroy();
+      function actualizarEstadisticas() {
+        const total = mantenimientosFiltrados.length;
+        const completados = mantenimientosFiltrados.filter(m => m.realizado).length;
+        const pendientes = total - completados;
+        
+        document.getElementById('total-count').textContent = total;
+        document.getElementById('completed-count').textContent = completados;
+        document.getElementById('pending-count').textContent = pendientes;
+        
+        const completadosPercent = total > 0 ? Math.round((completados / total) * 100) : 0;
+        const pendientesPercent = total > 0 ? Math.round((pendientes / total) * 100) : 0;
+        
+        document.getElementById('completed-percent').textContent = `${completadosPercent}%`;
+        document.getElementById('pending-percent').textContent = `${pendientesPercent}%`;
+        
+        actualizarGrafico(completados, pendientes, total);
       }
-      
-      statsChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Realizados', 'Pendientes'],
-          datasets: [{
-            data: [completados, pendientes],
-            backgroundColor: [
-              'rgba(46, 204, 113, 0.8)',
-              'rgba(231, 76, 60, 0.8)'
-            ],
-            borderColor: [
-              'rgba(46, 204, 113, 1)',
-              'rgba(231, 76, 60, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '65%',
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const label = context.label || '';
-                  const value = context.raw || 0;
-                  const percentage = Math.round((value / total) * 100);
-                  return `${label}: ${value} (${percentage}%)`;
+
+      function actualizarGrafico(completados, pendientes, total) {
+        const ctx = document.getElementById('stats-chart').getContext('2d');
+        
+        if (statsChart) {
+          statsChart.destroy();
+        }
+        
+        statsChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Realizados', 'Pendientes'],
+            datasets: [{
+              data: [completados, pendientes],
+              backgroundColor: [
+                'rgba(46, 204, 113, 0.8)',
+                'rgba(231, 76, 60, 0.8)'
+              ],
+              borderColor: [
+                'rgba(46, 204, 113, 1)',
+                'rgba(231, 76, 60, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    const percentage = Math.round((value / total) * 100);
+                    return `${label}: ${value} (${percentage}%)`;
+                  }
                 }
               }
             }
           }
-        }
-      });
-      
-      const legendHtml = `
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: rgba(46, 204, 113, 0.8);"></div>
-          <div class="legend-text">Realizados: ${completados}</div>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: rgba(231, 76, 60, 0.8);"></div>
-          <div class="legend-text">Pendientes: ${pendientes}</div>
-        </div>
-      `;
-      document.getElementById('chart-legend').innerHTML = legendHtml;
-    }
-
-    function mostrarMantenimientos() {
-      const tbody = document.getElementById('mantenimientos-body');
-      tbody.innerHTML = '';
-
-      if (mantenimientosFiltrados.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No hay mantenimientos Kilometraje SPRINTER que coincidan con los filtros</td></tr>';
-        return;
-      }
-
-      mantenimientosFiltrados.forEach(mantenimiento => {
-        const descripcion = mantenimiento.descripcion || 'Sin descripción';
-        const insumos = mantenimiento.insumos ? 
-          mantenimiento.insumos.map(i => `${i.descripcion} (${i.cantidad})`).join(', ') : 
-          'Sin insumos';
+        });
         
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${mantenimiento.id}</td>
-          <td>${mantenimiento.patente || ''}</td>
-          <td>${formatDate(mantenimiento.fecha)}</td>
-          <td>${mantenimiento.kilometraje ? mantenimiento.kilometraje.toLocaleString() : '0'}</td>
-          <td>${mantenimiento.tipo_mantenimiento || ''}</td>
-          <td>${mantenimiento.responsable || ''}</td>
-          <td>${mantenimiento.realizado ? 'Sí' : 'No'}</td>
-          <td class="descripcion-cell" title="${descripcion}">${descripcion.substring(0, 30)}${descripcion.length > 30 ? '...' : ''}</td>
-          <td class="insumos-cell" title="${insumos}">${insumos.substring(0, 20)}${insumos.length > 20 ? '...' : ''}</td>
-          <td class="actions-cell no-print">
-            <button class="btn btn-info btn-sm" onclick="editarMantenimiento(${mantenimiento.id})">
-              <i class="fas fa-edit"></i> Editar
-            </button>
-            <button class="btn btn-success btn-sm" onclick="imprimirOrden(${mantenimiento.id})">
-              <i class="fas fa-print"></i> Imprimir
-            </button>
-          </td>
+        const legendHtml = `
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: rgba(46, 204, 113, 0.8);"></div>
+            <div class="legend-text">Realizados: ${completados}</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: rgba(231, 76, 60, 0.8);"></div>
+            <div class="legend-text">Pendientes: ${pendientes}</div>
+          </div>
         `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    async function cargarDatosParaEdicion() {
-      try {
-        const { data: maquinas, error: errorMaquinas } = await supabase
-          .from('maquinas')
-          .select('id, patente, modelo, marca, fabricante')
-          .order('patente', { ascending: true });
-
-        if (errorMaquinas) throw errorMaquinas;
-        maquinasData = maquinas;
-
-        const { data: mecanicos, error: errorMecanicos } = await supabase
-          .from('mecanicos')
-          .select('nombre')
-          .order('nombre', { ascending: true });
-
-        if (errorMecanicos) throw errorMecanicos;
-        mecanicosData = mecanicos;
-
-        const { data: supervisores, error: errorSupervisores } = await supabase
-          .from('supervisores')
-          .select('nombre')
-          .order('nombre', { ascending: true });
-
-        if (errorSupervisores) throw errorSupervisores;
-        supervisoresData = supervisores;
-
-        return true;
-      } catch (error) {
-        console.error('Error al cargar datos para edición:', error);
-        mostrarError('Error al cargar datos necesarios para edición');
-        return false;
-      }
-    }
-
-    async function editarMantenimiento(id) {
-      const cargado = await cargarDatosParaEdicion();
-      if (!cargado) return;
-
-      const mantenimiento = mantenimientos.find(m => m.id === id);
-      if (!mantenimiento) {
-        mostrarError('No se encontró el mantenimiento seleccionado');
-        return;
+        document.getElementById('chart-legend').innerHTML = legendHtml;
       }
 
-      // Llenar datos de la máquina (patente)
-      const selectPatente = document.getElementById('edit-patente');
-      selectPatente.innerHTML = '<option value="">Seleccione una patente</option>';
-      
-      const optActual = document.createElement('option');
-      optActual.value = mantenimiento.patente;
-      optActual.textContent = mantenimiento.patente;
-      optActual.selected = true;
-      selectPatente.appendChild(optActual);
-      
-      maquinasData.forEach(maquina => {
-        if (maquina.patente !== mantenimiento.patente) {
+      function mostrarMantenimientos() {
+        const tbody = document.getElementById('mantenimientos-body');
+        tbody.innerHTML = '';
+
+        if (mantenimientosFiltrados.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No hay mantenimientos Kilometraje SPRINTER que coincidan con los filtros</td></tr>';
+          return;
+        }
+
+        mantenimientosFiltrados.forEach(mantenimiento => {
+          const descripcion = mantenimiento.descripcion || 'Sin descripción';
+          const insumos = mantenimiento.insumos ? 
+            mantenimiento.insumos.map(i => `${i.descripcion} (${i.cantidad})`).join(', ') : 
+            'Sin insumos';
+          
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${mantenimiento.id}</td>
+            <td>${mantenimiento.patente || ''}</td>
+            <td>${formatDate(mantenimiento.fecha)}</td>
+            <td>${mantenimiento.kilometraje ? mantenimiento.kilometraje.toLocaleString() : '0'}</td>
+            <td>${mantenimiento.tipo_mantenimiento || ''}</td>
+            <td>${mantenimiento.responsable || ''}</td>
+            <td>${mantenimiento.realizado ? 'Sí' : 'No'}</td>
+            <td class="descripcion-cell" title="${descripcion}">${descripcion.substring(0, 30)}${descripcion.length > 30 ? '...' : ''}</td>
+            <td class="insumos-cell" title="${insumos}">${insumos.substring(0, 20)}${insumos.length > 20 ? '...' : ''}</td>
+            <td class="actions-cell no-print">
+              <button class="btn btn-info btn-sm" onclick="window.editarMantenimiento(${mantenimiento.id})">
+                <i class="fas fa-edit"></i> Editar
+              </button>
+              <button class="btn btn-success btn-sm" onclick="window.imprimirOrden(${mantenimiento.id})">
+                <i class="fas fa-print"></i> Imprimir
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      async function cargarDatosParaEdicion() {
+        try {
+          if (!supabaseClient) {
+            throw new Error('Supabase no está inicializado');
+          }
+          
+          const { data: maquinas, error: errorMaquinas } = await supabaseClient
+            .from('maquinas')
+            .select('id, patente, modelo, marca, fabricante')
+            .order('patente', { ascending: true });
+
+          if (errorMaquinas) throw errorMaquinas;
+          maquinasData = maquinas;
+
+          const { data: mecanicos, error: errorMecanicos } = await supabaseClient
+            .from('mecanicos')
+            .select('nombre')
+            .order('nombre', { ascending: true });
+
+          if (errorMecanicos) throw errorMecanicos;
+          mecanicosData = mecanicos;
+
+          const { data: supervisores, error: errorSupervisores } = await supabaseClient
+            .from('supervisores')
+            .select('nombre')
+            .order('nombre', { ascending: true });
+
+          if (errorSupervisores) throw errorSupervisores;
+          supervisoresData = supervisores;
+
+          return true;
+        } catch (error) {
+          console.error('Error al cargar datos para edición:', error);
+          mostrarError('Error al cargar datos necesarios para edición');
+          return false;
+        }
+      }
+
+      async function editarMantenimiento(id) {
+        const cargado = await cargarDatosParaEdicion();
+        if (!cargado) return;
+
+        const mantenimiento = mantenimientos.find(m => m.id === id);
+        if (!mantenimiento) {
+          mostrarError('No se encontró el mantenimiento seleccionado');
+          return;
+        }
+
+        // Llenar datos de la máquina (patente)
+        const selectPatente = document.getElementById('edit-patente');
+        selectPatente.innerHTML = '<option value="">Seleccione una patente</option>';
+        
+        const optActual = document.createElement('option');
+        optActual.value = mantenimiento.patente;
+        optActual.textContent = mantenimiento.patente;
+        optActual.selected = true;
+        selectPatente.appendChild(optActual);
+        
+        maquinasData.forEach(maquina => {
+          if (maquina.patente !== mantenimiento.patente) {
+            const opt = document.createElement('option');
+            opt.value = maquina.patente;
+            opt.textContent = maquina.patente;
+            selectPatente.appendChild(opt);
+          }
+        });
+
+        // Llenar datos de responsables (mecánicos)
+        const selectResponsable = document.getElementById('edit-responsable');
+        selectResponsable.innerHTML = '<option value="">Seleccione</option>';
+        mecanicosData.forEach(mecanico => {
           const opt = document.createElement('option');
-          opt.value = maquina.patente;
-          opt.textContent = maquina.patente;
-          selectPatente.appendChild(opt);
+          opt.value = mecanico.nombre;
+          opt.textContent = mecanico.nombre;
+          opt.selected = mecanico.nombre === mantenimiento.responsable;
+          selectResponsable.appendChild(opt);
+        });
+
+        // Llenar datos de supervisores (autorizado por)
+        const selectAutorizado = document.getElementById('edit-autorizado-por');
+        selectAutorizado.innerHTML = '<option value="">Seleccione</option>';
+        supervisoresData.forEach(supervisor => {
+          const opt = document.createElement('option');
+          opt.value = supervisor.nombre;
+          opt.textContent = supervisor.nombre;
+          opt.selected = supervisor.nombre === mantenimiento.autorizado_por;
+          selectAutorizado.appendChild(opt);
+        });
+
+        // Llenar el resto de los campos
+        document.getElementById('edit-id').value = mantenimiento.id;
+        
+        // Formatear fechas para el input type="date"
+        const fecha = mantenimiento.fecha ? new Date(mantenimiento.fecha) : null;
+        const fechaCierre = mantenimiento.fecha_cierre ? new Date(mantenimiento.fecha_cierre) : null;
+        
+        document.getElementById('edit-fecha').value = fecha ? fecha.toISOString().split('T')[0] : '';
+        document.getElementById('edit-fecha-cierre').value = fechaCierre ? fechaCierre.toISOString().split('T')[0] : '';
+        
+        document.getElementById('edit-kilometraje').value = mantenimiento.kilometraje || '';
+        document.getElementById('edit-tipo').value = mantenimiento.tipo_mantenimiento || 'Kilometraje SPRINTER';
+        document.getElementById('edit-descripcion').value = mantenimiento.descripcion || '';
+        document.getElementById('edit-hecho-por').value = mantenimiento.hecho_por || '';
+
+        // Establecer el estado de realizado
+        const realizadoSi = document.querySelector('input[name="edit-realizado"][value="true"]');
+        const realizadoNo = document.querySelector('input[name="edit-realizado"][value="false"]');
+        if (mantenimiento.realizado) {
+          realizadoSi.checked = true;
+        } else {
+          realizadoNo.checked = true;
         }
-      });
 
-      // Llenar datos de responsables (mecánicos)
-      const selectResponsable = document.getElementById('edit-responsable');
-      selectResponsable.innerHTML = '<option value="">Seleccione</option>';
-      mecanicosData.forEach(mecanico => {
-        const opt = document.createElement('option');
-        opt.value = mecanico.nombre;
-        opt.textContent = mecanico.nombre;
-        opt.selected = mecanico.nombre === mantenimiento.responsable;
-        selectResponsable.appendChild(opt);
-      });
+        // Cargar insumos
+        insumosEdit = mantenimiento.insumos || [];
+        actualizarTablaInsumosEdit();
 
-      // Llenar datos de supervisores (autorizado por)
-      const selectAutorizado = document.getElementById('edit-autorizado-por');
-      selectAutorizado.innerHTML = '<option value="">Seleccione</option>';
-      supervisoresData.forEach(supervisor => {
-        const opt = document.createElement('option');
-        opt.value = supervisor.nombre;
-        opt.textContent = supervisor.nombre;
-        opt.selected = supervisor.nombre === mantenimiento.autorizado_por;
-        selectAutorizado.appendChild(opt);
-      });
-
-      // Llenar el resto de los campos
-      document.getElementById('edit-id').value = mantenimiento.id;
-      
-      // Formatear fechas para el input type="date"
-      const fecha = mantenimiento.fecha ? new Date(mantenimiento.fecha) : null;
-      const fechaCierre = mantenimiento.fecha_cierre ? new Date(mantenimiento.fecha_cierre) : null;
-      
-      document.getElementById('edit-fecha').value = fecha ? fecha.toISOString().split('T')[0] : '';
-      document.getElementById('edit-fecha-cierre').value = fechaCierre ? fechaCierre.toISOString().split('T')[0] : '';
-      
-      document.getElementById('edit-kilometraje').value = mantenimiento.kilometraje || '';
-      document.getElementById('edit-tipo').value = mantenimiento.tipo_mantenimiento || 'Kilometraje SPRINTER';
-      document.getElementById('edit-descripcion').value = mantenimiento.descripcion || '';
-      document.getElementById('edit-hecho-por').value = mantenimiento.hecho_por || '';
-
-      // Establecer el estado de realizado
-      const realizadoSi = document.querySelector('input[name="edit-realizado"][value="true"]');
-      const realizadoNo = document.querySelector('input[name="edit-realizado"][value="false"]');
-      if (mantenimiento.realizado) {
-        realizadoSi.checked = true;
-      } else {
-        realizadoNo.checked = true;
+        // Mostrar el modal
+        document.getElementById('editModal').style.display = 'block';
       }
 
-      // Cargar insumos
-      insumosEdit = mantenimiento.insumos || [];
-      actualizarTablaInsumosEdit();
-
-      // Mostrar el modal
-      document.getElementById('editModal').style.display = 'block';
-    }
-
-    function cerrarModal() {
-      document.getElementById('editModal').style.display = 'none';
-    }
-
-    function actualizarTablaInsumosEdit() {
-      const tbody = document.getElementById('edit-insumos-body');
-      tbody.innerHTML = '';
-
-      if (insumosEdit.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No hay insumos</td></tr>';
-        return;
+      function cerrarModal() {
+        document.getElementById('editModal').style.display = 'none';
       }
 
-      insumosEdit.forEach((insumo, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${insumo.descripcion}</td>
-          <td>${insumo.cantidad}</td>
-          <td class="no-print">
-            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarInsumoEdit(${index})">
-              <i class="fas fa-trash-alt"></i> Eliminar
-            </button>
-          </td>
+      function actualizarTablaInsumosEdit() {
+        const tbody = document.getElementById('edit-insumos-body');
+        tbody.innerHTML = '';
+
+        if (insumosEdit.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No hay insumos</td></tr>';
+          return;
+        }
+
+        insumosEdit.forEach((insumo, index) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${insumo.descripcion}</td>
+            <td>${insumo.cantidad}</td>
+            <td class="no-print">
+              <button type="button" class="btn btn-danger btn-sm" onclick="window.eliminarInsumoEdit(${index})">
+                <i class="fas fa-trash-alt"></i> Eliminar
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function agregarInsumoEdit() {
+        const descripcion = document.getElementById('nuevo-insumo-edit').value.trim();
+        const cantidad = document.getElementById('cantidad-insumo-edit').value;
+
+        if (!descripcion) {
+          mostrarError('Por favor ingrese una descripción para el insumo');
+          return;
+        }
+
+        if (!cantidad || cantidad <= 0) {
+          mostrarError('La cantidad debe ser mayor a cero');
+          return;
+        }
+
+        insumosEdit.push({
+          descripcion,
+          cantidad: parseInt(cantidad)
+        });
+
+        actualizarTablaInsumosEdit();
+        document.getElementById('nuevo-insumo-edit').value = '';
+        document.getElementById('cantidad-insumo-edit').value = '1';
+      }
+
+      function eliminarInsumoEdit(index) {
+        insumosEdit.splice(index, 1);
+        actualizarTablaInsumosEdit();
+      }
+
+      async function guardarEdicion() {
+        const id = document.getElementById('edit-id').value;
+        const patente = document.getElementById('edit-patente').value;
+        const fecha = document.getElementById('edit-fecha').value || null;
+        const fechaCierre = document.getElementById('edit-fecha-cierre').value || null;
+        const kilometraje = document.getElementById('edit-kilometraje').value || 0;
+        const tipo = document.getElementById('edit-tipo').value || null;
+        const responsable = document.getElementById('edit-responsable').value || null;
+        const realizado = document.querySelector('input[name="edit-realizado"]:checked')?.value === 'true';
+        const descripcion = document.getElementById('edit-descripcion').value || null;
+        const hechoPor = document.getElementById('edit-hecho-por').value || null;
+        const autorizadoPor = document.getElementById('edit-autorizado-por').value || null;
+
+        if (!patente) {
+          mostrarError('Seleccione una patente');
+          return;
+        }
+
+        try {
+          if (!supabaseClient) {
+            throw new Error('Supabase no está inicializado');
+          }
+          
+          let maquinaId = null;
+          if (maquinasData.length > 0) {
+            const maquina = maquinasData.find(m => m.patente === patente);
+            maquinaId = maquina ? maquina.id : null;
+          }
+
+          const { data, error } = await supabaseClient
+            .from('mantenimientos')
+            .update({
+              maquina_id: maquinaId,
+              patente: patente,
+              fecha: fecha,
+              fecha_cierre: fechaCierre,
+              kilometraje: kilometraje,
+              tipo_mantenimiento: tipo,
+              responsable: responsable,
+              realizado: realizado,
+              descripcion: descripcion,
+              hecho_por: hechoPor,
+              autorizado_por: autorizadoPor,
+              insumos: insumosEdit,
+              tipo: 'Kilometraje SPRINTER'
+            })
+            .eq('id', id)
+            .select();
+
+          if (error) throw error;
+
+          mostrarExito('Mantenimiento Kilometraje SPRINTER actualizado correctamente');
+          cerrarModal();
+          cargarMantenimientos();
+        } catch (error) {
+          console.error('Error al actualizar mantenimiento Kilometraje SPRINTER:', error);
+          mostrarError('Error al actualizar el mantenimiento Kilometraje SPRINTER: ' + error.message);
+        }
+      }
+
+      async function imprimirOrden(id) {
+        window.location.href = `imprimirKS.html?id=${id}`;
+      }
+
+      // Funciones para la impresión
+      function prepararImpresion() {
+        const total = mantenimientosFiltrados.length;
+        const completados = mantenimientosFiltrados.filter(m => m.realizado).length;
+        const pendientes = total - completados;
+        
+        const printContent = document.getElementById('print-content');
+        printContent.innerHTML = '';
+        
+        // Crear encabezado
+        const header = document.createElement('div');
+        header.className = 'print-header';
+        header.innerHTML = `
+          <img src="img/logo.png" alt="Logo" class="print-logo">
+          <div class="print-title">
+            <h2>Reporte de Mantenimientos Kilometraje SPRINTER</h2>
+            <p>Generado el ${formatDate(new Date().toISOString())}</p>
+          </div>
         `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function agregarInsumoEdit() {
-      const descripcion = document.getElementById('nuevo-insumo-edit').value.trim();
-      const cantidad = document.getElementById('cantidad-insumo-edit').value;
-
-      if (!descripcion) {
-        mostrarError('Por favor ingrese una descripción para el insumo');
-        return;
+        printContent.appendChild(header);
+        
+        // Crear estadísticas
+        const stats = document.createElement('div');
+        stats.className = 'print-stats';
+        stats.innerHTML = `
+          <div class="print-stat">
+            <div class="stat-label">Total</div>
+            <div class="print-stat-value">${total}</div>
+          </div>
+          <div class="print-stat">
+            <div class="stat-label">Realizados</div>
+            <div class="print-stat-value">${completados}</div>
+          </div>
+          <div class="print-stat">
+            <div class="stat-label">Pendientes</div>
+            <div class="print-stat-value">${pendientes}</div>
+          </div>
+        `;
+        printContent.appendChild(stats);
+        
+        // Crear tabla de mantenimientos
+        const table = document.createElement('table');
+        table.className = 'print-table';
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>OT</th>
+              <th>Patente</th>
+              <th>Fecha</th>
+              <th>Kilometraje</th>
+              <th>Tipo</th>
+              <th>Responsable</th>
+              <th>Realizado</th>
+              <th>Descripción</th>
+              <th>Insumos</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${mantenimientosFiltrados.map(m => {
+              const descripcion = m.descripcion || 'Sin descripción';
+              const insumos = m.insumos ? 
+                m.insumos.map(i => `${i.descripcion} (${i.cantidad})`).join(', ') : 
+                'Sin insumos';
+                
+              return `
+                <tr>
+                  <td>${m.id}</td>
+                  <td>${m.patente || ''}</td>
+                  <td>${formatDate(m.fecha)}</td>
+                  <td>${m.kilometraje ? m.kilometraje.toLocaleString() : '0'}</td>
+                  <td>${m.tipo_mantenimiento || ''}</td>
+                  <td>${m.responsable || ''}</td>
+                  <td>${m.realizado ? 'Sí' : 'No'}</td>
+                  <td>${descripcion.substring(0, 50)}${descripcion.length > 50 ? '...' : ''}</td>
+                  <td>${insumos.substring(0, 30)}${insumos.length > 30 ? '...' : ''}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        `;
+        printContent.appendChild(table);
+        
+        // Crear pie de página
+        const footer = document.createElement('div');
+        footer.className = 'print-footer';
+        footer.innerHTML = `
+          <p>Sistema de Gestión de Mantenimientos - ${new Date().getFullYear()}</p>
+        `;
+        printContent.appendChild(footer);
+        
+        // Mostrar vista previa
+        document.getElementById('print-preview').style.display = 'block';
       }
 
-      if (!cantidad || cantidad <= 0) {
-        mostrarError('La cantidad debe ser mayor a cero');
-        return;
+      function cerrarPreview() {
+        document.getElementById('print-preview').style.display = 'none';
       }
 
-      insumosEdit.push({
-        descripcion,
-        cantidad: parseInt(cantidad)
-      });
-
-      actualizarTablaInsumosEdit();
-      document.getElementById('nuevo-insumo-edit').value = '';
-      document.getElementById('cantidad-insumo-edit').value = '1';
-    }
-
-    function eliminarInsumoEdit(index) {
-      insumosEdit.splice(index, 1);
-      actualizarTablaInsumosEdit();
-    }
-
-    async function guardarEdicion() {
-      const id = document.getElementById('edit-id').value;
-      const patente = document.getElementById('edit-patente').value;
-      const fecha = document.getElementById('edit-fecha').value || null;
-      const fechaCierre = document.getElementById('edit-fecha-cierre').value || null;
-      const kilometraje = document.getElementById('edit-kilometraje').value || 0;
-      const tipo = document.getElementById('edit-tipo').value || null;
-      const responsable = document.getElementById('edit-responsable').value || null;
-      const realizado = document.querySelector('input[name="edit-realizado"]:checked')?.value === 'true';
-      const descripcion = document.getElementById('edit-descripcion').value || null;
-      const hechoPor = document.getElementById('edit-hecho-por').value || null;
-      const autorizadoPor = document.getElementById('edit-autorizado-por').value || null;
-
-      if (!patente) {
-        mostrarError('Seleccione una patente');
-        return;
-      }
-
-      try {
-        let maquinaId = null;
-        if (maquinasData.length > 0) {
-          const maquina = maquinasData.find(m => m.patente === patente);
-          maquinaId = maquina ? maquina.id : null;
-        }
-
-        const { data, error } = await supabase
-          .from('mantenimientos')
-          .update({
-            maquina_id: maquinaId,
-            patente: patente,
-            fecha: fecha,
-            fecha_cierre: fechaCierre,
-            kilometraje: kilometraje,
-            tipo_mantenimiento: tipo,
-            responsable: responsable,
-            realizado: realizado,
-            descripcion: descripcion,
-            hecho_por: hechoPor,
-            autorizado_por: autorizadoPor,
-            insumos: insumosEdit,
-            tipo: 'Kilometraje SPRINTER'
-          })
-          .eq('id', id)
-          .select();
-
-        if (error) throw error;
-
-        mostrarExito('Mantenimiento Kilometraje SPRINTER actualizado correctamente');
-        cerrarModal();
+      function imprimirContenido() {
+        // Guardar el estado actual del body
+        const originalBody = document.body.innerHTML;
+        
+        // Reemplazar el body con el contenido a imprimir
+        document.body.innerHTML = document.getElementById('print-content').innerHTML;
+        
+        // Aplicar estilos de impresión
+        document.body.style.background = 'white';
+        document.body.style.color = 'black';
+        document.body.style.padding = '20px';
+        
+        // Imprimir
+        window.print();
+        
+        // Restaurar el body original
+        document.body.innerHTML = originalBody;
+        
+        // Volver a cargar los eventos y elementos necesarios
         cargarMantenimientos();
-      } catch (error) {
-        console.error('Error al actualizar mantenimiento Kilometraje SPRINTER:', error);
-        mostrarError('Error al actualizar el mantenimiento Kilometraje SPRINTER: ' + error.message);
       }
-    }
 
-    async function imprimirOrden(id) {
-      window.location.href = `imprimirKS.html?id=${id}`;
-    }
+      // Hacer funciones disponibles globalmente
+      window.cerrarModal = cerrarModal;
+      window.agregarInsumoEdit = agregarInsumoEdit;
+      window.eliminarInsumoEdit = eliminarInsumoEdit;
+      window.guardarEdicion = guardarEdicion;
+      window.imprimirOrden = imprimirOrden;
+      window.aplicarFiltros = aplicarFiltros;
+      window.limpiarFiltros = limpiarFiltros;
+      window.prepararImpresion = prepararImpresion;
+      window.cerrarPreview = cerrarPreview;
+      window.imprimirContenido = imprimirContenido;
+      window.cargarMantenimientos = cargarMantenimientos;
 
-    // Funciones para la impresión
-    function prepararImpresion() {
-      const total = mantenimientosFiltrados.length;
-      const completados = mantenimientosFiltrados.filter(m => m.realizado).length;
-      const pendientes = total - completados;
+      // Guardar la función original antes de sobrescribirla
+      const originalEditarMantenimiento = editarMantenimiento;
       
-      const printContent = document.getElementById('print-content');
-      printContent.innerHTML = '';
-      
-      // Crear encabezado
-      const header = document.createElement('div');
-      header.className = 'print-header';
-      header.innerHTML = `
-        <img src="img/logo.png" alt="Logo" class="print-logo">
-        <div class="print-title">
-          <h2>Reporte de Mantenimientos Kilometraje SPRINTER</h2>
-          <p>Generado el ${formatDate(new Date().toISOString())}</p>
-        </div>
-      `;
-      printContent.appendChild(header);
-      
-      // Crear estadísticas
-      const stats = document.createElement('div');
-      stats.className = 'print-stats';
-      stats.innerHTML = `
-        <div class="print-stat">
-          <div class="stat-label">Total</div>
-          <div class="print-stat-value">${total}</div>
-        </div>
-        <div class="print-stat">
-          <div class="stat-label">Realizados</div>
-          <div class="print-stat-value">${completados}</div>
-        </div>
-        <div class="print-stat">
-          <div class="stat-label">Pendientes</div>
-          <div class="print-stat-value">${pendientes}</div>
-        </div>
-      `;
-      printContent.appendChild(stats);
-      
-      // Crear tabla de mantenimientos
-      const table = document.createElement('table');
-      table.className = 'print-table';
-      table.innerHTML = `
-        <thead>
-          <tr>
-            <th>OT</th>
-            <th>Patente</th>
-            <th>Fecha</th>
-            <th>Kilometraje</th>
-            <th>Tipo</th>
-            <th>Responsable</th>
-            <th>Realizado</th>
-            <th>Descripción</th>
-            <th>Insumos</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${mantenimientosFiltrados.map(m => {
-            const descripcion = m.descripcion || 'Sin descripción';
-            const insumos = m.insumos ? 
-              m.insumos.map(i => `${i.descripcion} (${i.cantidad})`).join(', ') : 
-              'Sin insumos';
-              
-            return `
-              <tr>
-                <td>${m.id}</td>
-                <td>${m.patente || ''}</td>
-                <td>${formatDate(m.fecha)}</td>
-                <td>${m.kilometraje ? m.kilometraje.toLocaleString() : '0'}</td>
-                <td>${m.tipo_mantenimiento || ''}</td>
-                <td>${m.responsable || ''}</td>
-                <td>${m.realizado ? 'Sí' : 'No'}</td>
-                <td>${descripcion.substring(0, 50)}${descripcion.length > 50 ? '...' : ''}</td>
-                <td>${insumos.substring(0, 30)}${insumos.length > 30 ? '...' : ''}</td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      `;
-      printContent.appendChild(table);
-      
-      // Crear pie de página
-      const footer = document.createElement('div');
-      footer.className = 'print-footer';
-      footer.innerHTML = `
-        <p>Sistema de Gestión de Mantenimientos - ${new Date().getFullYear()}</p>
-      `;
-      printContent.appendChild(footer);
-      
-      // Mostrar vista previa
-      document.getElementById('print-preview').style.display = 'block';
-    }
+      // Función con validación de permisos
+      window.editarMantenimiento = async function(id) {
+        const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+        if (tipoUsuario === 'lectura') {
+          alert('No tienes permisos para editar mantenimientos. Modo de solo lectura.');
+          return;
+        }
+        return originalEditarMantenimiento(id);
+      };
 
-    function cerrarPreview() {
-      document.getElementById('print-preview').style.display = 'none';
-    }
+      // Sobrescribir guardarEdicion con validación de permisos
+      const originalGuardarEdicionGlobal = guardarEdicion;
+      window.guardarEdicion = async function() {
+        const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+        if (tipoUsuario === 'lectura') {
+          alert('No tienes permisos para guardar cambios. Modo de solo lectura.');
+          return;
+        }
+        return originalGuardarEdicionGlobal();
+      };
 
-    function imprimirContenido() {
-      // Guardar el estado actual del body
-      const originalBody = document.body.innerHTML;
-      
-      // Reemplazar el body con el contenido a imprimir
-      document.body.innerHTML = document.getElementById('print-content').innerHTML;
-      
-      // Aplicar estilos de impresión
-      document.body.style.background = 'white';
-      document.body.style.color = 'black';
-      document.body.style.padding = '20px';
-      
-      // Imprimir
-      window.print();
-      
-      // Restaurar el body original
-      document.body.innerHTML = originalBody;
-      
-      // Volver a cargar los eventos y elementos necesarios
-      cargarMantenimientos();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      cargarMantenimientos();
-      
-      const ctx = document.getElementById('stats-chart').getContext('2d');
-      statsChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Realizados', 'Pendientes'],
-          datasets: [{
-            data: [0, 0],
-            backgroundColor: [
-              'rgba(46, 204, 113, 0.8)',
-              'rgba(231, 76, 60, 0.8)'
-            ],
-            borderColor: [
-              'rgba(46, 204, 113, 1)',
-              'rgba(231, 76, 60, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '65%',
-          plugins: {
-            legend: {
-              display: false
+      // Inicializar cuando el DOM esté listo
+      document.addEventListener('DOMContentLoaded', () => {
+        cargarMantenimientos();
+        
+        const ctx = document.getElementById('stats-chart').getContext('2d');
+        statsChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Realizados', 'Pendientes'],
+            datasets: [{
+              data: [0, 0],
+              backgroundColor: [
+                'rgba(46, 204, 113, 0.8)',
+                'rgba(231, 76, 60, 0.8)'
+              ],
+              borderColor: [
+                'rgba(46, 204, 113, 1)',
+                'rgba(231, 76, 60, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+              legend: {
+                display: false
+              }
             }
           }
+        });
+      });
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const tipoUsuario = sessionStorage.getItem('tipoUsuario');
+        
+        if (tipoUsuario === 'lectura') {
+          const titulo = document.querySelector('h1');
+          titulo.textContent += ' (Modo Lectura)';
+          
+          const botonNuevo = document.querySelector('.btn-primary');
+          if (botonNuevo && botonNuevo.textContent.includes('Nuevo Mantenimiento')) {
+            botonNuevo.style.display = 'none';
+          }
+          
+          document.querySelectorAll('.btn-info').forEach(boton => {
+            if (boton.innerHTML.includes('fa-edit')) {
+              boton.disabled = true;
+              boton.style.opacity = '0.6';
+              boton.style.cursor = 'not-allowed';
+              boton.title = 'No tienes permisos para editar';
+              
+              boton.style.background = '#cccccc';
+              boton.style.color = '#666666';
+              boton.style.boxShadow = 'none';
+              
+              boton.onclick = null;
+            }
+          });
+          
+          const botonesFiltro = document.querySelectorAll('.filter-actions button');
+          botonesFiltro.forEach(boton => {
+            if (boton.textContent.includes('Limpiar') || boton.textContent.includes('Filtrar')) {
+              boton.style.opacity = '1';
+              boton.disabled = false;
+            }
+          });
+          
+          document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'editModal') {
+              const modal = document.getElementById('editModal');
+              const inputs = modal.querySelectorAll('input, select, textarea, button');
+              inputs.forEach(input => {
+                input.disabled = true;
+                input.style.opacity = '0.6';
+                input.style.cursor = 'not-allowed';
+              });
+              
+              const botonesAccion = modal.querySelectorAll('.btn-group button');
+              botonesAccion.forEach(boton => {
+                boton.style.display = 'none';
+              });
+            }
+          });
+          
+          const mensajeInfo = document.createElement('div');
+          mensajeInfo.className = 'status-message';
+          mensajeInfo.style.backgroundColor = '#e3f2fd';
+          mensajeInfo.style.color = '#1976d2';
+          mensajeInfo.style.borderLeft = '4px solid #1976d2';
+          mensajeInfo.textContent = 'Estás en modo de solo lectura. No puedes realizar modificaciones.';
+          document.querySelector('.container').insertBefore(mensajeInfo, document.querySelector('.filters-container'));
         }
       });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      
-      if (tipoUsuario === 'lectura') {
-        const titulo = document.querySelector('h1');
-        titulo.textContent += ' (Modo Lectura)';
-        
-        const botonNuevo = document.querySelector('.btn-primary');
-        if (botonNuevo && botonNuevo.textContent.includes('Nuevo Mantenimiento')) {
-          botonNuevo.style.display = 'none';
-        }
-        
-        document.querySelectorAll('.btn-info').forEach(boton => {
-          if (boton.innerHTML.includes('fa-edit')) {
-            boton.disabled = true;
-            boton.style.opacity = '0.6';
-            boton.style.cursor = 'not-allowed';
-            boton.title = 'No tienes permisos para editar';
-            
-            boton.style.background = '#cccccc';
-            boton.style.color = '#666666';
-            boton.style.boxShadow = 'none';
-            
-            boton.onclick = null;
-          }
-        });
-        
-        const botonesFiltro = document.querySelectorAll('.filter-actions button');
-        botonesFiltro.forEach(boton => {
-          if (boton.textContent.includes('Limpiar') || boton.textContent.includes('Filtrar')) {
-            boton.style.opacity = '1';
-            boton.disabled = false;
-          }
-        });
-        
-        document.addEventListener('click', function(e) {
-          if (e.target && e.target.id === 'editModal') {
-            const modal = document.getElementById('editModal');
-            const inputs = modal.querySelectorAll('input, select, textarea, button');
-            inputs.forEach(input => {
-              input.disabled = true;
-              input.style.opacity = '0.6';
-              input.style.cursor = 'not-allowed';
-            });
-            
-            const botonesAccion = modal.querySelectorAll('.btn-group button');
-            botonesAccion.forEach(boton => {
-              boton.style.display = 'none';
-            });
-          }
-        });
-        
-        const mensajeInfo = document.createElement('div');
-        mensajeInfo.className = 'status-message';
-        mensajeInfo.style.backgroundColor = '#e3f2fd';
-        mensajeInfo.style.color = '#1976d2';
-        mensajeInfo.style.borderLeft = '4px solid #1976d2';
-        mensajeInfo.textContent = 'Estás en modo de solo lectura. No puedes realizar modificaciones.';
-        document.querySelector('.container').insertBefore(mensajeInfo, document.querySelector('.filters-container'));
-      }
-    });
-
-    const originalEditarMantenimiento = window.editarMantenimiento;
-    window.editarMantenimiento = async function(id) {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para editar mantenimientos. Modo de solo lectura.');
-        return;
-      }
-      return originalEditarMantenimiento(id);
-    };
-
-    const originalGuardarEdicion = window.guardarEdicion;
-    window.guardarEdicion = async function() {
-      const tipoUsuario = sessionStorage.getItem('tipoUsuario');
-      if (tipoUsuario === 'lectura') {
-        alert('No tienes permisos para guardar cambios. Modo de solo lectura.');
-        return;
-      }
-      return originalGuardarEdicion();
-    };
+    })();
   </script>
 </body>
 </html>
