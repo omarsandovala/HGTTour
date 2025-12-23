@@ -28,7 +28,7 @@
     }
 
     body {
-  background: linear-gradient(135deg, #3f72af, #dbe2ef);
+      background: linear-gradient(135deg, #3f72af, #dbe2ef);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: var(--color-text);
       padding: 20px;
@@ -424,9 +424,12 @@
   </div>
 
   <script>
+    // Configuración de Supabase
     const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Crear cliente Supabase usando la biblioteca global
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let tipoChart = null;
     let tiposDetalleChart = null;
@@ -501,7 +504,7 @@
         // Actualizar información del período
         actualizarInfoPeriodo(startDate, endDate);
         
-        let query = supabase
+        let query = supabaseClient
           .from('mantenimientos')
           .select('*');
         
