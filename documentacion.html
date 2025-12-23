@@ -816,7 +816,8 @@
         const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Declarar variables globales
+        let supabaseClient;
         let modoEdicion = false;
         let isConnected = false;
         let patentesDisponibles = [];
@@ -830,6 +831,14 @@
         let reportMonth = new Date().getMonth() + 1; // Mes actual por defecto
         let reportYear = new Date().getFullYear(); // Año actual por defecto
         
+        // Inicializar Supabase
+        function inicializarSupabase() {
+            if (!supabaseClient && window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+            return supabaseClient;
+        }
+        
         // Configuración de EmailJS
         (function() {
             emailjs.init('GTwhaObjJL2yucEbb'); // Usando tu Public Key
@@ -838,6 +847,13 @@
         // Función para verificar la conexión con Supabase
         async function checkSupabaseConnection() {
             const statusElement = document.getElementById('connectionStatus');
+            const supabase = inicializarSupabase();
+            
+            if (!supabase) {
+                console.error('Supabase no está inicializado');
+                mostrarError('Error de conexión con la base de datos');
+                return;
+            }
             
             try {
                 // Intenta una operación simple para verificar la conexión
@@ -904,6 +920,8 @@
 
         // Función para cargar patentes desde la tabla documentacion
         async function cargarPatentes() {
+            const supabase = inicializarSupabase();
+            
             try {
                 const { data: documentacion, error } = await supabase
                     .from('documentacion')
@@ -1009,6 +1027,8 @@
 
         // Función para cargar documentación desde Supabase con filtros
         async function cargarDocumentacion(filtros = {}) {
+            const supabase = inicializarSupabase();
+            
             try {
                 // Verificar conexión antes de continuar
                 if (!isConnected) {
@@ -1171,6 +1191,8 @@
 
         // Función para cargar datos de un documento para edición
         async function editarDocumentacion(id) {
+            const supabase = inicializarSupabase();
+            
             try {
                 // Verificar conexión antes de continuar
                 if (!isConnected) {
@@ -1254,6 +1276,8 @@
                 decreto_80_vencimiento: document.getElementById('decreto_80_vencimiento').value || null
             };
             
+            const supabase = inicializarSupabase();
+            
             try {
                 // Verificar conexión antes de continuar
                 if (!isConnected) {
@@ -1302,6 +1326,8 @@
             if (!confirm('¿Está seguro que desea eliminar esta documentación?\nEsta acción no se puede deshacer.')) {
                 return;
             }
+            
+            const supabase = inicializarSupabase();
             
             try {
                 // Verificar conexión antes de continuar
@@ -1412,6 +1438,8 @@
                 dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
                 dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
                 events: async function(fetchInfo, successCallback, failureCallback) {
+                    const supabase = inicializarSupabase();
+                    
                     try {
                         const { data: documentacion, error } = await supabase
                             .from('documentacion')
@@ -1494,6 +1522,8 @@
 
         // Función para obtener vencimientos en el mes y año seleccionado
         async function obtenerProximosVencimientos() {
+            const supabase = inicializarSupabase();
+            
             try {
                 const { data: documentacion, error } = await supabase
                     .from('documentacion')
