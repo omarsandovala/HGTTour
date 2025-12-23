@@ -78,7 +78,7 @@
         .signatures {
             display: flex;
             justify-content: space-between;
-            margin-top: 40px;
+            margin-top: 80px;
         }
         .signature-box {
             width: 45%;
@@ -102,14 +102,6 @@
         }
         .empty-space {
             height: 20px;
-            border-bottom: 1px solid #eee;
-            margin-left: 10px;
-            margin-right: 10px;
-        }
-        .empty-space-no-line {
-            height: 20px;
-            margin-left: 10px;
-            margin-right: 10px;
         }
         .button-container {
             display: flex;
@@ -162,12 +154,6 @@
             .logo {
                 max-height: 70px;
             }
-            .empty-space {
-                border-bottom: 1px solid #eee;
-            }
-            .empty-space-no-line {
-                border-bottom: none;
-            }
         }
     </style>
 </head>
@@ -187,7 +173,6 @@
                 <div class="column">
                     <div><strong>Máquina-Equipo:</strong> <span id="machine-name"></span></div>
                     <div><strong>Marca:</strong> <span id="machine-brand"></span></div>
-                    <div><strong>Patente:</strong> <span id="machine-license"></span></div>
                 </div>
                 <div class="column">
                     <div><strong>Modelo:</strong> <span id="machine-model"></span></div>
@@ -223,10 +208,7 @@
             </div>
             
             <div class="section-title">DESCRIPCION DEL TRABAJO A REALIZAR</div>
-            <div id="work-description-container">
-                <div id="work-description"></div>
-                <div id="work-description-spacing"></div>
-            </div>
+            <div id="work-description" style="min-height: 200px;"></div>
             
             <div class="section-title">INSUMOS / MATERIALES</div>
             <div id="materials-container">
@@ -241,7 +223,7 @@
                         <!-- Los datos se llenarán dinámicamente -->
                     </tbody>
                 </table>
-                <div id="materials-empty"></div>
+                <div id="empty-spaces"></div>
             </div>
         </div>
 
@@ -264,202 +246,195 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Usar IIFE para evitar conflictos de variables
+        (function() {
+            const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Función mejorada para formatear fecha
-        function formatDateTime(dateString) {
-            if (!dateString) return '';
-            
-            // Si ya es una cadena de fecha válida, devolverla tal cual
-            if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}/)) {
-                return dateString;
-            }
-            
-            try {
-                // Intentar parsear como fecha ISO o timestamp
-                let date;
-                if (dateString.includes('T')) {
-                    // Formato ISO (ej: "2023-10-25T14:30:00.000Z")
-                    date = new Date(dateString);
-                } else {
-                    // Asumir que es un timestamp de PostgreSQL
-                    date = new Date(dateString + 'Z'); // Añadir 'Z' para indicar UTC
-                }
-                
-                if (isNaN(date.getTime())) {
-                    console.warn('Fecha inválida:', dateString);
+            // Función para formatear fecha
+            function formatDateTime(dateString) {
+                if (!dateString) return '';
+                try {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) return '';
+                    
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+                    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                } catch (e) {
+                    console.error('Error formateando fecha:', e);
                     return '';
                 }
-                
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                const seconds = String(date.getSeconds()).padStart(2, '0');
-                
-                // Formato: YYYY-MM-DD HH:MM:SS
-                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-            } catch (e) {
-                console.error('Error formateando fecha:', e);
-                return '';
             }
-        }
 
-        // Función para formatear solo la fecha (sin hora)
-        function formatDateOnly(dateString) {
-            const fullDate = formatDateTime(dateString);
-            return fullDate.split(' ')[0]; // Devuelve solo la parte de la fecha
-        }
+            // Función para obtener solo la fecha (sin hora)
+            function formatDateOnly(dateString) {
+                if (!dateString) return '';
+                try {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) return '';
+                    
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${day}-${month}-${year}`;
+                } catch (e) {
+                    console.error('Error formateando fecha:', e);
+                    return '';
+                }
+            }
 
-        // Función para obtener el ID de la URL
-        function getOrderId() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('id');
-        }
+            // Función para obtener el ID de la URL
+            function getOrderId() {
+                const params = new URLSearchParams(window.location.search);
+                const id = params.get('id');
+                return id ? parseInt(id) : null;
+            }
 
-        // Función para obtener datos de la máquina por ID
-        async function getMachineDataById(maquinaId) {
-            if (!maquinaId) return null;
-            
-            try {
-                const { data, error } = await supabase
-                    .from('maquinas')
-                    .select('*')
-                    .eq('id', maquinaId)
-                    .single();
+            // Función para obtener datos de la máquina por ID
+            async function getMachineDataById(maquinaId) {
+                if (!maquinaId) return null;
+                
+                try {
+                    const { data, error } = await supabase
+                        .from('maquinas')
+                        .select('*')
+                        .eq('id', maquinaId)
+                        .single();
 
-                if (error) {
-                    console.error('Error al obtener datos de la máquina:', error);
+                    if (error) {
+                        console.error('Error al obtener datos de la máquina:', error);
+                        return null;
+                    }
+                    return data;
+                } catch (error) {
+                    console.error('Excepción al obtener datos de la máquina:', error);
                     return null;
                 }
-                return data;
-            } catch (error) {
-                console.error('Excepción al obtener datos de la máquina:', error);
-                return null;
-            }
-        }
-
-        // Función para crear espacios en blanco con líneas
-        function createEmptyLines(containerId, count, withLines = true) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            for (let i = 0; i < count; i++) {
-                const emptyDiv = document.createElement('div');
-                emptyDiv.className = withLines ? 'empty-space' : 'empty-space-no-line';
-                container.appendChild(emptyDiv);
-            }
-        }
-
-        // Cargar datos de la orden de trabajo
-        async function loadOrderData() {
-            const orderId = getOrderId();
-            if (!orderId) {
-                alert('No se proporcionó ID de orden de trabajo');
-                return;
             }
 
-            try {
-                // Obtener datos del mantenimiento
-                const { data: maintenance, error: maintenanceError } = await supabase
-                    .from('mantenimientos')
-                    .select('*')
-                    .eq('id', orderId)
-                    .single();
+            // Función para crear espacios en blanco
+            function createEmptySpaces(count) {
+                const container = document.getElementById('empty-spaces');
+                container.innerHTML = '';
+                for (let i = 0; i < count; i++) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-space';
+                    container.appendChild(emptyDiv);
+                }
+            }
 
-                if (maintenanceError) {
-                    console.error('Error al obtener mantenimiento:', maintenanceError);
-                    throw maintenanceError;
+            // Cargar datos de la orden de trabajo
+            async function loadOrderData() {
+                const orderId = getOrderId();
+                if (!orderId) {
+                    alert('No se proporcionó ID de orden de trabajo');
+                    return;
                 }
 
-                console.log('Datos del mantenimiento:', maintenance);
+                try {
+                    // Obtener datos del mantenimiento
+                    const { data: maintenance, error: maintenanceError } = await supabase
+                        .from('mantenimientos')
+                        .select('*')
+                        .eq('id', orderId)
+                        .single();
 
-                // Obtener datos de la máquina
-                let machineData = {
-                    nombre: '',
-                    marca: '',
-                    modelo: '',
-                    fabricante: '',
-                    patente: ''
-                };
-
-                if (maintenance.maquina_id) {
-                    const machine = await getMachineDataById(maintenance.maquina_id);
-                    if (machine) {
-                        machineData = {
-                            nombre: machine.nombre || machine.patente || '',
-                            marca: machine.marca || '',
-                            modelo: machine.modelo || '',
-                            fabricante: machine.fabricante || '',
-                            patente: machine.patente || ''
-                        };
+                    if (maintenanceError) {
+                        console.error('Error al obtener mantenimiento:', maintenanceError);
+                        alert('Error al cargar los datos de la orden de trabajo. ID no encontrado.');
+                        return;
                     }
+
+                    // Obtener datos de la máquina
+                    let machineData = {
+                        nombre: '',
+                        marca: '',
+                        modelo: '',
+                        fabricante: ''
+                    };
+
+                    if (maintenance.maquina_id) {
+                        const machine = await getMachineDataById(maintenance.maquina_id);
+                        if (machine) {
+                            machineData = {
+                                nombre: machine.nombre || machine.patente || maintenance.patente || '',
+                                marca: machine.marca || '',
+                                modelo: machine.modelo || '',
+                                fabricante: machine.fabricante || ''
+                            };
+                        }
+                    }
+
+                    // Si no hay datos de máquina, usar la patente
+                    if (!machineData.nombre && maintenance.patente) {
+                        machineData.nombre = maintenance.patente;
+                    }
+
+                    // Llenar los datos en el formulario
+                    document.getElementById('order-number').textContent = `#${maintenance.id || ''}`;
+                    document.getElementById('machine-name').textContent = machineData.nombre;
+                    document.getElementById('machine-brand').textContent = machineData.marca;
+                    document.getElementById('machine-model').textContent = machineData.modelo;
+                    document.getElementById('machine-manufacturer').textContent = machineData.fabricante;
+                    document.getElementById('maintenance-number').textContent = maintenance.id || '';
+                    document.getElementById('responsible').textContent = maintenance.responsable || '';
+                    document.getElementById('maintenance-type').textContent = maintenance.tipo_mantenimiento || '';
+                    
+                    // Formatear fechas correctamente
+                    const startDate = maintenance.fecha ? formatDateTime(maintenance.fecha) : '';
+                    const closeDate = maintenance.fecha_cierre ? formatDateOnly(maintenance.fecha_cierre) : '';
+                    
+                    document.getElementById('close-date').textContent = closeDate;
+                    document.getElementById('start-date').textContent = startDate;
+                    document.getElementById('km').textContent = maintenance.kilometraje ? maintenance.kilometraje.toLocaleString() : '';
+                    document.getElementById('status').textContent = maintenance.realizado ? 'REALIZADO' : 'NO REALIZADO';
+                    document.getElementById('created-by').textContent = maintenance.hecho_por || '';
+                    document.getElementById('approved-by').textContent = maintenance.autorizado_por || '';
+                    
+                    // Descripción del trabajo
+                    const workDescription = document.getElementById('work-description');
+                    if (maintenance.descripcion) {
+                        // Mantener saltos de línea en la descripción
+                        workDescription.innerHTML = maintenance.descripcion.replace(/\n/g, '<br>');
+                    } else {
+                        workDescription.textContent = '';
+                    }
+
+                    // Manejo de materiales
+                    const materialsTable = document.getElementById('materials-table');
+                    const tbody = materialsTable.querySelector('tbody');
+                    tbody.innerHTML = '';
+
+                    if (maintenance.insumos && Array.isArray(maintenance.insumos) && maintenance.insumos.length > 0) {
+                        materialsTable.style.display = 'table';
+                        maintenance.insumos.forEach(material => {
+                            const row = tbody.insertRow();
+                            const descCell = row.insertCell(0);
+                            const qtyCell = row.insertCell(1);
+                            descCell.textContent = material.descripcion || '';
+                            qtyCell.textContent = material.cantidad || '';
+                        });
+                        createEmptySpaces(0);
+                    } else {
+                        materialsTable.style.display = 'none';
+                        createEmptySpaces(3);
+                    }
+
+                } catch (error) {
+                    console.error('Error al cargar los datos:', error);
+                    alert('Error al cargar los datos de la orden de trabajo. Consulte la consola para más detalles.');
                 }
-
-                // Llenar los datos en el formulario
-                document.getElementById('order-number').textContent = `#${maintenance.id || ''}`;
-                document.getElementById('machine-name').textContent = machineData.nombre;
-                document.getElementById('machine-brand').textContent = machineData.marca;
-                document.getElementById('machine-model').textContent = machineData.modelo;
-                document.getElementById('machine-manufacturer').textContent = machineData.fabricante;
-                document.getElementById('machine-license').textContent = machineData.patente || maintenance.patente || '';
-                document.getElementById('maintenance-number').textContent = maintenance.id || '';
-                document.getElementById('responsible').textContent = maintenance.responsable || '';
-                document.getElementById('maintenance-type').textContent = maintenance.tipo_mantenimiento || '';
-                
-                // Formatear fechas correctamente
-                document.getElementById('close-date').textContent = formatDateOnly(maintenance.fecha_cierre);
-                document.getElementById('start-date').textContent = formatDateTime(maintenance.fecha);
-                
-                document.getElementById('km').textContent = maintenance.kilometraje || '';
-                document.getElementById('status').textContent = maintenance.realizado ? 'REALIZADO' : 'NO REALIZADO';
-                document.getElementById('created-by').textContent = maintenance.responsable || '';
-                document.getElementById('approved-by').textContent = maintenance.autorizado_por || '';
-                
-                // Descripción del trabajo
-                const workDescription = document.getElementById('work-description');
-                const workDescriptionSpacing = document.getElementById('work-description-spacing');
-                
-                if (maintenance.descripcion && maintenance.descripcion.trim() !== '') {
-                    workDescription.textContent = maintenance.descripcion;
-                    // 3 espacios vacíos sin líneas cuando hay texto
-                    createEmptyLines('work-description-spacing', 3, false);
-                } else {
-                    workDescription.textContent = '';
-                    // 9 líneas con bordes cuando no hay texto
-                    createEmptyLines('work-description-spacing', 9, true);
-                }
-
-                // Manejo de materiales
-                const materialsTable = document.getElementById('materials-table');
-                const tbody = materialsTable.querySelector('tbody');
-                tbody.innerHTML = '';
-
-                if (maintenance.insumos && maintenance.insumos.length > 0) {
-                    materialsTable.style.display = '';
-                    maintenance.insumos.forEach(material => {
-                        const row = tbody.insertRow();
-                        const descCell = row.insertCell(0);
-                        const qtyCell = row.insertCell(1);
-                        descCell.textContent = material.descripcion || '';
-                        qtyCell.textContent = material.cantidad || '';
-                    });
-                    createEmptyLines('materials-empty', 0); // No agregar líneas si hay materiales
-                } else {
-                    materialsTable.style.display = 'none';
-                    createEmptyLines('materials-empty', 5); // 5 líneas en blanco si no hay materiales
-                }
-
-            } catch (error) {
-                console.error('Error al cargar los datos:', error);
-                alert('Error al cargar los datos de la orden de trabajo. Consulte la consola para más detalles.');
             }
-        }
 
-        // Cargar los datos cuando la página esté lista
-        document.addEventListener('DOMContentLoaded', loadOrderData);
+            // Cargar los datos cuando la página esté lista
+            document.addEventListener('DOMContentLoaded', loadOrderData);
+        })();
     </script>
 </body>
 </html>
