@@ -264,54 +264,147 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // CÓDIGO SIMPLIFICADO - SOLUCIÓN DEFINITIVA
         const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let supabaseClient;
 
-        // Función mejorada para formatear fecha
-        function formatDateTime(dateString) {
+        // Función para inicializar Supabase
+        function initializeSupabase() {
+            if (typeof window.supabase !== 'undefined' && !supabaseClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                console.log('Supabase inicializado correctamente');
+                return true;
+            }
+            return false;
+        }
+
+        // ============================================================
+        // FUNCIONES DE FECHA SIMPLIFICADAS - SOLUCIÓN DEFINITIVA
+        // ============================================================
+
+        /**
+         * SOLUCIÓN SIMPLIFICADA: Formatea una fecha directamente desde UTC
+         * asumiendo que Supabase almacena fechas en UTC
+         */
+        function formatDateFromUTC(dateString) {
             if (!dateString) return '';
             
-            // Si ya es una cadena de fecha válida, devolverla tal cual
-            if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}/)) {
-                return dateString;
-            }
-            
             try {
-                // Intentar parsear como fecha ISO o timestamp
-                let date;
-                if (dateString.includes('T')) {
-                    // Formato ISO (ej: "2023-10-25T14:30:00.000Z")
-                    date = new Date(dateString);
-                } else {
-                    // Asumir que es un timestamp de PostgreSQL
-                    date = new Date(dateString + 'Z'); // Añadir 'Z' para indicar UTC
-                }
+                // Parsear la fecha como UTC
+                const date = new Date(dateString);
                 
                 if (isNaN(date.getTime())) {
                     console.warn('Fecha inválida:', dateString);
                     return '';
                 }
                 
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                const seconds = String(date.getSeconds()).padStart(2, '0');
+                // Extraer componentes en UTC
+                const day = String(date.getUTCDate()).padStart(2, '0');
+                const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                const year = date.getUTCFullYear();
                 
-                // Formato: YYYY-MM-DD HH:MM:SS
-                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-            } catch (e) {
-                console.error('Error formateando fecha:', e);
+                return `${day}/${month}/${year}`;
+            } catch (error) {
+                console.error('Error formateando fecha:', error, dateString);
                 return '';
             }
         }
 
-        // Función para formatear solo la fecha (sin hora)
-        function formatDateOnly(dateString) {
-            const fullDate = formatDateTime(dateString);
-            return fullDate.split(' ')[0]; // Devuelve solo la parte de la fecha
+        /**
+         * Formatea fecha y hora desde UTC
+         */
+        function formatDateTimeFromUTC(dateString) {
+            if (!dateString) return '';
+            
+            try {
+                // Parsear la fecha como UTC
+                const date = new Date(dateString);
+                
+                if (isNaN(date.getTime())) {
+                    console.warn('Fecha inválida:', dateString);
+                    return '';
+                }
+                
+                // Extraer componentes en UTC
+                const day = String(date.getUTCDate()).padStart(2, '0');
+                const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                const year = date.getUTCFullYear();
+                const hours = String(date.getUTCHours()).padStart(2, '0');
+                const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            } catch (error) {
+                console.error('Error formateando fecha/hora:', error, dateString);
+                return '';
+            }
+        }
+
+        /**
+         * SOLUCIÓN ALTERNATIVA: Usar la zona horaria local del navegador
+         * pero extraer componentes de fecha correctamente
+         */
+        function formatDateLocal(dateString) {
+            if (!dateString) return '';
+            
+            try {
+                const date = new Date(dateString);
+                
+                if (isNaN(date.getTime())) {
+                    console.warn('Fecha inválida:', dateString);
+                    return '';
+                }
+                
+                // Usar toLocaleDateString con timezone de Chile
+                // 'es-CL' para español de Chile
+                return date.toLocaleDateString('es-CL', {
+                    timeZone: 'America/Santiago',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch (error) {
+                console.error('Error formateando fecha local:', error, dateString);
+                return '';
+            }
+        }
+
+        /**
+         * Formatea fecha y hora usando zona horaria local
+         */
+        function formatDateTimeLocal(dateString) {
+            if (!dateString) return '';
+            
+            try {
+                const date = new Date(dateString);
+                
+                if (isNaN(date.getTime())) {
+                    console.warn('Fecha inválida:', dateString);
+                    return '';
+                }
+                
+                // Formatear fecha
+                const fecha = date.toLocaleDateString('es-CL', {
+                    timeZone: 'America/Santiago',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+                
+                // Formatear hora
+                const hora = date.toLocaleTimeString('es-CL', {
+                    timeZone: 'America/Santiago',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+                
+                return `${fecha} ${hora}`;
+            } catch (error) {
+                console.error('Error formateando fecha/hora local:', error, dateString);
+                return '';
+            }
         }
 
         // Función para obtener el ID de la URL
@@ -325,7 +418,13 @@
             if (!maquinaId) return null;
             
             try {
-                const { data, error } = await supabase
+                if (!supabaseClient) {
+                    if (!initializeSupabase()) {
+                        throw new Error('No se pudo inicializar Supabase');
+                    }
+                }
+
+                const { data, error } = await supabaseClient
                     .from('maquinas')
                     .select('*')
                     .eq('id', maquinaId)
@@ -345,6 +444,11 @@
         // Función para crear espacios en blanco con líneas
         function createEmptyLines(containerId, count, withLines = true) {
             const container = document.getElementById(containerId);
+            if (!container) {
+                console.error(`Contenedor no encontrado: ${containerId}`);
+                return;
+            }
+            
             container.innerHTML = '';
             for (let i = 0; i < count; i++) {
                 const emptyDiv = document.createElement('div');
@@ -353,8 +457,14 @@
             }
         }
 
-        // Cargar datos de la orden de trabajo
+        // Cargar datos de la orden de trabajo - VERSIÓN FINAL
         async function loadOrderData() {
+            // Inicializar Supabase antes de usarlo
+            if (!initializeSupabase()) {
+                alert('Error: No se pudo inicializar la conexión con la base de datos');
+                return;
+            }
+
             const orderId = getOrderId();
             if (!orderId) {
                 alert('No se proporcionó ID de orden de trabajo');
@@ -363,7 +473,7 @@
 
             try {
                 // Obtener datos del mantenimiento
-                const { data: maintenance, error: maintenanceError } = await supabase
+                const { data: maintenance, error: maintenanceError } = await supabaseClient
                     .from('mantenimientos')
                     .select('*')
                     .eq('id', orderId)
@@ -375,6 +485,26 @@
                 }
 
                 console.log('Datos del mantenimiento:', maintenance);
+                
+                // Debug: Mostrar información de fechas
+                if (maintenance.fecha) {
+                    const fecha = new Date(maintenance.fecha);
+                    console.log('Fecha parseada:', fecha);
+                    console.log('UTC components:', {
+                        year: fecha.getUTCFullYear(),
+                        month: fecha.getUTCMonth() + 1,
+                        day: fecha.getUTCDate(),
+                        hours: fecha.getUTCHours(),
+                        minutes: fecha.getUTCMinutes()
+                    });
+                    console.log('Local components:', {
+                        year: fecha.getFullYear(),
+                        month: fecha.getMonth() + 1,
+                        day: fecha.getDate(),
+                        hours: fecha.getHours(),
+                        minutes: fecha.getMinutes()
+                    });
+                }
 
                 // Obtener datos de la máquina
                 let machineData = {
@@ -409,11 +539,28 @@
                 document.getElementById('responsible').textContent = maintenance.responsable || '';
                 document.getElementById('maintenance-type').textContent = maintenance.tipo_mantenimiento || '';
                 
-                // Formatear fechas correctamente
-                document.getElementById('close-date').textContent = formatDateOnly(maintenance.fecha_cierre);
-                document.getElementById('start-date').textContent = formatDateTime(maintenance.fecha);
+                // PRUEBA: Usar diferentes métodos para ver cuál funciona
+                console.log('=== PRUEBA DE FECHAS ===');
+                console.log('Fecha UTC original:', maintenance.fecha);
                 
-                document.getElementById('km').textContent = maintenance.kilometraje || '';
+                // Método 1: UTC directo (recomendado)
+                const fechaInicioUTC = formatDateTimeFromUTC(maintenance.fecha);
+                const fechaCierreUTC = formatDateFromUTC(maintenance.fecha_cierre);
+                console.log('Método UTC - Inicio:', fechaInicioUTC);
+                console.log('Método UTC - Cierre:', fechaCierreUTC);
+                
+                // Método 2: Local con timezone
+                const fechaInicioLocal = formatDateTimeLocal(maintenance.fecha);
+                const fechaCierreLocal = formatDateLocal(maintenance.fecha_cierre);
+                console.log('Método Local - Inicio:', fechaInicioLocal);
+                console.log('Método Local - Cierre:', fechaCierreLocal);
+                
+                // DECISIÓN: Usar el método que muestre la fecha correcta
+                // Puedes cambiar entre UTC o Local según lo que veas en la consola
+                document.getElementById('close-date').textContent = fechaCierreUTC; // Cambiar a fechaCierreLocal si es necesario
+                document.getElementById('start-date').textContent = fechaInicioUTC; // Cambiar a fechaInicioLocal si es necesario
+                
+                document.getElementById('km').textContent = maintenance.kilometraje ? maintenance.kilometraje.toLocaleString() : '';
                 document.getElementById('status').textContent = maintenance.realizado ? 'REALIZADO' : 'NO REALIZADO';
                 document.getElementById('created-by').textContent = maintenance.responsable || '';
                 document.getElementById('approved-by').textContent = maintenance.autorizado_por || '';
@@ -446,10 +593,10 @@
                         descCell.textContent = material.descripcion || '';
                         qtyCell.textContent = material.cantidad || '';
                     });
-                    createEmptyLines('materials-empty', 0); // No agregar líneas si hay materiales
+                    createEmptyLines('materials-empty', 0);
                 } else {
                     materialsTable.style.display = 'none';
-                    createEmptyLines('materials-empty', 5); // 5 líneas en blanco si no hay materiales
+                    createEmptyLines('materials-empty', 5);
                 }
 
             } catch (error) {
