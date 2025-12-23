@@ -27,7 +27,7 @@
     }
 
     body {
-  background: linear-gradient(135deg, #3f72af, #dbe2ef);
+      background-color: #f5f7fa;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       justify-content: center;
@@ -513,9 +513,17 @@
   </div>
 
   <script>
+    // SOLUCIÓN: Verificar si supabase ya está definido
+    
+if (!window.supabaseClient) {
     const SUPABASE_URL = 'https://cswjdvjlfztewtmkrxsh.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzd2pkdmpsZnp0ZXd0bWtyeHNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2NDg0ODEsImV4cCI6MjA2NzIyNDQ4MX0.z0C2PtfkvYwIYfFjnFmdRicn_Jfqyq_SbCHKycHBX-4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+// Eliminamos 'const' para evitar el SyntaxError de "already declared"
+var supabase = window.supabaseClient;
+
     let mantenimientosChart;
 
     // Mostrar mensaje de error
